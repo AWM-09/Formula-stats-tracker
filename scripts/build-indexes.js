@@ -53,7 +53,16 @@ async function buildSeries(series, firstYear, lastYear) {
   for (let year = firstYear; year <= lastYear; year++) {
     const data = await readSeason(series, year);
     if (!data) continue;
-    seasons.push({ year, updatedAt: data.updatedAt || null, source: data.source || "", coverage: data.coverage || { classification: "full" } });
+    const championRow = (data.driverStandings || []).find(row => Number(row.position) === 1) || (data.driverStandings || [])[0] || null;
+    const constructorChampion = (data.constructorStandings || []).find(row => Number(row.position) === 1) || (data.constructorStandings || [])[0] || null;
+    seasons.push({
+      year, updatedAt: data.updatedAt || null, source: data.source || "",
+      coverage: data.coverage || { classification: "full" },
+      champion: championRow && championRow.Driver ? displayName(championRow.Driver) : null,
+      championId: championRow && championRow.Driver ? championRow.Driver.driverId : null,
+      championPoints: championRow ? n(championRow.points) : null,
+      constructorChampion: constructorChampion && constructorChampion.Constructor ? constructorChampion.Constructor.name : null
+    });
 
     for (const row of data.driverStandings || []) {
       const d = row.Driver || {}, id = d.driverId || slug(displayName(d));
