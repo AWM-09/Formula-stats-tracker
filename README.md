@@ -101,3 +101,10 @@ The build workflow generates the cross-season indexes and per-entity profile JSO
 - FastF1 imports missing completed FP1/FP2/FP3, Qualifying, Sprint Qualifying and Sprint sessions for the current season where feeds exist.
 - F2/F3 2026 full classifications are sourced from official FIA event pages where their session tables are published; summary-only winners are replaced by full session rows.
 - Practice and qualifying P1 do not count as race wins or podiums in predictions, career totals or circuit race-winner records.
+
+
+## Session display/data cleanups
+- Current-season FastF1 imports now check every completed scheduled session and skip only sessions already present in the archive. The import is date-gated and no longer relies on a broken recent-round filter.
+- FIA result names such as "K. Maini IND" are resolved to the full driver records in the championship standings.
+- Qualifying best-lap times are stored in the race-centre Time field so they are visible in the table.
+- Weekends with Feature Race 1 and Feature Race 2 no longer show a redundant generic Feature Race entry.

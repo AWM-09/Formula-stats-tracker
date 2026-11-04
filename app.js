@@ -362,8 +362,9 @@ function sessionNames(event,series=state.series){
     for(const session of actual)if(!options.includes(session))options.splice(options.length-1,0,session);
     return options;
   }
-  const canonical=["Practice","Qualifying","Sprint Race","Feature Race"];
   const supplied=Array.isArray(event.sessionTypes)?event.sessionTypes:[];
+  const splitFeature=supplied.includes("Feature Race 1")||supplied.includes("Feature Race 2")||actual.includes("Feature Race 1")||actual.includes("Feature Race 2");
+  const canonical=["Practice","Qualifying","Sprint Race",...(splitFeature?["Feature Race 1","Feature Race 2"]:["Feature Race"])];
   const result=[];
   for(const session of [...canonical,...supplied,...actual]){
     if(!result.includes(session))result.push(session);
@@ -422,12 +423,12 @@ function resultTableRows(series,event,session){
     const driverId=d.driverId||null,teamId=c.constructorId||slug(c.name);
     if(["Qualifying","Sprint Qualifying","Sprint Shootout","Qualifying 1","Qualifying 2"].includes(session)){
       if(series!=="f1"){
-        return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||"—")+"</td><td>"+esc(r.gap||"—")+"</td><td class='num'>"+esc(number(r.laps))+"</td></tr>";
+        return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||(r.FastestLap&&r.FastestLap.Time&&r.FastestLap.Time.time)||"—")+"</td><td>"+esc(r.gap||"—")+"</td><td class='num'>"+esc(number(r.laps))+"</td></tr>";
       }
       return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc(r.Q1||"—")+"</td><td>"+esc(r.Q2||"—")+"</td><td>"+esc(r.Q3||((r.Time||{}).time)||r.time||"—")+"</td></tr>";
     }
     if(session==="Practice"||/^Practice /.test(session)){
-      return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||"—")+"</td><td class='num'>"+esc(number(r.laps))+"</td><td>"+esc(r.status||"—")+"</td></tr>";
+      return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||(r.FastestLap&&r.FastestLap.Time&&r.FastestLap.Time.time)||"—")+"</td><td class='num'>"+esc(number(r.laps))+"</td><td>"+esc(r.status||"—")+"</td></tr>";
     }
     return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td class='num'>"+esc(number(r.grid))+"</td><td class='num'>"+esc(number(r.laps))+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||"—")+"</td><td>"+esc(r.gap||"—")+"</td><td class='num'>"+esc(number(r.points))+"</td><td>"+(r.FastestLap&&r.FastestLap.rank==="1"?badge("Fastest","green"):"—")+"</td></tr>";
   });
@@ -438,7 +439,7 @@ async function renderRaceDetail(series,year,round){
   const data=await getSeason(series,year),events=availableEvents(data),event=events.find(e=>String(e.round)===String(round));
   if(!event)throw new Error("Race round "+round+" is not present in the "+year+" "+series.toUpperCase()+" archive.");
   const sessions=sessionNames(event,series);
-  const defaultSession=series==="f1"?"Race":(sessions.includes("Feature Race")?"Feature Race":sessions.find(x=>sessionHasResults(event,x))||sessions[0]);
+  const defaultSession=series==="f1"?"Race":(sessions.includes("Feature Race 2")?"Feature Race 2":sessions.includes("Feature Race 1")?"Feature Race 1":sessions.includes("Feature Race")?"Feature Race":sessions.find(x=>sessionHasResults(event,x))||sessions[0]);
   const session=state.sessionFilter&&sessions.includes(state.sessionFilter)?state.sessionFilter:defaultSession;
   state.sessionFilter=session;
   const hasResults=sessionHasResults(event,session);

@@ -138,44 +138,12 @@ def main() -> int:
     by_round = {str(event.get("round")): event for event in races}
     calendar = data.get("calendar") or races
     now_utc = datetime.now(timezone.utc)
-    # Import every completed current-season session that is still missing.
-    # Existing session rows are skipped, so daily refreshes do not re-download history.
-    imported = 0
-    checked = 0
-
-    for scheduled in calendar:
-        round_value = str(scheduled.get("round") or "")
-        if not round_value.isdigit():
-            continue
-        completed_session = False
-        event = by_round.get(round_value) or {}
-        for field, _code, _label in SESSIONS:
-            info = scheduled.get(field) or event.get(field)
-            if not info or not text(info.get("date")):
-                continue
-            date_text = text(info.get("date"))
-            time_text = text(info.get("time"))
-            try:
-                value = date_text + ("T" + time_text if time_text else "T23:59:59")
-                scheduled_at = datetime.fromisoformat(value.replace("Z", "+00:00"))
-                if scheduled_at.tzinfo is None:
-                    scheduled_at = scheduled_at.replace(tzinfo=timezone.utc)
-                if scheduled_at <= now_utc:
-                    completed_session = True
-                    break
-            except ValueError:
-                continue
-        if completed_session:
-            eligible_rounds.append(int(round_value))
-
-    recent_rounds = set(sorted(set(eligible_rounds))[-3:])
-    print(f"Practice import scope: latest completed rounds {sorted(recent_rounds)}")
     imported = 0
     checked = 0
 
     for scheduled in calendar:
         round_number = str(scheduled.get("round") or "")
-        if not round_number.isdigit() or int(round_number) not in recent_rounds:
+        if not round_number.isdigit():
             continue
         event = by_round.get(round_number)
         if event is None:
@@ -194,9 +162,13 @@ def main() -> int:
             session_info = scheduled.get(field) or event.get(field)
             if not session_info:
                 continue
-            already_imported = any(row.get("session") == label for row in event["Results"])
+            already_imported = any(
+                row.get("session") == label and not row.get("isRecordOnly")
+                for row in event["Results"]
+            )
             if already_imported:
                 continue
+
             session_date = text(session_info.get("date"))
             session_time = text(session_info.get("time"))
             if session_date:
@@ -208,7 +180,8 @@ def main() -> int:
                     if scheduled_at > now_utc:
                         continue
                 except ValueError:
-                    pass
+                    print(f"{YEAR} round {round_number} {label}: invalid schedule timestamp; skipped.")
+                    continue
 
             checked += 1
             try:
@@ -228,7 +201,7 @@ def main() -> int:
                     event["Results"].extend(converted)
                     write_data(path, data)
                     imported += 1
-                    print(f"{YEAR} round {round_number} {label}: saved {len(converted)} drivers.")
+                    print(f"{YEAR} round {round_number} {label}: saved {len(converted)} drivers.", flush=True)
             except Exception as exc:
                 print(f"{YEAR} round {round_number} {label}: unavailable ({exc})", flush=True)
                 continue

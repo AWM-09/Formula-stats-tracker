@@ -537,13 +537,17 @@ def fetch_wikipedia_season(series: str, year: int) -> tuple[list[dict], list[dic
 
 
 def match_person(display: str, standings: list[dict]) -> dict:
-    key = normalize(display)
-    surname = normalize(display.split()[-1]) if display.split() else ""
+    cleaned = re.sub(r"\s+[A-Z]{3}$", "", str(display or "").strip())
+    key = normalize(cleaned)
+    parts = cleaned.split()
+    surname = normalize(parts[-1]) if parts else ""
+    initial = normalize(parts[0][:1]) if parts else ""
     exact = []
     surname_matches = []
     for entry in standings:
         person = entry.get("Driver", {})
-        full = normalize(person.get("familyName", ""))
+        full_name = str(person.get("familyName", "")).strip()
+        full = normalize(full_name)
         if full == key:
             exact.append(person)
         elif surname and full.endswith(surname):
@@ -552,7 +556,14 @@ def match_person(display: str, standings: list[dict]) -> dict:
         return exact[0]
     if len(surname_matches) == 1:
         return surname_matches[0]
-    return person_from_standings(display)
+    if len(surname_matches) > 1 and initial:
+        initial_matches = [
+            person for person in surname_matches
+            if normalize(str(person.get("familyName", "")).strip().split()[0][:1]) == initial
+        ]
+        if len(initial_matches) == 1:
+            return initial_matches[0]
+    return person_from_standings(cleaned or display)
 
 def add_wikipedia_summary_records(races: list[dict], wiki_races: list[dict], drivers: list[dict]) -> None:
     by_round = {int(r["round"]): r for r in races}
@@ -801,9 +812,9 @@ def parse_fia_classification(html: str, session: str, drivers: list[dict], sourc
             position = "DNF"
         points = number_from_text(value(cells, "Points", "Pts"))
         laps = number_from_text(value(cells, "Laps"))
-        time_value = value(cells, "Time")
+        best_lap = value(cells, "Best lap", "Best")
+        time_value = value(cells, "Time") or (best_lap if session.startswith("Qualifying") else "")
         gap = value(cells, "Gap first", "Gap to leader", "Gap")
-        best_lap = value(cells, "Best lap")
         item = {
             "Driver": driver,
             "Constructor": {"name": team_name},
@@ -917,6 +928,18 @@ def import_official_fia_sessions(series: str, year: int, calendar: list[dict],
             imported += 1
             sources.append(final_url)
             print(f"  FIA {series.upper()} {year} R{round_text} {session}: {len(rows)} rows imported", flush=True)
+
+    for event in races:
+        present = {
+            str(row.get("session") or "Race")
+            for row in event.get("Results", [])
+            if not row.get("isRecordOnly")
+        }
+        if "Feature Race 1" in present and "Feature Race 2" in present:
+            event["Results"] = [
+                row for row in event.get("Results", [])
+                if row.get("session") != "Feature Race"
+            ]
 
     return imported, sorted(set(sources))
 
