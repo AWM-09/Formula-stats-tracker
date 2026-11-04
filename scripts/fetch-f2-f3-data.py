@@ -382,6 +382,10 @@ def parse_wiki_standings(table, kind: str) -> list[dict]:
         points = number_from_text(cells[-1].get_text(" ", strip=True))
         if not identity or points is None:
             continue
+        if kind == "teams":
+            invalid_team_labels = {"ret", "nc", "dnf", "dns", "dsq", "wd", "c", "na"}
+            if normalize(identity) in invalid_team_labels or not re.search(r"[A-Za-z]", identity):
+                continue
         if kind == "drivers":
             standings.append({
                 "position": rank,
@@ -654,11 +658,29 @@ def attach_f2_teams(drivers: list[dict], team_by_surname: dict) -> None:
 
 
 
+def archive_has_bad_team_rows(output: Path) -> bool:
+    if not output.exists():
+        return False
+    try:
+        data = json.loads(output.read_text(encoding="utf-8"))
+        teams = data.get("constructorStandings", [])
+        invalid = {"ret", "nc", "dnf", "dns", "dsq", "wd", "c", "na"}
+        for entry in teams:
+            name = str(entry.get("Constructor", {}).get("name", "")).strip()
+            if not name or normalize(name) in invalid or not re.search(r"[A-Za-z]", name):
+                return True
+        return False
+    except Exception:
+        return True
+
+
 def import_season(series: str, year: int, force: bool = False) -> bool:
     output = DATA / series / f"{year}.json"
-    if output.exists() and year != YEAR_NOW and not force:
+    if output.exists() and year != YEAR_NOW and not force and not archive_has_bad_team_rows(output):
         print(f"Keeping existing {series.upper()} {year} archive")
         return True
+    if output.exists() and year != YEAR_NOW and archive_has_bad_team_rows(output):
+        print(f"Refreshing {series.upper()} {year}: invalid team rows found in prior snapshot")
 
     print(f"Importing {series.upper()} {year}", flush=True)
     drivers, teams, summary_races, page_url = fetch_wikipedia_season(series, year)
