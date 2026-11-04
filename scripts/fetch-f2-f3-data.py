@@ -278,7 +278,7 @@ def parse_time_seconds(value: str | None) -> float | None:
     except (ValueError, TypeError):
         return None
 
-def fetch_f2_csv(year: int) -> list[dict]:
+def fetch_f2_csv(year: int, standings: list[dict]) -> tuple[list[dict], dict]:
     url = f"https://raw.githubusercontent.com/Alarchemn/F2-Data-Pipeline/main/DATA/season/season_{year}.csv"
     text, _ = fetch_text(url, attempts=4)
     reader = csv.DictReader(io.StringIO(text))
@@ -307,10 +307,11 @@ def fetch_f2_csv(year: int) -> list[dict]:
             "Results": [],
         })
         display_name = (raw.get("PILOT NAME") or "").strip()
-        driver = person_from_standings(display_name)
+        driver = match_person(display_name, standings)
         team_name = (raw.get("TEAM") or "").strip()
-        driver_teams[driver["driverId"]][team_name] += 1
-        position = position_text(raw.get("POS"))
+        driver_teams[normalize(display_name.split()[-1])][team_name] += 1
+        position_number = number_from_text(raw.get("POS"))
+        position = str(int(position_number)) if isinstance(position_number, (int, float)) and float(position_number).is_integer() else position_text(raw.get("POS"))
         best = (raw.get("BEST") or "").strip()
         best_seconds = parse_time_seconds(best)
         result = {
@@ -336,81 +337,189 @@ def fetch_f2_csv(year: int) -> list[dict]:
     team_by_driver = {driver: counts.most_common(1)[0][0] for driver, counts in driver_teams.items() if counts}
     return [grouped[key] for key in sorted(grouped)], team_by_driver
 
-def wiki_f3_summary(year: int) -> tuple[list[dict], str | None]:
-    url = f"https://en.wikipedia.org/wiki/{year}_FIA_Formula_3_Championship"
-    try:
-        html, final_url = fetch_text(url, attempts=3)
-    except Exception as exc:
-        print(f"  F3 summary unavailable for {year}: {exc}", flush=True)
-        return [], None
-    soup = BeautifulSoup(html, "html.parser")
-    summary_table = None
-    for table in soup.find_all("table", class_="wikitable"):
-        header_text = " ".join(cell.get_text(" ", strip=True).lower() for cell in table.find_all("th")[:12])
-        if "round" in header_text and ("winning driver" in header_text or "winner" in header_text):
-            summary_table = table
-            break
+
+def wiki_page_url(series: str, year: int) -> str:
+    if series == "f2":
+        return f"https://en.wikipedia.org/wiki/{year}_Formula_2_Championship"
+    return f"https://en.wikipedia.org/wiki/{year}_FIA_Formula_3_Championship"
+
+
+def section_table(soup, phrase: str):
+    target = normalize(phrase)
+    for heading in soup.find_all(re.compile(r"^h[2-6]$")):
+        if target in normalize(heading.get_text(" ", strip=True)):
+            table = heading.find_next("table", class_="wikitable")
+            if table:
+                return table
+    return None
+
+
+def anchor_or_cell_text(cell) -> str:
+    links = [
+        a.get_text(" ", strip=True)
+        for a in cell.find_all("a")
+        if a.get_text(" ", strip=True)
+    ]
+    if links:
+        return re.sub(r"\s+", " ", links[-1]).strip()
+    text = cell.get_text(" ", strip=True)
+    text = re.sub(r"\[\s*\d+\s*\]", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def parse_wiki_standings(table, kind: str) -> list[dict]:
+    standings = []
+    for row in table.find_all("tr"):
+        cells = row.find_all(["th", "td"], recursive=False)
+        if len(cells) < 3:
+            continue
+        rank_text = cells[0].get_text(" ", strip=True)
+        rank_match = re.match(r"^\s*(\d+)", rank_text)
+        if not rank_match:
+            continue
+        rank = rank_match.group(1)
+        identity = anchor_or_cell_text(cells[1])
+        points = number_from_text(cells[-1].get_text(" ", strip=True))
+        if not identity or points is None:
+            continue
+        if kind == "drivers":
+            standings.append({
+                "position": rank,
+                "Driver": person_from_standings(identity),
+                "Constructors": [],
+                "wins": None,
+                "podiums": None,
+                "points": points,
+            })
+        else:
+            standings.append({
+                "position": rank,
+                "Constructor": {"name": identity, "nationality": ""},
+                "wins": None,
+                "podiums": None,
+                "points": points,
+            })
+    return standings
+
+
+def session_name(code: str) -> str:
+    code = re.sub(r"\s+", " ", str(code or "")).strip().upper()
+    if code in ("F", "FR", "FEATURE", "FEATURE RACE", "R2"):
+        return "Feature Race" if code != "R2" else "Race 2"
+    if code in ("S", "SR", "SPRINT", "SPRINT RACE", "R1"):
+        return "Sprint Race" if code != "R1" else "Race 1"
+    if code == "RACE":
+        return "Race"
+    return code.title() if code else "Race"
+
+
+def wiki_season_summary(soup, series: str, year: int) -> list[dict]:
+    summary_table = section_table(soup, "Season summary")
     if not summary_table:
-        print(f"  No F3 season-summary results table found for {year}", flush=True)
-        return [], final_url
+        print(f"  No season-summary table found for {series.upper()} {year}", flush=True)
+        return []
 
     events: dict[int, dict] = {}
     current_round = None
     current_circuit = ""
+
+    def value(cells, index):
+        return anchor_or_cell_text(cells[index]) if len(cells) > index else ""
+
     for row in summary_table.find_all("tr"):
-        cells = [
-            re.sub(r"\[\s*\d+\s*\]", "", cell.get_text(" ", strip=True)).strip()
-            for cell in row.find_all(["th", "td"], recursive=False)
-        ]
+        cells = row.find_all(["th", "td"], recursive=False)
         if not cells:
             continue
-        first = cells[0].strip()
+        text_cells = [cell.get_text(" ", strip=True) for cell in cells]
+        first = re.sub(r"\[\s*\d+\s*\]", "", text_cells[0]).strip()
         if first.lower() in ("round", "key", "colour", "color", "source"):
             continue
+
         if first.isdigit():
             current_round = int(first)
-            session_code = cells[1].strip() if len(cells) > 1 else "SR"
-            current_circuit = cells[2].strip() if len(cells) > 2 else ""
-            pole = cells[3].strip() if len(cells) > 3 else ""
-            fastest = cells[4].strip() if len(cells) > 4 else ""
-            winner = cells[5].strip() if len(cells) > 5 else ""
-            team = cells[6].strip() if len(cells) > 6 else ""
-        elif first.upper() in ("SR", "FR", "SPRINT", "FEATURE", "SPRINT RACE", "FEATURE RACE"):
+            if len(cells) >= 8:
+                # Common F2/F3 table: Round, session code, circuit, pole, fastest, winner, team, report.
+                code = text_cells[1].strip()
+                current_circuit = value(cells, 2)
+                pole = value(cells, 3)
+                fastest = value(cells, 4)
+                winner = value(cells, 5)
+                team = value(cells, 6)
+            elif len(cells) >= 7:
+                # Single-session summary table: Round, circuit, pole, fastest, winner, team, report.
+                code = "RACE"
+                current_circuit = value(cells, 1)
+                pole = value(cells, 2)
+                fastest = value(cells, 3)
+                winner = value(cells, 4)
+                team = value(cells, 5)
+            else:
+                continue
+        elif first.upper() in ("F", "S", "FR", "SR", "R1", "R2", "FEATURE", "SPRINT", "FEATURE RACE", "SPRINT RACE"):
             if current_round is None:
                 continue
-            session_code = first
-            if len(cells) >= 5:
-                fastest, pole, winner, team = cells[1:5]
+            code = first
+            if len(cells) >= 6:
+                # Sub-row: session code, inherited circuit, pole, fastest, winner, team.
+                pole = value(cells, 2)
+                fastest = value(cells, 3)
+                winner = value(cells, 4)
+                team = value(cells, 5)
+            elif len(cells) >= 5:
+                # Sub-row with no explicit inherited-circuit cell.
+                pole = value(cells, 1)
+                fastest = value(cells, 2)
+                winner = value(cells, 3)
+                team = value(cells, 4)
             else:
                 continue
         else:
             continue
-        if not winner or winner.lower() in ("tbd", "cancelled", "—", "-"):
+
+        if not winner or winner.lower() in ("tbd", "cancelled", "—", "-", "not held"):
             continue
-        session_upper = session_code.upper()
-        if session_upper in ("SR", "SPRINT", "SPRINT RACE"):
-            session_name = "Sprint Race"
-        elif session_upper in ("FR", "FEATURE", "FEATURE RACE"):
-            session_name = "Feature Race"
-        else:
-            session_name = session_code
-        event = events.setdefault(current_round, {
-            "round": str(current_round),
-            "raceName": current_circuit or f"Round {current_round}",
-            "date": None,
-            "Circuit": {"circuitName": current_circuit or f"Round {current_round}"},
-            "Results": [],
-        })
-        event["Results"].append({
+        if current_round not in events:
+            events[current_round] = {
+                "round": str(current_round),
+                "raceName": current_circuit or f"Round {current_round}",
+                "date": None,
+                "Circuit": {"circuitName": current_circuit or f"Round {current_round}"},
+                "Results": [],
+            }
+        events[current_round]["Results"].append({
             "wikiWinnerName": winner,
             "wikiTeamName": team,
             "position": "1",
             "points": None,
-            "session": session_name,
+            "session": session_name(code),
             "poleDriverName": pole or None,
             "fastestLapDriverName": fastest or None,
         })
-    return [events[key] for key in sorted(events)], final_url
+    return [events[key] for key in sorted(events)]
+
+
+def fetch_wikipedia_season(series: str, year: int) -> tuple[list[dict], list[dict], list[dict], str]:
+    url = wiki_page_url(series, year)
+    html, final_url = fetch_text(url, attempts=4)
+    soup = BeautifulSoup(html, "html.parser")
+    page_text = soup.get_text(" ", strip=True)
+    if str(year) not in page_text:
+        raise RuntimeError(f"Wikipedia page did not contain requested season {year}")
+
+    driver_table = section_table(soup, "Drivers' championship")
+    if not driver_table:
+        driver_table = section_table(soup, "Drivers' Championship standings")
+    team_table = section_table(soup, "Teams' championship")
+    if not team_table:
+        team_table = section_table(soup, "Teams' Championship standings")
+
+    drivers = parse_wiki_standings(driver_table, "drivers") if driver_table else []
+    teams = parse_wiki_standings(team_table, "teams") if team_table else []
+    if not drivers:
+        raise RuntimeError(f"No driver championship table found on {final_url}")
+    races = wiki_season_summary(soup, series, year)
+    return drivers, teams, races, final_url
+
 
 def match_person(display: str, standings: list[dict]) -> dict:
     key = normalize(display)
@@ -430,7 +539,7 @@ def match_person(display: str, standings: list[dict]) -> dict:
         return surname_matches[0]
     return person_from_standings(display)
 
-def add_wiki_f3_records(races: list[dict], wiki_races: list[dict], drivers: list[dict]) -> None:
+def add_wikipedia_summary_records(races: list[dict], wiki_races: list[dict], drivers: list[dict]) -> None:
     by_round = {int(r["round"]): r for r in races}
     for wiki_event in wiki_races:
         round_number = int(wiki_event["round"])
@@ -466,7 +575,7 @@ def add_wiki_f3_records(races: list[dict], wiki_races: list[dict], drivers: list
                 })
             elif not existing.get("Constructor", {}).get("name") and team_name:
                 existing["Constructor"] = {"name": team_name}
-            if pole_name:
+            if pole_name and session not in ("Sprint Race", "Race 2"):
                 pole_driver = match_person(pole_name, drivers)
                 event["Results"].append({
                     "Driver": pole_driver, "position": "—", "points": None,
@@ -479,6 +588,7 @@ def add_wiki_f3_records(races: list[dict], wiki_races: list[dict], drivers: list
                     "session": session, "FastestLap": {"rank": "1"}, "isRecordOnly": True,
                 })
     races.sort(key=lambda item: int(item["round"]))
+
 
 def compute_standings_stats(drivers: list[dict], teams: list[dict], races: list[dict], coverage: dict) -> None:
     full = coverage.get("classification") == "full"
@@ -531,84 +641,101 @@ def compute_standings_stats(drivers: list[dict], teams: list[dict], races: list[
                 if team and team.get("podiums") is not None:
                     team["podiums"] += 1
 
-def attach_f2_teams(drivers: list[dict], team_by_driver: dict) -> None:
+def attach_f2_teams(drivers: list[dict], team_by_surname: dict) -> None:
     for item in drivers:
         driver = item.get("Driver", {})
-        name_key = normalize(driver.get("familyName", ""))
-        team = team_by_driver.get(name_key)
+        full_name = driver.get("familyName", "")
+        surname = normalize(full_name.split()[-1]) if full_name.split() else ""
+        team = team_by_surname.get(surname)
         if team:
             item["Constructors"] = [{"name": team}]
+
+
 
 def import_season(series: str, year: int, force: bool = False) -> bool:
     output = DATA / series / f"{year}.json"
     if output.exists() and year != YEAR_NOW and not force:
         print(f"Keeping existing {series.upper()} {year} archive")
         return True
+
     print(f"Importing {series.upper()} {year}", flush=True)
-    drivers, teams, session_races, fia_url = fetch_fia_season(series, year)
-    races = session_races
-    sources = [{"name": "FIA season standings", "url": fia_url}]
+    drivers, teams, summary_races, page_url = fetch_wikipedia_season(series, year)
+    sources = [{
+        "name": "Wikipedia season article (CC BY-SA 4.0; source references in article)",
+        "url": page_url,
+    }]
+    races = summary_races
+    summary_available = bool(summary_races)
 
     if series == "f2" and year <= 2023:
-        races, team_by_driver = fetch_f2_csv(year)
-        attach_f2_teams(drivers, team_by_driver)
+        races, team_by_surname = fetch_f2_csv(year, drivers)
+        attach_f2_teams(drivers, team_by_surname)
         sources.append({
             "name": "Alarchemn F2 historical race classifications (MIT)",
             "url": f"https://github.com/Alarchemn/F2-Data-Pipeline/tree/main/DATA/season/season_{year}.csv",
         })
         coverage = {
-            "classification": "full", "wins": True, "podiums": True,
-            "fastestLap": True, "polePosition": False, "teamWins": True, "teamPodiums": True,
-            "message": "FIA season standings; full Sprint/Feature classifications with laps, time, gaps and best laps from the cited historical F2 archive. Race-session points are not supplied by that CSV.",
+            "classification": "full",
+            "wins": True,
+            "podiums": True,
+            "fastestLap": True,
+            "polePosition": summary_available,
+            "teamWins": True,
+            "teamPodiums": True,
+            "message": "Final championship points and standings come from the season article. Full Sprint/Feature classifications with laps, race time, gaps and best laps are imported from the cited MIT-licensed historical F2 archive. The CSV does not publish race-session points.",
         }
+        # Add qualifying pole records from the season summary, but keep its winner rows out:
+        # the CSV already contains the classified finishers and race winners.
+        summary_for_records = []
+        for event in summary_races:
+            cloned = {**event, "Results": []}
+            for row in event.get("Results", []):
+                if row.get("poleDriverName") or row.get("fastestLapDriverName"):
+                    cloned["Results"].append({
+                        **row,
+                        "wikiWinnerName": "",
+                        "position": "—",
+                    })
+            if cloned["Results"]:
+                summary_for_records.append(cloned)
+        add_wikipedia_summary_records(races, summary_for_records, drivers)
     elif series == "f2":
-        full = bool(session_races) and any(
-            any(x.get("position") not in ("", None, "—") for x in event.get("Results", []))
-            for event in session_races
-        )
+        # Recent F2 seasons have a season-summary archive, but not a complete timing feed.
+        add_wikipedia_summary_records(races, summary_races, drivers)
         coverage = {
-            "classification": "full" if full else "standings-only",
-            "wins": full, "podiums": full, "fastestLap": False, "polePosition": False, "teamWins": False, "teamPodiums": False,
-            "message": "FIA season standings and per-session Race 1/Race 2 finishing positions where published. Lap timing, gaps and fastest-lap data are not included in the standings archive.",
+            "classification": "winners-only" if summary_available else "standings-only",
+            "wins": summary_available,
+            "podiums": False,
+            "fastestLap": summary_available,
+            "polePosition": summary_available,
+            "teamWins": summary_available,
+            "teamPodiums": False,
+            "message": "Final season standings and championship points are archived. Event summaries provide Sprint/Feature winners, poles and fastest-lap drivers where published; full finishing orders and podium totals are not supplied by this source.",
         }
     else:
-        wiki_races, wiki_url = wiki_f3_summary(year)
-        if wiki_url:
-            sources.append({"name": "Wikipedia season summary (race winners, poles and fastest laps)", "url": wiki_url})
-        if wiki_races:
-            add_wiki_f3_records(races, wiki_races, drivers)
-        full = bool(session_races) and sum(
-            1 for event in session_races for x in event.get("Results", []) if not x.get("isRecordOnly")
-        ) > len(session_races)
-        winners_available = bool(wiki_races) or full
+        add_wikipedia_summary_records(races, summary_races, drivers)
         coverage = {
-            "classification": "full" if full else ("winners-only" if winners_available else "standings-only"),
-            "wins": winners_available,
-            "podiums": full,
-            "fastestLap": bool(wiki_races) or full,
-            "polePosition": bool(wiki_races),
-            "teamWins": bool(wiki_races) or full,
+            "classification": "winners-only" if summary_available else "standings-only",
+            "wins": summary_available,
+            "podiums": False,
+            "fastestLap": summary_available,
+            "polePosition": summary_available,
+            "teamWins": summary_available,
             "teamPodiums": False,
-            "message": (
-                "FIA championship standings; full per-session finishing positions are available for this season."
-                if full else
-                "FIA championship standings plus Sprint/Feature race winners, poles and fastest-lap drivers from the cited season summary. Full finishing orders and podium totals are not available in this archive."
-                if wiki_races else
-                "FIA championship standings imported. A verified event-level result summary was not available for this season."
-            ),
+            "message": "Final season standings and championship points are archived. Event summaries provide Sprint/Feature winners, poles and fastest-lap drivers where published; full finishing orders and podium totals are not supplied by this source.",
         }
 
     if not drivers:
-        raise RuntimeError(f"{series.upper()} {year}: empty driver standings; will not write an empty season file")
-    if series == "f2" and year <= 2023 and not races:
-        raise RuntimeError(f"F2 {year}: historical CSV contained no race classifications")
+        raise RuntimeError(f"{series.upper()} {year}: empty driver standings; refusing to save an empty season file")
+    if not teams:
+        print(f"  Warning: team championship table not found for {series.upper()} {year}", flush=True)
 
     compute_standings_stats(drivers, teams, races, coverage)
     data = {
         "series": series,
         "season": year,
         "updatedAt": utc_now(),
-        "source": "FIA standings archive",
+        "source": "Wikipedia season article and cited source material",
         "sources": sources,
         "coverage": coverage,
         "driverStandings": drivers,
@@ -620,11 +747,15 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
     temp.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     temp.replace(output)
     race_sessions = sum(len({x.get("session") for x in r.get("Results", []) if not x.get("isRecordOnly")}) for r in races)
-    print(f"  saved {output.relative_to(ROOT)}: {len(drivers)} drivers, {len(teams)} teams, {len(races)} rounds, {race_sessions} session classifications; coverage={coverage['classification']}", flush=True)
+    print(f"  saved {output.relative_to(ROOT)}: {len(drivers)} drivers, {len(teams)} teams, {len(races)} rounds, {race_sessions} sessions; coverage={coverage['classification']}", flush=True)
     return True
+
+
 
 def main() -> int:
     failures = []
+    DATA.joinpath("f2").mkdir(parents=True, exist_ok=True)
+    DATA.joinpath("f3").mkdir(parents=True, exist_ok=True)
     for series, first_year in (("f2", 2017), ("f3", 2019)):
         for year in range(first_year, YEAR_NOW + 1):
             try:
@@ -632,17 +763,29 @@ def main() -> int:
             except Exception as exc:
                 print(f"ERROR importing {series.upper()} {year}: {exc}", flush=True)
                 failures.append(f"{series.upper()} {year}: {exc}")
-                break
-    for series, year in (("f2", 2017), ("f2", YEAR_NOW), ("f3", 2019), ("f3", YEAR_NOW)):
+                # Continue so one unavailable article does not prevent all later seasons importing.
+                continue
+
+    required = (("f2", 2017), ("f2", YEAR_NOW), ("f3", 2019), ("f3", YEAR_NOW))
+    for series, year in required:
         path = DATA / series / f"{year}.json"
         if not path.exists():
             failures.append(f"Missing required archive {path.relative_to(ROOT)}")
+
     if failures:
-        print("F2/F3 import errors:", file=sys.stderr)
+        print("F2/F3 import warnings:", file=sys.stderr)
         for failure in failures:
             print(" - " + failure, file=sys.stderr)
-        return 1
+        # Return failure only if one of the required boundary years is missing.
+        missing_required = [
+            f"{series.upper()} {year}"
+            for series, year in required
+            if not (DATA / series / f"{year}.json").exists()
+        ]
+        return 1 if missing_required else 0
     return 0
+
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
