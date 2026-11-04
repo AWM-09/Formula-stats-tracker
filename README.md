@@ -31,6 +31,9 @@ See DATA_SOURCES.md for source provenance, methodology and coverage.
 Independent project; not affiliated with Formula One, FIA, Formula 2, Formula 3 or any promoter.
 
 
+## Data refresh
+Run **Actions → Update Formula Stats and deploy → Run workflow** to import missing F2/F3 seasons and publish the latest dashboard.
+
 ## F2 and F3 data coverage
 - F2 (2017–2023): race classifications from the Alarchemn Formula 2 dataset; final standings from FIA archives.
 - F2 (2024 onwards): FIA standings archives; full timed session data is not provided by the standings tables.
