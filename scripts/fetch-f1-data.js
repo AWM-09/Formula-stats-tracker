@@ -34,6 +34,10 @@ async function resultsFor(year){
  }while(offset<total);
  return Array.from(grouped.values()).sort((a,b)=>Number(a.round)-Number(b.round));
 }
+async function scheduleFor(year){
+ const data=await request(BASE+"/"+year+"/races.json?limit=100");
+ return (data.RaceTable&&data.RaceTable.Races)||[];
+}
 async function standings(year,type){
  if(type==="constructorStandings"&&year<1958)return [];
  const data=await request(BASE+"/"+year+"/"+type+".json?limit=100");
@@ -47,9 +51,15 @@ async function main(){
   const file=path.join(OUT,year+".json"),exists=await fs.access(file).then(()=>true).catch(()=>false);
   if(exists&&year!==END){console.log("Historical snapshot retained: "+year);continue;}
   console.log("Fetching F1 "+year);
-  const races=await resultsFor(year),driverStandings=await standings(year,"driverStandings"),constructorStandings=await standings(year,"constructorStandings");
+  const races=await resultsFor(year),schedule=await scheduleFor(year),driverStandings=await standings(year,"driverStandings"),constructorStandings=await standings(year,"constructorStandings");
   if(year<1958&&constructorStandings.length)throw new Error("Unexpected pre-1958 constructor standings.");
-  const data={series:"f1",season:year,updatedAt:new Date().toISOString(),source:"Jolpica F1 API",driverStandings,constructorStandings,races};
+  const resultByRound=new Map(races.map(r=>[String(r.round),r]));
+  const mergedRaces=schedule.map(s=>{
+   const actual=resultByRound.get(String(s.round));
+   return actual?{...s,...actual,Circuit:actual.Circuit||s.Circuit}:{...s,Results:[]};
+  });
+  const calendar=schedule.map(r=>({round:String(r.round),raceName:r.raceName,date:r.date||null,time:r.time||null,Circuit:r.Circuit||{}}));
+  const data={series:"f1",season:year,updatedAt:new Date().toISOString(),source:"Jolpica F1 API",driverStandings,constructorStandings,races:mergedRaces,calendar};
   if(!races.length&&year<END)throw new Error("No race results returned for historical season "+year+"; refusing to save an empty snapshot.");
   await fs.writeFile(file,JSON.stringify(data));
   console.log(year+": "+races.length+" race weekends, "+driverStandings.length+" driver standings, "+constructorStandings.length+" constructor standings.");

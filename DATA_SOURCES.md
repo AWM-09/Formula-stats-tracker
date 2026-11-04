@@ -53,3 +53,13 @@ Independent project; not affiliated with Formula One, FIA, Formula 2, Formula 3 
 - F2 2024 onwards and F3 seasons use season-summary winners, poles and fastest-lap drivers where published; lap-by-lap timing and full podiums are not included.
 - Every season JSON includes its upstream source URL and a coverage description.
 
+
+
+## Generated profile and circuit indexes
+The scheduled GitHub Actions pipeline builds cross-season driver, constructor and circuit indexes from the season JSON archives. Individual profile files are written to `data/profiles/`; compact directory indexes are written to `data/indexes/`. These are derived project indexes, not independent primary sources.
+
+## Calendar and race detail coverage
+- F1 event dates and schedule entries are imported from Jolpica's season race endpoint; completed classifications are merged by round.
+- F2/F3 calendar entries are currently derived from the season's available event archive. Historical season summary pages do not always supply a reliable date, so the calendar may show an event round and circuit without a date.
+- Race-centre pages expose only fields actually present in the selected season archive. Qualifying, pit stops, telemetry, tyre strategy and official circuit lap records are not implied when absent.
+- Circuit "fun facts" are computed from the archive (event count, years represented, and repeat winners). Physical circuit specifications such as length and corners are not guessed.

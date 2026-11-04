@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: "22"
       - name: Validate JavaScript
-        run: node --check app.js && node --check scripts/fetch-f1-data.js
+        run: node --check app.js && node --check scripts/fetch-f1-data.js && node --check scripts/build-indexes.js
       - name: Fetch F1 historical data
         id: fetch_data
         continue-on-error: true
@@ -47,6 +47,8 @@ jobs:
         id: fetch_series
         continue-on-error: true
         run: python scripts/fetch-f2-f3-data.py
+      - name: Build searchable career and circuit indexes
+        run: node scripts/build-indexes.js
       - name: Save every completed historical snapshot
         if: always() && steps.checkout.outcome == 'success'
         shell: bash
@@ -82,6 +84,12 @@ jobs:
           test -s data/f2/$(date -u +%Y).json
           test -s data/f3/2019.json
           test -s data/f3/$(date -u +%Y).json
+          test -s data/indexes/f1-drivers.json
+          test -s data/indexes/f1-teams.json
+          test -s data/indexes/f1-circuits.json
+          test -s data/indexes/f2-drivers.json
+          test -s data/indexes/f3-drivers.json
+          test -d data/profiles/f1/drivers
           node - <<'NODE'
           for (const [series, year] of [["f1",1950],["f2",2017],["f3",2019]]) {
             const x = require("./data/" + series + "/" + year + ".json");

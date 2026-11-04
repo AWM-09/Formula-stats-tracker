@@ -46,3 +46,14 @@ Run **Actions → Update Formula Stats and deploy → Run workflow** to import m
 - F2 (2024 onwards): FIA standings archives; these provide per-session finishing places where published, but not full timing sheets.
 - F3 (2019 onwards): FIA season standings plus per-season race summary sources for winners, poles and fastest laps. Some early years do not publish full finishing orders in the FIA standings archive, so podiums are left unavailable.
 - GP2 and GP3 are not silently combined with modern F2/F3.
+
+
+## Expanded platform features
+- Clickable cross-season driver and constructor profiles.
+- Searchable circuit directory and historical event records.
+- Season calendar with individual race-centre pages and session-level classifications where provided.
+- Driver and constructor career comparison, season comparison, all-time records and historical analytics.
+- Research-only prediction estimates with a visible methodology and confidence note.
+- Generated profile/index data under `data/indexes/` and `data/profiles/`.
+
+The prediction model is an exploratory statistical estimate, not a guarantee. Result and circuit metric coverage is season-specific and shown in the dashboard.

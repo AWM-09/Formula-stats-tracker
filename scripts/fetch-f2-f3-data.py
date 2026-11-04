@@ -355,16 +355,27 @@ def section_table(soup, phrase: str):
 
 
 def anchor_or_cell_text(cell) -> str:
-    links = [
-        a.get_text(" ", strip=True)
-        for a in cell.find_all("a")
-        if a.get_text(" ", strip=True)
-    ]
-    if links:
-        return re.sub(r"\s+", " ", links[-1]).strip()
-    text = cell.get_text(" ", strip=True)
-    text = re.sub(r"\[\s*\d+\s*\]", "", text)
-    return re.sub(r"\s+", " ", text).strip()
+    """Extract a real entity label, ignoring superscript citation/footnote links."""
+    labels = []
+    for anchor in cell.find_all("a"):
+        href = str(anchor.get("href") or "")
+        label = anchor.get_text(" ", strip=True)
+        if not label or not href or href.startswith("#"):
+            continue
+        if "cite_note" in href.lower() or "citation" in href.lower():
+            continue
+        if anchor.find_parent("sup"):
+            continue
+        if re.fullmatch(r"\[\s*[a-z0-9]+\s*\]", label, re.I):
+            continue
+        labels.append(label)
+    value = labels[-1] if labels else cell.get_text(" ", strip=True)
+    value = re.sub(r"\[\s*(?:\d+|[a-z])\s*\]", "", value, flags=re.I)
+    value = re.sub(r"\s+", " ", value).strip(" ,·")
+    if len(normalize(value)) <= 1:
+        return ""
+    return value
+
 
 
 def parse_wiki_standings(table, kind: str) -> list[dict]:
@@ -755,6 +766,12 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
         print(f"  Warning: team championship table not found for {series.upper()} {year}", flush=True)
 
     compute_standings_stats(drivers, teams, races, coverage)
+    calendar = [{
+        "round": r.get("round"), "raceName": r.get("raceName"),
+        "date": r.get("date"), "dateEnd": r.get("date"),
+        "Circuit": r.get("Circuit") or {},
+        "scheduleSource": "Season race archive",
+    } for r in races]
     data = {
         "series": series,
         "season": year,
@@ -762,6 +779,7 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
         "source": "Wikipedia season article and cited source material",
         "sources": sources,
         "coverage": coverage,
+        "calendar": calendar,
         "driverStandings": drivers,
         "constructorStandings": teams,
         "races": races,
