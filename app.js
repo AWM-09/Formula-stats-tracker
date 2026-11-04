@@ -69,7 +69,7 @@ async function getIndex(series,kind){
 async function getProfile(series,kind,id){
   const key=series+"/"+kind+"/"+id;
   if(state.profileCache.has(key))return state.profileCache.get(key);
-  const baseSeries=kind==="circuits"?"shared":series;
+  const baseSeries=series;
   const data=await fetchJson("data/profiles/"+baseSeries+"/"+kind+"/"+safeId(id)+".json",state.profileCache);
   state.profileCache.set(key,data);return data;
 }
@@ -224,13 +224,13 @@ async function renderTeamProfile(series,id){
     panel("RACE ARCHIVE","Latest team results",table(["SEASON","EVENT","SESSION","DRIVER","POS","POINTS"],resultRows));
 }
 async function renderCircuits(){
-  const idx=await getIndex("f1","circuits");
+  const idx=await getIndex(state.series,"circuits");
   const cards=idx.circuits.map(c=>"<a class='entity-card searchable' data-search='"+esc((c.name+" "+(c.location?.locality||"")+" "+(c.location?.country||"")).toLowerCase())+"' href='"+circuitHref(c.id)+"'><div class='card-top'>"+badge((c.location&&c.location.country)||c.series.join(" / "))+"<span class='secondary'>"+esc(c.firstSeason)+"–"+esc(c.lastSeason)+"</span></div><h3>"+esc(c.name)+"</h3><p>"+esc(c.eventCount)+" events represented in the archive</p><div class='entity-meta'>"+badge("Most recorded wins: "+(c.topWinner?c.topWinner.driverName:"—"),"gold")+"</div></a>").join("");
   return pageHead("CIRCUIT DATABASE","Circuits & venues","Browse tracks from the historical archive. Track facts are calculated from stored events; unavailable physical specifications are not guessed.")+
     "<div class='panel'><div class='search-row'><input class='search-input' id='entitySearch' type='search' placeholder='Search circuit, city or country…'><span class='result-count'>"+idx.circuits.length+" CIRCUITS</span></div><div class='card-grid' id='entityList'>"+cards+"</div></div>";
 }
 async function renderCircuitProfile(id){
-  const p=await getProfile("shared","circuits",id),events=p.events||[];
+  const p=await getProfile(state.series,"circuits",id),events=p.events||[];
   const wins=p.mostWins||[];
   const sessions=events.reduce((sum,e)=>sum+(e.sessions||[]).length,0);
   const winnerRows=wins.map((w,i)=>"<tr><td class='rank'>"+(i+1)+"</td><td>"+driverLink(state.series,w.driverId,w.driverName)+"</td><td class='num'>"+esc(w.wins)+"</td></tr>");
@@ -272,7 +272,7 @@ async function renderRaceDetail(series,year,round){
   const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&(r.session||"Race")===session&&String(r.position)==="1"&&r.Driver);
   const location=event.Circuit&&event.Circuit.Location||{};
   const circuitId=event.circuitId||event.Circuit&&event.Circuit.circuitId||slug(event.Circuit&&event.Circuit.circuitName||event.raceName);
-  let circuitProfile=null;try{circuitProfile=await getProfile("shared","circuits",circuitId);}catch{}
+  let circuitProfile=null;try{circuitProfile=await getProfile(series,"circuits",circuitId);}catch{}
   const factContent=circuitProfile?
     "<div class='fact-grid'><div class='fact'><span>Events in archive</span><strong>"+esc(circuitProfile.eventCount)+"</strong></div><div class='fact'><span>Years represented</span><strong>"+esc(circuitProfile.firstSeason)+"–"+esc(circuitProfile.lastSeason)+"</strong></div><div class='fact'><span>Most recorded wins</span><strong>"+esc(circuitProfile.mostWins&&circuitProfile.mostWins[0]?circuitProfile.mostWins[0].driverName:"—")+"</strong></div></div>":
     "<div class='notice'>Track history is limited for this event in the current source archive. The circuit profile may contain additional indexed results.</div>";
@@ -286,7 +286,19 @@ async function renderRaceDetail(series,year,round){
     "<div class='notice'>"+esc(coverage)+"</div><div class='notice red'>Qualifying, pit stops, lap charts, tyre strategy and telemetry are not available in this archive unless explicitly listed above. Missing values are not inferred.</div></div>"+
     "<div class='grid-2'>"+panel("CIRCUIT INFORMATION",event.Circuit.circuitName||event.raceName,"<div class='fact-grid'><div class='fact'><span>Locality</span><strong>"+esc(location.locality||"—")+"</strong></div><div class='fact'><span>Country</span><strong>"+esc(location.country||"—")+"</strong></div><div class='fact'><span>Coordinates</span><strong>"+esc(location.lat&&location.long?location.lat+", "+location.long:"—")+"</strong></div></div>")+panel("TRACK FACTS","Historical archive summary",factContent)+"</div>";
 }
-async function renderRaceCentre(){return renderCalendar();}
+async function renderRaceCentre(){
+  const events=availableEvents(state.data).slice().reverse();
+  const cards=events.map(event=>{
+    const classified=(event.Results||[]).filter(r=>!r.isRecordOnly&&r.Driver).length;
+    const sessions=sessionNames(event).join(" / ");
+    const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&String(r.position)==="1"&&r.Driver);
+    const location=event.Circuit&&event.Circuit.Location;
+    const venue=[location&&location.locality,location&&location.country].filter(Boolean).join(", ");
+    return "<a class='entity-card race-archive-card searchable' data-search='"+esc((event.raceName+" "+(event.Circuit.circuitName||"")+" "+venue).toLowerCase())+"' href='"+raceHref(state.series,state.season,event.round)+"'><div class='card-top'><span class='eyebrow'>ROUND "+esc(event.round)+"</span>"+badge(classified?classified+" result rows":"Summary only",classified?"green":"gold")+"</div><h3>"+esc(event.raceName)+"</h3><p>"+esc([niceDate(event.date),venue].filter(x=>x&&x!=="Date not supplied").join(" · ")||"Event date or venue not present in source")+"</p><div class='entity-meta'>"+badge("Sessions "+sessions)+badge(winner?"Winner "+driverName(winner.Driver):"Open race centre")+"</div><p class='secondary'>Open full event page ↗</p></a>";
+  }).join("");
+  return pageHead("RACE ARCHIVE","Race centre","Search the selected season's events, open individual classifications and inspect circuit history.")+
+    "<div class='panel'><div class='search-row'><input id='raceArchiveSearch' class='search-input' type='search' placeholder='Search Grand Prix, circuit or venue…'><span class='result-count'>"+events.length+" EVENTS</span></div><div class='card-grid' id='raceArchiveList'>"+(cards||"<div class='empty-state'>No races in the selected archive.</div>")+"</div></div>";
+}
 async function renderPredictions(){
   const events=availableEvents(state.data);
   const selected=events.find(e=>String(e.round)===String(state.predictionEvent))||events.find(e=>!eventHasResults(e))||events[events.length-1];
@@ -392,6 +404,10 @@ function bindDynamicEvents(){
   $("entitySearch")?.addEventListener("input",e=>{
     const query=e.target.value.toLowerCase();
     document.querySelectorAll(".searchable").forEach(card=>card.classList.toggle("hidden",!card.dataset.search.includes(query)));
+  });
+  $("raceArchiveSearch")?.addEventListener("input",e=>{
+    const query=e.target.value.toLowerCase();
+    document.querySelectorAll("#raceArchiveList .searchable").forEach(card=>card.classList.toggle("hidden",!card.dataset.search.includes(query)));
   });
   $("predictionEventSelect")?.addEventListener("change",e=>{state.predictionEvent=e.target.value;renderRoute();});
   $("compareDriverOne")?.addEventListener("change",runDriverCompare);

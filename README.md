@@ -57,3 +57,15 @@ Run **Actions → Update Formula Stats and deploy → Run workflow** to import m
 - Generated profile/index data under `data/indexes/` and `data/profiles/`.
 
 The prediction model is an exploratory statistical estimate, not a guarantee. Result and circuit metric coverage is season-specific and shown in the dashboard.
+
+
+## Full platform navigation
+- Dashboard, season calendar and searchable race centre.
+- Individual race pages with session filters, classifications and circuit archive summaries.
+- Cross-season driver and constructor profiles.
+- Circuit directory and circuit-specific event history/facts derived from archive records.
+- Career/season comparison pages, historical records and championship analytics.
+- Research-only predictions with component weights and data-depth limitations.
+- Data Centre with coverage by season and documented source limitations.
+
+The build workflow generates the cross-season indexes and per-entity profile JSON files under `data/indexes/` and `data/profiles/`. Track length, corner counts, official lap records, qualifying, pit stops and telemetry are shown only when a verified source is connected.

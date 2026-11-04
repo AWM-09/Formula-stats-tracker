@@ -196,7 +196,7 @@ async function buildSeries(series, firstYear, lastYear) {
       eventCount:p.events.length, events:p.events, mostWins:winners.slice(0,10),
       fastestLapHighlights:p.fastestLaps.slice().sort((a,b)=>a.season-b.season).slice(-15).reverse()
     };
-    await writeProfile("shared","circuits",p.id,profile);
+    await writeProfile(series,"circuits",p.id,profile);
     circuitSummaries.push({id:p.id,name:p.name,url:p.url,location:p.location,series:profile.series,firstSeason:p.firstSeason,lastSeason:p.lastSeason,eventCount:p.events.length,topWinner:winners[0]||null});
   }
   await fs.mkdir(path.join(OUT,"indexes"),{recursive:true});
