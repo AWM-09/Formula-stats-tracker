@@ -40,7 +40,9 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install F2/F3 HTML parser
-        run: python -m pip install --disable-pip-version-check beautifulsoup4
+        run: |
+          python -m pip install --disable-pip-version-check beautifulsoup4
+          python -m py_compile scripts/fetch-f2-f3-data.py
       - name: Fetch historical F2 and F3 data
         id: fetch_series
         continue-on-error: true
