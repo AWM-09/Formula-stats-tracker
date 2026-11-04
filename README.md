@@ -94,3 +94,10 @@ The build workflow generates the cross-season indexes and per-entity profile JSO
 - F1 qualifying and Sprint results are imported for the current season from Jolpica; completed current-season practice sessions are imported where FastF1 publishes the result.
 - Historical race results remain unchanged. Their session tabs are visible when the event schedule lists the session, but unavailable classifications are identified as not imported.
 - Career wins, podiums and circuit winner records count championship race sessions only. For F1, Sprint sessions remain a separate session archive and do not inflate Grand Prix race-win totals. F2/F3 Sprint and Feature races are championship race sessions.
+
+
+## Full session classifications
+- F1 qualifying and Sprint classifications use Jolpica endpoints with pagination; the first 100 rows are not treated as a complete season.
+- FastF1 imports missing completed FP1/FP2/FP3, Qualifying, Sprint Qualifying and Sprint sessions for the current season where feeds exist.
+- F2/F3 2026 full classifications are sourced from official FIA event pages where their session tables are published; summary-only winners are replaced by full session rows.
+- Practice and qualifying P1 do not count as race wins or podiums in predictions, career totals or circuit race-winner records.

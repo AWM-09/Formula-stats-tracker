@@ -17,6 +17,10 @@ SESSIONS = (
     ("FirstPractice", "FP1", "Practice 1"),
     ("SecondPractice", "FP2", "Practice 2"),
     ("ThirdPractice", "FP3", "Practice 3"),
+    ("Qualifying", "Q", "Qualifying"),
+    ("SprintQualifying", "SQ", "Sprint Qualifying"),
+    ("SprintShootout", "SQ", "Sprint Qualifying"),
+    ("Sprint", "S", "Sprint"),
 )
 
 def norm(value: object) -> str:
@@ -134,10 +138,11 @@ def main() -> int:
     by_round = {str(event.get("round")): event for event in races}
     calendar = data.get("calendar") or races
     now_utc = datetime.now(timezone.utc)
-    # Limit each scheduled refresh to the three most recent weekends with at least
-    # one completed practice session. Older weekends remain browsable, but this avoids
-    # repeatedly re-downloading an entire season on every daily workflow run.
-    eligible_rounds = []
+    # Import every completed current-season session that is still missing.
+    # Existing session rows are skipped, so daily refreshes do not re-download history.
+    imported = 0
+    checked = 0
+
     for scheduled in calendar:
         round_value = str(scheduled.get("round") or "")
         if not round_value.isdigit():

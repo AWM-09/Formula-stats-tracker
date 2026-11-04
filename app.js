@@ -421,6 +421,9 @@ function resultTableRows(series,event,session){
     const d=r.Driver||{},c=r.Constructor||{};
     const driverId=d.driverId||null,teamId=c.constructorId||slug(c.name);
     if(["Qualifying","Sprint Qualifying","Sprint Shootout","Qualifying 1","Qualifying 2"].includes(session)){
+      if(series!=="f1"){
+        return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||"—")+"</td><td>"+esc(r.gap||"—")+"</td><td class='num'>"+esc(number(r.laps))+"</td></tr>";
+      }
       return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc(r.Q1||"—")+"</td><td>"+esc(r.Q2||"—")+"</td><td>"+esc(r.Q3||((r.Time||{}).time)||r.time||"—")+"</td></tr>";
     }
     if(session==="Practice"||/^Practice /.test(session)){
@@ -452,7 +455,7 @@ async function renderRaceDetail(series,year,round){
   const coverage=data.coverage&&data.coverage.message?data.coverage.message:"The source archive supplies the displayed session data where available.";
   const isQualifying=["Qualifying","Sprint Qualifying","Sprint Shootout","Qualifying 1","Qualifying 2"].includes(session);
   const isPractice=session==="Practice"||/^Practice /.test(session);
-  const headers=isQualifying?["POS","DRIVER","CONSTRUCTOR","Q1","Q2","Q3"]:isPractice?["POS","DRIVER","CONSTRUCTOR","BEST LAP","LAPS","STATUS"]:["POS","DRIVER","CONSTRUCTOR","GRID","LAPS","TIME","GAP","PTS","FASTEST"];
+  const headers=isQualifying?(series==="f1"?["POS","DRIVER","CONSTRUCTOR","Q1","Q2","Q3"]:["POS","DRIVER","CONSTRUCTOR","BEST TIME","GAP","LAPS"]):isPractice?["POS","DRIVER","CONSTRUCTOR","BEST LAP","LAPS","STATUS"]:["POS","DRIVER","CONSTRUCTOR","GRID","LAPS","TIME","GAP","PTS","FASTEST"];
   const tabs=sessions.map(name=>{
     const available=sessionHasResults(event,name);
     const suffix=available?"":" · —";

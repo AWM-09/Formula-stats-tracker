@@ -32,12 +32,16 @@ function isChampionshipRaceSession(series, session) {
   return ["Race", "Race 1", "Race 2", "Sprint Race", "Feature Race", "Feature Race 1", "Feature Race 2"].includes(name);
 }
 
+function seriesRaceSession(session){
+  return ["race","race 1","race 2","sprint","sprint race","feature race","feature race 1","feature race 2"].includes(String(session||"").toLowerCase().replace(/\s+/g," ").trim());
+}
 function summarizeCareer(seasons, results, type) {
   const sumKnown = key => {
     const present = seasons.map(s => s[key]).filter(v => v !== null && v !== undefined);
     return { value: present.length ? present.reduce((a,b) => a + b, 0) : null, complete: present.length === seasons.length && seasons.length > 0 };
   };
-  const classified = results.filter(r => r.position !== null && r.position !== undefined);
+  const raceResults = results.filter(r => seriesRaceSession(r.session || "Race"));
+  const classified = raceResults.filter(r => r.position !== null && r.position !== undefined);
   const allSeasonsClassified = seasons.length > 0
     && seasons.every(s => s.coverage === "full")
     && seasons.every(s => classified.some(r => r.season === s.season));
@@ -52,16 +56,16 @@ function summarizeCareer(seasons, results, type) {
     ? { value: derivedPodiums, complete: allSeasonsClassified }
     : sumKnown("podiums");
   const standingsPoles = sumKnown("poles");
-  const fastestFromResults = results.filter(r => r.isFastestLap).length;
+  const fastestFromResults = raceResults.filter(r => r.isFastestLap).length;
   const standingsFastest = sumKnown("fastestLaps");
   const fastest = fastestFromResults > 0
     ? { value: fastestFromResults, complete: false }
     : standingsFastest;
   const points = sumKnown("points");
-  const poleStarts = results.filter(r => r.grid === 1).length;
+  const poleStarts = raceResults.filter(r => r.grid === 1).length;
   const poleStartDataComplete = results.length > 0
     && allSeasonsClassified
-    && results.every(r => r.grid !== null && r.grid !== undefined);
+    && raceResults.every(r => r.grid !== null && r.grid !== undefined);
   return {
     seasons: seasons.length,
     firstSeason: seasons.length ? seasons[0].season : null,

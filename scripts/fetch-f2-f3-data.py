@@ -615,6 +615,14 @@ def add_wikipedia_summary_records(races: list[dict], wiki_races: list[dict], dri
     races.sort(key=lambda item: int(item["round"]))
 
 
+def is_race_session(session: str) -> bool:
+    value = re.sub(r"\s+", " ", str(session or "")).strip().lower()
+    return value in {
+        "race", "race 1", "race 2", "sprint", "sprint race",
+        "feature race", "feature race 1", "feature race 2",
+    }
+
+
 def compute_standings_stats(drivers: list[dict], teams: list[dict], races: list[dict], coverage: dict) -> None:
     full = coverage.get("classification") == "full"
     wins_available = bool(coverage.get("wins", full))
@@ -646,9 +654,11 @@ def compute_standings_stats(drivers: list[dict], teams: list[dict], races: list[
             team = team_map.get(normalize(constructor))
             if result.get("PolePosition") and driver and driver.get("poles") is not None:
                 driver["poles"] += 1
-            if result.get("FastestLap") and result["FastestLap"].get("rank") == "1" and driver and driver.get("fastestLaps") is not None:
+            if is_race_session(result.get("session", "")) and result.get("FastestLap") and result["FastestLap"].get("rank") == "1" and driver and driver.get("fastestLaps") is not None:
                 driver["fastestLaps"] += 1
             if result.get("isRecordOnly"):
+                continue
+            if not is_race_session(result.get("session", "")):
                 continue
             position = str(result.get("position", "")).strip()
             try:
@@ -691,6 +701,224 @@ def archive_has_bad_team_rows(output: Path) -> bool:
         return False
     except Exception:
         return True
+
+
+FIA_CHAMPIONSHIP_PATH = {
+    "f2": "formula-2-championship",
+    "f3": "fia-formula-3-championship",
+}
+FIA_2026_EVENT_SLUGS = {
+    "f2": {
+        1:"melbourne", 2:"miami", 3:"montreal", 4:"monaco", 5:"barcelona",
+        6:"spielberg", 7:"silverstone", 8:"spa-francorchamps", 9:"budapest",
+        10:"monza", 11:"madrid", 12:"baku", 13:"lusail", 14:"yas-marina",
+    },
+    "f3": {
+        1:"melbourne", 2:"monaco", 3:"barcelona", 4:"spielberg",
+        5:"silverstone", 6:"spa-francorchamps", 7:"budapest", 8:"monza", 9:"madrid",
+    },
+}
+
+def fia_session_name(href: str, label: str = "") -> str | None:
+    key = normalize((label or "") + " " + href)
+    if "practice" in key:
+        return "Practice"
+    if "qualifying1" in key:
+        return "Qualifying 1"
+    if "qualifying2" in key:
+        return "Qualifying 2"
+    if "qualifying" in key:
+        return "Qualifying"
+    if "sprint" in key:
+        return "Sprint Race"
+    if "featureraceii" in key or "featurerace2" in key or "featureracetwo" in key:
+        return "Feature Race 2"
+    if "featureracei" in key or "featurerace1" in key or "featureraceone" in key:
+        return "Feature Race 1"
+    if "featurerace" in key:
+        return "Feature Race"
+    return None
+
+def fia_page_links(soup, event_prefix: str) -> dict[str, str]:
+    links = {}
+    for anchor in soup.find_all("a", href=True):
+        href = urllib.parse.urljoin("https://www.fia.com", str(anchor.get("href") or ""))
+        if event_prefix not in href or "classification" not in href.lower():
+            continue
+        session = fia_session_name(href, anchor.get_text(" ", strip=True))
+        if session:
+            links[session] = href
+    return links
+
+def fia_cell_text(cell) -> str:
+    if cell is None:
+        return ""
+    value = anchor_or_cell_text(cell)
+    if value:
+        return value
+    return re.sub(r"\s+", " ", cell.get_text(" ", strip=True)).strip()
+
+def parse_fia_classification(html: str, session: str, drivers: list[dict], source_url: str) -> list[dict]:
+    soup = BeautifulSoup(html, "html.parser")
+    target_table = None
+    header_cells = None
+    for table in soup.find_all("table"):
+        for row in table.find_all("tr"):
+            cells = row.find_all(["th", "td"], recursive=False)
+            labels = [normalize(cell.get_text(" ", strip=True)) for cell in cells]
+            if "driver" in labels and ("pos" in labels or "position" in labels):
+                target_table, header_cells = table, cells
+                break
+        if target_table:
+            break
+    if target_table is None or header_cells is None:
+        return []
+
+    headers = [normalize(cell.get_text(" ", strip=True)) for cell in header_cells]
+    def value(cells, *names):
+        for name in names:
+            wanted = normalize(name)
+            if wanted in headers and headers.index(wanted) < len(cells):
+                return fia_cell_text(cells[headers.index(wanted)])
+        return ""
+
+    results = []
+    lap_times = []
+    for row in target_table.find_all("tr"):
+        cells = row.find_all("td", recursive=False)
+        if len(cells) < len(headers):
+            continue
+        raw_position = value(cells, "Pos", "Position")
+        driver_text = value(cells, "Driver")
+        team_name = value(cells, "Team", "Constructor")
+        if not raw_position or not driver_text:
+            continue
+        driver = match_person(driver_text, drivers)
+        if not driver or not driver.get("driverId"):
+            continue
+        position = position_text(raw_position)
+        if position == "999":
+            position = "DNF"
+        points = number_from_text(value(cells, "Points", "Pts"))
+        laps = number_from_text(value(cells, "Laps"))
+        time_value = value(cells, "Time")
+        gap = value(cells, "Gap first", "Gap to leader", "Gap")
+        best_lap = value(cells, "Best lap")
+        item = {
+            "Driver": driver,
+            "Constructor": {"name": team_name},
+            "position": position or "—",
+            "points": points,
+            "session": session,
+            "laps": int(laps) if isinstance(laps, (int, float)) and float(laps).is_integer() else laps,
+            "Time": {"time": time_value},
+            "gap": gap,
+            "status": "DNF" if position == "DNF" else "Finished",
+            "source": source_url,
+        }
+        if best_lap:
+            item["FastestLap"] = {"Time": {"time": best_lap}}
+            seconds = parse_time_seconds(best_lap)
+            if seconds is not None:
+                lap_times.append((seconds, item))
+        if session.startswith("Qualifying") and position == "1":
+            item["PolePosition"] = True
+        results.append(item)
+
+    if lap_times:
+        fastest = min(lap_times, key=lambda pair: pair[0])[1]
+        fastest.setdefault("FastestLap", {})["rank"] = "1"
+    results.sort(key=lambda item: int(item["position"]) if str(item["position"]).isdigit() else 999)
+    return results
+
+def import_official_fia_sessions(series: str, year: int, calendar: list[dict],
+                                 races: list[dict], drivers: list[dict]) -> tuple[int, list[str]]:
+    """Replace one-winner season-summary entries with full FIA session classifications."""
+    if year != 2026:
+        return 0, []
+    championship_path = FIA_CHAMPIONSHIP_PATH[series]
+    event_slugs = FIA_2026_EVENT_SLUGS[series]
+    races_by_round = {str(event.get("round")): event for event in races}
+    imported = 0
+    sources = []
+
+    for scheduled in calendar:
+        round_text = str(scheduled.get("round") or "")
+        if not round_text.isdigit():
+            continue
+        event_slug = event_slugs.get(int(round_text))
+        if not event_slug:
+            continue
+        event_prefix = f"/events/{championship_path}/season-{year}/{event_slug}/"
+        event_url = f"https://www.fia.com/events/{championship_path}/season-{year}/{event_slug}"
+        links: dict[str, str] = {}
+
+        try:
+            event_html, _ = fetch_text(event_url, attempts=3)
+            links.update(fia_page_links(BeautifulSoup(event_html, "html.parser"), event_prefix))
+        except Exception as exc:
+            print(f"  FIA {series.upper()} {year} {event_slug}: event page unavailable ({exc})", flush=True)
+
+        if not links:
+            fallback_urls = [
+                event_url + "/feature-race-classification",
+                event_url + "/feature-race-1-classification",
+                event_url + "/feature-race-2-classification",
+                event_url + "/feature-race-ii-classification",
+            ]
+            for candidate in fallback_urls:
+                try:
+                    html, _ = fetch_text(candidate, attempts=2)
+                    links.update(fia_page_links(BeautifulSoup(html, "html.parser"), event_prefix))
+                    session = fia_session_name(candidate)
+                    if session:
+                        links.setdefault(session, candidate)
+                    if links:
+                        break
+                except Exception:
+                    continue
+
+        if not links:
+            print(f"  FIA {series.upper()} {year} R{round_text}: no classification links found")
+            continue
+
+        event = races_by_round.setdefault(round_text, {
+            "round": round_text,
+            "raceName": scheduled.get("raceName") or f"Round {round_text}",
+            "date": scheduled.get("date"),
+            "Circuit": scheduled.get("Circuit") or {},
+            "Results": [],
+        })
+        queue = list(links.items())
+        visited = set()
+        index = 0
+        while index < len(queue):
+            session, page_url = queue[index]
+            index += 1
+            if page_url in visited:
+                continue
+            visited.add(page_url)
+            try:
+                page_html, final_url = fetch_text(page_url, attempts=3)
+            except Exception:
+                continue
+            extra_links = fia_page_links(BeautifulSoup(page_html, "html.parser"), event_prefix)
+            for new_session, new_url in extra_links.items():
+                if new_url not in visited and all(new_url != url for _, url in queue):
+                    queue.append((new_session, new_url))
+            rows = parse_fia_classification(page_html, session, drivers, final_url)
+            if not rows:
+                continue
+            event["Results"] = [
+                row for row in event.get("Results", [])
+                if (row.get("session") or "Race") != session
+            ]
+            event["Results"].extend(rows)
+            imported += 1
+            sources.append(final_url)
+            print(f"  FIA {series.upper()} {year} R{round_text} {session}: {len(rows)} rows imported", flush=True)
+
+    return imported, sorted(set(sources))
 
 
 def import_season(series: str, year: int, force: bool = False) -> bool:
@@ -838,6 +1066,28 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
                 "scheduleSource": calendar_source
             })
         sources.append({"name": calendar_source, "url": calendar_url})
+    fia_session_count, fia_session_sources = import_official_fia_sessions(
+        series, year, calendar, races, drivers
+    )
+    if fia_session_count:
+        sources.extend({
+            "name": "FIA official session classification",
+            "url": source_url,
+        } for source_url in fia_session_sources)
+        coverage.update({
+            "classification": "partial",
+            "wins": True,
+            "podiums": True,
+            "fastestLap": True,
+            "polePosition": True,
+            "teamWins": True,
+            "teamPodiums": True,
+            "message": (
+                "Full driver classifications are imported from official FIA event pages where published. "
+                "Sessions not yet published or not linked by the FIA remain unavailable; check the result count for each session."
+            ),
+        })
+        compute_standings_stats(drivers, teams, races, coverage)
     data = {
         "series": series,
         "season": year,

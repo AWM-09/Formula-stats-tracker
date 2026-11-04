@@ -39,26 +39,27 @@ async function scheduleFor(year){
  return (data.RaceTable&&data.RaceTable.Races)||[];
 }
 async function sessionResultsFor(year,endpoint,field,sessionName){
- const data=await request(BASE+"/"+year+"/"+endpoint+".json?limit=100");
+ let offset=0,total=0;
  const grouped=new Map();
- for(const race of (data.RaceTable&&data.RaceTable.Races)||[]){
-  const rows=race[field]||[];
-  if(!rows.length)continue;
-  const converted=rows.map(row=>{
-   if(sessionName==="Qualifying"){
-    const q3=row.Q3||"",q2=row.Q2||"",q1=row.Q1||"";
-    return {
-     ...row,
-     session:"Qualifying",
-     Q1:q1,Q2:q2,Q3:q3,
-     Time:{time:q3||q2||q1||""},
-     points:null
-    };
-   }
-   return {...row,session:sessionName};
-  });
-  grouped.set(String(race.round),converted);
- }
+ do{
+  const data=await request(BASE+"/"+year+"/"+endpoint+".json?limit=100&offset="+offset);
+  for(const race of (data.RaceTable&&data.RaceTable.Races)||[]){
+   const rows=race[field]||[];
+   if(!rows.length)continue;
+   const converted=rows.map(row=>{
+    if(sessionName==="Qualifying"){
+     const q1=row.Q1||"",q2=row.Q2||"",q3=row.Q3||"";
+     return {...row,session:"Qualifying",Q1:q1,Q2:q2,Q3:q3,Time:{time:q3||q2||q1||""},points:null};
+    }
+    return {...row,session:sessionName};
+   });
+   const key=String(race.round);
+   if(!grouped.has(key))grouped.set(key,[]);
+   grouped.get(key).push(...converted);
+  }
+  total=Number(data.total)||0;
+  offset+=Number(data.limit)||100;
+ }while(offset<total);
  return grouped;
 }
 async function standings(year,type){
