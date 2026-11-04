@@ -134,12 +134,43 @@ def main() -> int:
     by_round = {str(event.get("round")): event for event in races}
     calendar = data.get("calendar") or races
     now_utc = datetime.now(timezone.utc)
+    # Limit each scheduled refresh to the three most recent weekends with at least
+    # one completed practice session. Older weekends remain browsable, but this avoids
+    # repeatedly re-downloading an entire season on every daily workflow run.
+    eligible_rounds = []
+    for scheduled in calendar:
+        round_value = str(scheduled.get("round") or "")
+        if not round_value.isdigit():
+            continue
+        completed_session = False
+        event = by_round.get(round_value) or {}
+        for field, _code, _label in SESSIONS:
+            info = scheduled.get(field) or event.get(field)
+            if not info or not text(info.get("date")):
+                continue
+            date_text = text(info.get("date"))
+            time_text = text(info.get("time"))
+            try:
+                value = date_text + ("T" + time_text if time_text else "T23:59:59")
+                scheduled_at = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                if scheduled_at.tzinfo is None:
+                    scheduled_at = scheduled_at.replace(tzinfo=timezone.utc)
+                if scheduled_at <= now_utc:
+                    completed_session = True
+                    break
+            except ValueError:
+                continue
+        if completed_session:
+            eligible_rounds.append(int(round_value))
+
+    recent_rounds = set(sorted(set(eligible_rounds))[-3:])
+    print(f"Practice import scope: latest completed rounds {sorted(recent_rounds)}")
     imported = 0
     checked = 0
 
     for scheduled in calendar:
         round_number = str(scheduled.get("round") or "")
-        if not round_number.isdigit():
+        if not round_number.isdigit() or int(round_number) not in recent_rounds:
             continue
         event = by_round.get(round_number)
         if event is None:
