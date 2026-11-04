@@ -125,7 +125,9 @@ def main() -> int:
         print(f"No F1 {YEAR} data file found; practice importer skipped.")
         return 0
 
-    fastf1.Cache.enable_cache(str(ROOT / ".fastf1-cache"))
+    cache_directory = ROOT / ".fastf1-cache"
+    cache_directory.mkdir(parents=True, exist_ok=True)
+    fastf1.Cache.enable_cache(str(cache_directory))
     data = json.loads(path.read_text(encoding="utf-8"))
     by_code, by_number, by_name, teams = build_lookups(data)
     races = data.setdefault("races", [])
