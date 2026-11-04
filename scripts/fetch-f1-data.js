@@ -72,9 +72,7 @@ async function main(){
  await fs.mkdir(OUT,{recursive:true});
  for(let year=START;year<=END;year++){
   const file=path.join(OUT,year+".json"),exists=await fs.access(file).then(()=>true).catch(()=>false);
-  let sessionVersion=0;
-  if(exists){try{sessionVersion=Number(JSON.parse(await fs.readFile(file,"utf8")).sessionDataVersion)||0;}catch{}}
-  if(exists&&year!==END&&sessionVersion>=2){console.log("Historical snapshot retained: "+year);continue;}
+  if(exists&&year!==END){console.log("Historical snapshot retained; session backfill is limited to the current season: "+year);continue;}
   console.log("Fetching F1 "+year);
   const races=await resultsFor(year),schedule=await scheduleFor(year),driverStandings=await standings(year,"driverStandings"),constructorStandings=await standings(year,"constructorStandings");
   const qualifying=await sessionResultsFor(year,"qualifying","QualifyingResults","Qualifying");

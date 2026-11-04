@@ -87,3 +87,10 @@ The build workflow generates the cross-season indexes and per-entity profile JSO
 - F2/F3 race pages provide Practice, Qualifying, Sprint Race and Feature Race choices. A tab with no stored classification clearly states that the source data has not been imported rather than presenting an empty table as a result.
 - The 2026 F2/F3 calendar is reconciled to the official FIA schedule, including the two remaining 2026 F2 rounds at Lusail and Yas Marina. F3's 2026 season calendar ends in Madrid.
 - YouTube: https://www.youtube.com/@AlexMyrusTalksSports
+
+
+## Session data scope
+- Automatic F1 session backfill is limited to the current season to keep scheduled deployments reliable. Existing 1950–2025 race archives are retained and not bulk-refetched.
+- F1 qualifying and Sprint results are imported for the current season from Jolpica; completed current-season practice sessions are imported where FastF1 publishes the result.
+- Historical race results remain unchanged. Their session tabs are visible when the event schedule lists the session, but unavailable classifications are identified as not imported.
+- Career wins, podiums and circuit winner records count championship race sessions only. For F1, Sprint sessions remain a separate session archive and do not inflate Grand Prix race-win totals. F2/F3 Sprint and Feature races are championship race sessions.

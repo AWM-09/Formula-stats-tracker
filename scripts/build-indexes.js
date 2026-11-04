@@ -26,6 +26,12 @@ function seasonStats(row, year, series) {
     dataCoverage: coverage.classification || "full"
   };
 }
+function isChampionshipRaceSession(series, session) {
+  const name = String(session || "Race");
+  if (series === "f1") return name === "Race";
+  return ["Race", "Race 1", "Race 2", "Sprint Race", "Feature Race", "Feature Race 1", "Feature Race 2"].includes(name);
+}
+
 function summarizeCareer(seasons, results, type) {
   const sumKnown = key => {
     const present = seasons.map(s => s[key]).filter(v => v !== null && v !== undefined);
@@ -98,7 +104,7 @@ async function buildSeries(series, firstYear, lastYear) {
       if (!id) continue;
       if (!drivers.has(id)) drivers.set(id, {
         id, name: displayName(d), nationality: d.nationality || "", code: d.code || "",
-        number: d.permanentNumber || "", url: d.url || "", seasons: [], results: []
+        number: d.permanentNumber || "", url: d.url || "", seasons: [], results: [], sessionResults: []
       });
       const profile = drivers.get(id);
       profile.seasons.push({
@@ -119,7 +125,7 @@ async function buildSeries(series, firstYear, lastYear) {
       if (!id) continue;
       if (!teams.has(id)) teams.set(id, {
         id, name: c.name || "Unknown", nationality: c.nationality || "",
-        url: c.url || "", seasons: [], results: [], driverMap: new Map()
+        url: c.url || "", seasons: [], results: [], sessionResults: [], driverMap: new Map()
       });
       const profile = teams.get(id);
       profile.seasons.push({
@@ -179,20 +185,29 @@ async function buildSeries(series, firstYear, lastYear) {
         };
         event.results.push(item);
         if (!event.sessions.includes(session)) event.sessions.push(session);
-        if (driverId && drivers.has(driverId)) drivers.get(driverId).results.push({
-          series, season: year, round: n(race.round), raceName: event.raceName,
-          circuitId, circuitName, date: race.date || null, ...item
-        });
+        const raceClassification = isChampionshipRaceSession(series, session);
+        if (driverId && drivers.has(driverId)) {
+          const driverProfile = drivers.get(driverId);
+          driverProfile.sessionResults.push({
+            series, season: year, round: n(race.round), raceName: event.raceName,
+            circuitId, circuitName, date: race.date || null, ...item
+          });
+          if (raceClassification) driverProfile.results.push({
+            series, season: year, round: n(race.round), raceName: event.raceName,
+            circuitId, circuitName, date: race.date || null, ...item
+          });
+        }
         if (teamId && teams.has(teamId)) {
           const tp = teams.get(teamId);
-          tp.results.push({ series, season: year, round: n(race.round), raceName: event.raceName, circuitId, circuitName, date: race.date || null, ...item });
+          tp.sessionResults.push({ series, season: year, round: n(race.round), raceName: event.raceName, circuitId, circuitName, date: race.date || null, ...item });
+          if (raceClassification) tp.results.push({ series, season: year, round: n(race.round), raceName: event.raceName, circuitId, circuitName, date: race.date || null, ...item });
           if (driverId) tp.driverMap.set(driverId, displayName(d));
         }
-        if (position === 1 && driverId) {
+        if (raceClassification && position === 1 && driverId) {
           cp.winners.set(driverId, (cp.winners.get(driverId) || 0) + 1);
           event.winner = { driverId, driverName: displayName(d), teamName: c.name || "", session };
         }
-        if (item.isFastestLap && driverId) cp.fastestLaps.push({ driverId, driverName: displayName(d), time: item.fastestLap, season: year, raceName: event.raceName, session });
+        if (raceClassification && item.isFastestLap && driverId) cp.fastestLaps.push({ driverId, driverName: displayName(d), time: item.fastestLap, season: year, raceName: event.raceName, session });
       }
       event.sessions.sort();
       cp.events.push(event);
@@ -212,7 +227,7 @@ async function buildSeries(series, firstYear, lastYear) {
     p.seasons.sort((a,b)=>a.season-b.season);
     p.results.sort((a,b)=>a.season-b.season||(a.round||0)-(b.round||0));
     const career = summarizeCareer(p.seasons,p.results,"team");
-    const profile = { type:"team", series, id:p.id, name:p.name, nationality:p.nationality, url:p.url, seasons:p.seasons, results:p.results, drivers:Array.from(p.driverMap,([id,name])=>({id,name})).sort((a,b)=>a.name.localeCompare(b.name)), career };
+    const profile = { type:"team", series, id:p.id, name:p.name, nationality:p.nationality, url:p.url, seasons:p.seasons, results:p.results, sessionResults:p.sessionResults, drivers:Array.from(p.driverMap,([id,name])=>({id,name})).sort((a,b)=>a.name.localeCompare(b.name)), career };
     await writeProfile(series,"teams",p.id,profile);
     teamSummaries.push({ id:p.id, name:p.name, nationality:p.nationality, seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason, championships:career.championships, wins:career.wins, winsComplete:career.winsComplete, podiums:career.podiums, podiumsComplete:career.podiumsComplete, points:career.points, pointsComplete:career.pointsComplete, url:p.url });
   }

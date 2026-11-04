@@ -172,12 +172,19 @@ function availableEvents(data){
   }).sort((a,b)=>(Number(a.round)||0)-(Number(b.round)||0));
 }
 
-function eventHasResults(event){return (event.Results||[]).some(r=>!r.isRecordOnly&&r.Driver);}
+function isRaceClassification(series, session) {
+  const name=String(session||"Race");
+  if(series==="f1")return name==="Race";
+  return ["Race","Race 1","Race 2","Sprint Race","Feature Race","Feature Race 1","Feature Race 2"].includes(name);
+}
+function eventHasResults(event,series=state.series){
+  return (event.Results||[]).some(r=>!r.isRecordOnly&&r.Driver&&isRaceClassification(series,r.session));
+}
 function eventCard(series,year,event){
   const location=event.Circuit&&event.Circuit.Location;
   const venue=[location&&location.locality,location&&location.country].filter(Boolean).join(", ");
   const sessions=[...new Set((event.Results||[]).filter(r=>!r.isRecordOnly).map(r=>r.session||"Race"))];
-  const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&String(r.position)==="1"&&r.Driver);
+  const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&isRaceClassification(series,r.session)&&String(r.position)==="1"&&r.Driver);
   const meta=[niceDate(event.date),venue,sessions.join(" / ")].filter(x=>x&&x!=="Date not supplied").join(" · ");
   return "<a class='event-row' href='"+raceHref(series,year,event.round)+"'><span class='event-round'>"+esc(event.round)+"</span><span class='event-main'><strong>"+esc(event.raceName)+"</strong><small>"+esc(meta||"Event listed · exact date or result detail not present in source")+"</small></span><span class='event-side'><strong>"+esc(winner?driverName(winner.Driver):eventHasResults(event)?"Results available":"Scheduled / classification pending")+"</strong><small>"+esc(winner?"Winner":"Open race page")+" ↗</small></span></a>";
 }
@@ -470,7 +477,7 @@ async function renderRaceCentre(){
   const cards=events.map(event=>{
     const classified=(event.Results||[]).filter(r=>!r.isRecordOnly&&r.Driver).length;
     const sessions=sessionNames(event).join(" / ");
-    const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&String(r.position)==="1"&&r.Driver);
+    const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&isRaceClassification(state.series,r.session)&&String(r.position)==="1"&&r.Driver);
     const location=event.Circuit&&event.Circuit.Location;
     const venue=[location&&location.locality,location&&location.country].filter(Boolean).join(", ");
     return "<a class='entity-card race-archive-card searchable' data-search='"+esc((event.raceName+" "+(event.Circuit.circuitName||"")+" "+venue).toLowerCase())+"' href='"+raceHref(state.series,state.season,event.round)+"'><div class='card-top'><span class='eyebrow'>ROUND "+esc(event.round)+"</span>"+badge(classified?classified+" result rows":"Summary only",classified?"green":"gold")+"</div><h3>"+esc(event.raceName)+"</h3><p>"+esc([niceDate(event.date),venue].filter(x=>x&&x!=="Date not supplied").join(" · ")||"Event date or venue not present in source")+"</p><div class='entity-meta'>"+badge("Sessions "+sessions)+badge(winner?"Winner "+driverName(winner.Driver):"Open race centre")+"</div><p class='secondary'>Open full event page ↗</p></a>";
@@ -486,7 +493,7 @@ async function renderPredictions(){
   const circuitId=selected.Circuit.circuitId||slug(selected.Circuit.circuitName||selected.raceName);
   let circuit=null;try{circuit=await getProfile("shared","circuits",circuitId);}catch{}
   const standings=state.data.driverStandings||[];
-  const allResults=(state.data.races||[]).flatMap(r=>(r.Results||[]).filter(x=>!x.isRecordOnly).map(x=>({result:x,race:r})));
+  const allResults=(state.data.races||[]).flatMap(r=>(r.Results||[]).filter(x=>!x.isRecordOnly&&isRaceClassification(state.series,x.session)).map(x=>({result:x,race:r})));
   const candidates=standings.map(entry=>{
     const d=entry.Driver||{},id=d.driverId;
     const points=Number(entry.points),position=Number(entry.position);
