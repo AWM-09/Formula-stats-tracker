@@ -31,3 +31,26 @@ Official history: https://www.fiaformula3.com/en/information/the-championship-f3
 5. Add cached indexes and reliable scheduled refreshes.
 
 Independent project; not affiliated with Formula One, FIA, Formula 2, Formula 3 or any team. Check the license and attribution terms of each upstream dataset before redistributing its data.
+
+
+
+## Formula 2 — 2017 onwards
+- Final driver and team standings: historical season-specific pages in the official [FIA archive](https://www.fia.com/events/formula-2-championship).
+- Race classifications from 2017–2023: [Alarchemn's F2 historical dataset](https://github.com/Alarchemn/F2-Data-Pipeline), which documents FIA Formula 2 as its source and is released under the repository's MIT licence. Imported fields include classification position, laps, race time, gap, team and best lap where present.
+- From 2024 onwards: the FIA standings archive provides session-level Race 1 / Race 2 positions where those cells are published. These pages are standings tables, not full timing feeds.
+- The earlier GP2 championship (2005–2016) is not merged into modern F2.
+
+## Formula 3 — 2019 onwards
+- Final driver and team standings: historical season-specific pages in the official [FIA Formula 3 archive](https://www.fia.com/events/fia-formula-3-championship).
+- Race summaries: per-season Wikipedia championship summary tables for Sprint/Feature winners, pole positions and fastest-lap drivers. These are linked individually in each season JSON and are checked against available FIA standings.
+- Some early FIA F3 standings archives publish aggregate points by event rather than full per-session classifications. In those seasons the project shows race winners and available pole/fastest-lap records only; it does not invent podiums or finishing positions.
+- GP3 (2010–2018) is a predecessor competition and is not merged into modern FIA Formula 3.
+
+## F2/F3 data coverage conventions
+- FIA season standings supply official season position and points.
+- A blank position or metric means that the upstream source does not publish it in the imported table.
+- F2 2017–2023 race rows include classified order, laps, race time, gaps and best lap where present in the archive. That CSV does not publish race-session points, so those cells remain blank.
+- F2/F3 2024–2026 per-session position values come from FIA standings tables, not timing feeds; lap-by-lap telemetry and full timing sheets are not included.
+- F3 season-summary data is winner-level for seasons where FIA's standings table lacks full per-session finishing positions; podium totals remain unavailable in those seasons.
+- Each season JSON includes its upstream source URL and a coverage description.
+
