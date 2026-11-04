@@ -451,6 +451,9 @@ def add_wiki_f3_records(races: list[dict], wiki_races: list[dict], drivers: list
             pole_name = summary.pop("poleDriverName", None)
             fastest_name = summary.pop("fastestLapDriverName", None)
             session = summary.get("session")
+            has_fia_race_numbers = any(x.get("session") in ("Race 1", "Race 2") for x in event.get("Results", []))
+            if has_fia_race_numbers:
+                session = "Race 1" if session == "Sprint Race" else "Race 2" if session == "Feature Race" else session
             existing = next((x for x in event["Results"] if x.get("session") == session and x.get("position") == "1"), None)
             if not existing:
                 event["Results"].append({
@@ -485,6 +488,8 @@ def compute_standings_stats(drivers: list[dict], teams: list[dict], races: list[
     poles_available = bool(coverage.get("polePosition"))
     driver_map = {}
     team_map = {}
+    team_wins_available = bool(coverage.get("teamWins", coverage.get("wins", wins_available)))
+    team_podiums_available = bool(coverage.get("teamPodiums", coverage.get("podiums", podiums_available)))
     for item in drivers:
         d = item.get("Driver", {})
         item["wins"] = 0 if wins_available else None
@@ -494,8 +499,8 @@ def compute_standings_stats(drivers: list[dict], teams: list[dict], races: list[
         driver_map[d.get("driverId")] = item
     for item in teams:
         c = item.get("Constructor", {})
-        item["wins"] = 0 if wins_available else None
-        item["podiums"] = 0 if podiums_available else None
+        item["wins"] = 0 if team_wins_available else None
+        item["podiums"] = 0 if team_podiums_available else None
         team_map[normalize(c.get("name"))] = item
 
     for event in races:
@@ -553,7 +558,7 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
         })
         coverage = {
             "classification": "full", "wins": True, "podiums": True,
-            "fastestLap": True, "polePosition": False,
+            "fastestLap": True, "polePosition": False, "teamWins": True, "teamPodiums": True,
             "message": "FIA season standings; full Sprint/Feature classifications with laps, time, gaps and best laps from the cited historical F2 archive. Race-session points are not supplied by that CSV.",
         }
     elif series == "f2":
@@ -563,7 +568,7 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
         )
         coverage = {
             "classification": "full" if full else "standings-only",
-            "wins": full, "podiums": full, "fastestLap": False, "polePosition": False,
+            "wins": full, "podiums": full, "fastestLap": False, "polePosition": False, "teamWins": False, "teamPodiums": False,
             "message": "FIA season standings and per-session Race 1/Race 2 finishing positions where published. Lap timing, gaps and fastest-lap data are not included in the standings archive.",
         }
     else:
@@ -582,6 +587,8 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
             "podiums": full,
             "fastestLap": bool(wiki_races) or full,
             "polePosition": bool(wiki_races),
+            "teamWins": bool(wiki_races) or full,
+            "teamPodiums": False,
             "message": (
                 "FIA championship standings; full per-session finishing positions are available for this season."
                 if full else
