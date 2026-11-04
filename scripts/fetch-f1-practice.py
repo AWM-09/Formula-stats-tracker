@@ -163,10 +163,8 @@ def main() -> int:
             session_time = text(session_info.get("time"))
             if session_date:
                 try:
-                    scheduled_at = datetime.fromisoformat(
-                        session_date + ("T" + session_time if session_time else "T23:59:59") .
-                        replace("Z", "+00:00")
-                    )
+                    date_time_text = session_date + ("T" + session_time if session_time else "T23:59:59")
+                    scheduled_at = datetime.fromisoformat(date_time_text.replace("Z", "+00:00"))
                     if scheduled_at.tzinfo is None:
                         scheduled_at = scheduled_at.replace(tzinfo=timezone.utc)
                     if scheduled_at > now_utc:
