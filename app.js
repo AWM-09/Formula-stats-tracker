@@ -376,7 +376,8 @@ async function renderRecords(){
 }
 async function renderAnalytics(){
   const idx=await getIndex(state.series,"drivers"),seasons=idx.seasons||[];
-  const champions=seasons.filter(s=>s.status==="final"&&s.champion);\n  const currentLeader=seasons.find(s=>s.status==="current"&&s.leader);
+  const champions=seasons.filter(s=>s.status==="final"&&s.champion);
+  const currentLeader=seasons.find(s=>s.status==="current"&&s.leader);
   const counts=new Map();
   champions.forEach(s=>counts.set(s.champion,(counts.get(s.champion)||0)+1));
   const titleRows=Array.from(counts,([name,titles])=>({name,titles})).sort((a,b)=>b.titles-a.titles).slice(0,12);
