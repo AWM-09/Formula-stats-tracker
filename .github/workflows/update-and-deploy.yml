@@ -43,6 +43,10 @@ jobs:
         run: |
           python -m pip install --disable-pip-version-check beautifulsoup4 fastf1
           python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py
+      - name: Import completed current-season F1 practice classifications
+        id: fetch_practice
+        continue-on-error: true
+        run: python scripts/fetch-f1-practice.py
       - name: Fetch historical F2 and F3 data
         id: fetch_series
         continue-on-error: true
