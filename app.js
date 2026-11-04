@@ -84,7 +84,7 @@ function fillSeasonOptions(){
   select.value=String(state.season);
 }
 function setActiveNav(route){
-  const root=route[0]==="driver"?"drivers":route[0]==="team"?"teams":route[0]==="circuit"?"circuits":route[0]==="race"?"race-centre":route[0];
+  const root=route[0]==="overview"?"dashboard":route[0]==="driver"?"drivers":route[0]==="team"?"teams":route[0]==="circuit"?"circuits":route[0]==="race"?"race-centre":route[0];
   document.querySelectorAll(".main-nav a").forEach(a=>a.classList.toggle("active",a.dataset.nav===root));
 }
 function pageError(error){
@@ -105,6 +105,14 @@ async function renderRoute(force=false){
   }
   $("seriesSelect").value=state.series;fillSeasonOptions();$("seasonSelect").value=String(state.season);
   setActiveNav(state.route);
+  if(route==="dashboard"){
+    status("good",state.series.toUpperCase()+" PLATFORM READY");
+    notice("Choose a tool based on what you want to investigate.");
+    $("updatedLabel").textContent=state.season+" SEASON SELECTED";
+    $("viewRoot").innerHTML=renderDashboard();
+    bindDynamicEvents();
+    return;
+  }
   $("viewRoot").innerHTML="<div class='page-loading'><span class='spinner'></span><p>Loading "+esc(route.replace(/-/g," "))+"…</p></div>";
   try{
     state.data=await getSeason(state.series,state.season,force);
@@ -114,7 +122,8 @@ async function renderRoute(force=false){
     notice(coverage&&coverage.message?coverage.message:seriesLabel(state.series)+" season archive loaded.");
     let content="";
     switch(route){
-      case "dashboard": content=await renderDashboard();break;
+      case "dashboard": content=renderDashboard();break;
+      case "overview": content=await renderSeasonOverview();break;
       case "calendar": content=await renderCalendar();break;
       case "drivers": content=await renderDrivers();break;
       case "driver": content=await renderDriverProfile(state.route[1],state.route[2]);break;
@@ -257,7 +266,7 @@ function startCountdown(){
   update();
   state.countdownTimer=setInterval(update,1000);
 }
-async function renderDashboard(){
+async function renderSeasonOverview(){
   const data=state.data,events=availableEvents(data),drivers=data.driverStandings||[],teams=data.constructorStandings||[];
   const leader=drivers[0],topTeam=teams[0];
   const next=events.find(e=>!eventHasResults(e))||events[events.length-1];
@@ -275,6 +284,28 @@ async function renderDashboard(){
     ["Predictions","Explore the research-only race form model","/predictions"]
   ].map(x=>"<a class='event-row' href='#"+x[2]+"'><span class='event-round'>↗</span><span class='event-main'><strong>"+x[0]+"</strong><small>"+x[1]+"</small></span></a>").join("")+"</div>")+"</div>"+
   "<div class='notice'>Season pages only display verified fields. If a historic F2/F3 source supplies winners but not full classifications, the race centre will say so rather than inventing finishing positions.</div>";
+}
+function renderDashboard(){
+  const cards=[
+    ["📊","CORE STATISTICS","Season Overview","Championship standings, driver and constructor battles, season totals and key performance statistics.","overview"],
+    ["🏁","RACE SCHEDULE","Race Calendar","Browse the Formula 1, Formula 2 and Formula 3 calendars, upcoming rounds and completed events.","calendar"],
+    ["🏎️","DRIVER DATABASE","Driver Profiles","Search driver profiles, explore career progression, season statistics, teams and race histories.","drivers"],
+    ["🏆","TEAM DATABASE","Constructor Database","Explore constructor histories, championship performance, line-ups and team statistics across seasons.","teams"],
+    ["🏎","CIRCUIT DATABASE","Circuit Explorer","Discover circuits, locations, race histories and the statistics behind each venue.","circuits"],
+    ["📋","RACE WEEKENDS","Race Centre","Open race weekends and inspect available practice, qualifying, sprint and race classifications.","race-centre"],
+    ["🎯","MODEL EVALUATION","Prediction Lab","Explore model-based race forecasts, historical backtests and prediction performance.","predictions"],
+    ["⇄","COMPARISON TOOLS","Comparisons","Compare drivers and constructors across seasons with head-to-head statistics and performance trends.","comparisons"],
+    ["🏅","HISTORICAL RESEARCH","Records & Milestones","Find championship milestones, career records, race records and all-time statistical leaders.","records"],
+    ["📈","DEEP ANALYTICS","Advanced Analytics","Investigate progression, performance metrics, historical trends and configurable statistical analyses.","analytics"],
+    ["🗂️","RELIABILITY","Data Centre","Review archive coverage, update timestamps, source information and incomplete or missing session data.","data-centre"]
+  ];
+  return "<section class='platform-heading'><div><h1>Explore the platform</h1><p>Choose a tool based on what you want to investigate.</p></div></section>"+
+    "<div class='platform-grid'>"+cards.map(card=>
+      "<a class='platform-card' href='#/"+card[4]+"' aria-label='"+esc(card[2])+": "+esc(card[3])+"'>"+
+        "<div class='platform-card-top'><span class='platform-icon' aria-hidden='true'>"+card[0]+"</span><span class='platform-category'>"+esc(card[1])+"</span><span class='platform-arrow' aria-hidden='true'>↗</span></div>"+
+        "<h2>"+esc(card[2])+"</h2><p>"+esc(card[3])+"</p>"+
+      "</a>"
+    ).join("")+"</div>";
 }
 async function renderCalendar(){
   const events=availableEvents(state.data);
