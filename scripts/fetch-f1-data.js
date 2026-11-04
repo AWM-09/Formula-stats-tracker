@@ -1,53 +1,58 @@
 "use strict";
-const fs = require("node:fs/promises");
-const path = require("node:path");
-const BASE = "https://api.jolpi.ca/ergast/f1";
-const START_YEAR = 1950;
-const END_YEAR = new Date().getUTCFullYear();
-const OUT = path.join("data","f1");
-const wait = (ms) => new Promise(resolve => setTimeout(resolve,ms));
-async function getJson(url) {
-  const response = await fetch(url,{headers:{"Accept":"application/json","User-Agent":"FormulaStatsTracker/1.0"}});
-  if (!response.ok) throw new Error("HTTP "+response.status+" for "+url);
-  return response.json();
+const fs=require("node:fs/promises"),path=require("node:path");
+const BASE="https://api.jolpi.ca/ergast/f1",START=1950,END=new Date().getUTCFullYear(),OUT=path.join("data","f1");
+const MIN_INTERVAL_MS=900,MAX_RETRIES=8;
+let lastRequestAt=0;
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function retryDelay(response,attempt){
+ const header=response.headers.get("retry-after");
+ if(header){const seconds=Number(header);if(Number.isFinite(seconds))return Math.max(1000,seconds*1000);const date=Date.parse(header);if(Number.isFinite(date))return Math.max(1000,date-Date.now());}
+ return Math.min(300000,15000*Math.pow(2,attempt));
 }
-async function endpoint(url) { await wait(325); const json=await getJson(url); if(!json || !json.MRData) throw new Error("Unexpected API response from "+url); return json.MRData; }
-async function getPagedResults(year) {
-  const all=[]; let offset=0; let total=0;
-  do {
-    const data=await endpoint(BASE+"/"+year+"/results.json?limit=100&offset="+offset);
-    const races=(data.RaceTable && data.RaceTable.Races)||[];
-    races.forEach(race=>all.push(race));
-    total=Number(data.total)||0;
-    offset+=Number(data.limit)||100;
-  } while(offset<total);
-  const byRound=new Map();
-  all.forEach(race=>{
-    const key=String(race.round);
-    if(!byRound.has(key))byRound.set(key,{...race,Results:[]});
-    byRound.get(key).Results.push(...(race.Results||[]));
-  });
-  return Array.from(byRound.values()).sort((a,b)=>Number(a.round)-Number(b.round));
-}
-async function getStandings(year,type) {
-  const data=await endpoint(BASE+"/"+year+"/"+type+".json?limit=100");
-  const lists=data.StandingsTable && data.StandingsTable.StandingsLists;
-  if(!lists || !lists.length) return [];
-  return lists[0][type==="driverStandings"?"DriverStandings":"ConstructorStandings"]||[];
-}
-async function main() {
-  await fs.mkdir(OUT,{recursive:true});
-  for(let year=START_YEAR;year<=END_YEAR;year++) {
-    const target=path.join(OUT,year+".json");
-    const exists=await fs.access(target).then(()=>true).catch(()=>false);
-    if(exists && year!==END_YEAR) { console.log("Keeping historical snapshot "+year); continue; }
-    console.log("Updating F1 season "+year);
-    const races=await getPagedResults(year);
-    const driverStandings=await getStandings(year,"driverStandings");
-    const constructorStandings=await getStandings(year,"constructorStandings");
-    const payload={series:"f1",season:year,updatedAt:new Date().toISOString(),source:"Jolpica F1 API",driverStandings,constructorStandings,races};
-    await fs.writeFile(target,JSON.stringify(payload));
-    console.log(year+": "+races.length+" race weekends, "+driverStandings.length+" driver standings, "+constructorStandings.length+" constructor standings");
+async function request(url){
+ for(let attempt=0;attempt<MAX_RETRIES;attempt++){
+  const remaining=MIN_INTERVAL_MS-(Date.now()-lastRequestAt);if(remaining>0)await pause(remaining);
+  lastRequestAt=Date.now();
+  let response;
+  try{response=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"FormulaStatsTracker/1.0"}});}
+  catch(error){if(attempt===MAX_RETRIES-1)throw error;const delay=Math.min(60000,3000*Math.pow(2,attempt));console.warn("Network issue; retrying in "+Math.round(delay/1000)+"s");await pause(delay);continue;}
+  if(response.status===429||response.status>=500){
+   if(attempt===MAX_RETRIES-1)throw new Error("HTTP "+response.status+" after retries for "+url);
+   const delay=retryDelay(response,attempt);console.warn("Provider returned HTTP "+response.status+"; backing off for "+Math.round(delay/1000)+"s");await pause(delay);continue;
   }
+  if(!response.ok)throw new Error("HTTP "+response.status+" for "+url);
+  const json=await response.json();if(!json||!json.MRData)throw new Error("Unexpected API response from "+url);return json.MRData;
+ }
+ throw new Error("Retry limit reached for "+url);
 }
-main().catch(error=>{console.error(error);process.exitCode=1;});
+async function resultsFor(year){
+ let offset=0,total=0;const grouped=new Map();
+ do{
+  const data=await request(BASE+"/"+year+"/results.json?limit=100&offset="+offset);
+  for(const race of (data.RaceTable&&data.RaceTable.Races)||[]){const key=String(race.round);if(!grouped.has(key))grouped.set(key,{...race,Results:[]});grouped.get(key).Results.push(...(race.Results||[]));}
+  total=Number(data.total)||0;offset+=Number(data.limit)||100;
+ }while(offset<total);
+ return Array.from(grouped.values()).sort((a,b)=>Number(a.round)-Number(b.round));
+}
+async function standings(year,type){
+ if(type==="constructorStandings"&&year<1958)return [];
+ const data=await request(BASE+"/"+year+"/"+type+".json?limit=100");
+ const lists=data.StandingsTable&&data.StandingsTable.StandingsLists;
+ if(!lists||!lists.length)return [];
+ return lists[0][type==="driverStandings"?"DriverStandings":"ConstructorStandings"]||[];
+}
+async function main(){
+ await fs.mkdir(OUT,{recursive:true});
+ for(let year=START;year<=END;year++){
+  const file=path.join(OUT,year+".json"),exists=await fs.access(file).then(()=>true).catch(()=>false);
+  if(exists&&year!==END){console.log("Historical snapshot retained: "+year);continue;}
+  console.log("Fetching F1 "+year);
+  const races=await resultsFor(year),driverStandings=await standings(year,"driverStandings"),constructorStandings=await standings(year,"constructorStandings");
+  if(year<1958&&constructorStandings.length)throw new Error("Unexpected pre-1958 constructor standings.");
+  const data={series:"f1",season:year,updatedAt:new Date().toISOString(),source:"Jolpica F1 API",driverStandings,constructorStandings,races};
+  if(!races.length&&year<END)throw new Error("No race results returned for historical season "+year+"; refusing to save an empty snapshot.");
+  await fs.writeFile(file,JSON.stringify(data));
+  console.log(year+": "+races.length+" race weekends, "+driverStandings.length+" driver standings, "+constructorStandings.length+" constructor standings.");
+ }
+}
+main().catch(error=>{console.error(error);process.exit(1);});
