@@ -4,6 +4,7 @@ const path = require("node:path");
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "data");
 const SERIES = { f1: 1950, f2: 2017, f3: 2019 };
+const CURRENT_YEAR = new Date().getUTCFullYear();
 const norm = value => String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const displayName = d => [d && d.givenName, d && d.familyName].filter(Boolean).join(" ").trim() || (d && (d.code || d.driverId)) || "Unknown";
 const n = value => value === null || value === undefined || value === "" || !Number.isFinite(Number(value)) ? null : Number(value);
