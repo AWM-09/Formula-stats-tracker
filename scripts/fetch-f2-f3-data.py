@@ -555,7 +555,8 @@ def add_wikipedia_summary_records(races: list[dict], wiki_races: list[dict], dri
             races.append(event)
             by_round[round_number] = event
         for summary in wiki_event["Results"]:
-            winner = match_person(summary.pop("wikiWinnerName"), drivers)
+            winner_name = summary.pop("wikiWinnerName", "")
+            winner = match_person(winner_name, drivers) if winner_name else None
             team_name = summary.pop("wikiTeamName", "")
             pole_name = summary.pop("poleDriverName", None)
             fastest_name = summary.pop("fastestLapDriverName", None)
@@ -564,17 +565,18 @@ def add_wikipedia_summary_records(races: list[dict], wiki_races: list[dict], dri
             if has_fia_race_numbers:
                 session = "Race 1" if session == "Sprint Race" else "Race 2" if session == "Feature Race" else session
             existing = next((x for x in event["Results"] if x.get("session") == session and x.get("position") == "1"), None)
-            if not existing:
-                event["Results"].append({
-                    "Driver": winner,
-                    "Constructor": {"name": team_name or ""},
-                    "position": "1",
-                    "points": None,
-                    "session": session,
-                    "source": "Wikipedia season summary",
-                })
-            elif not existing.get("Constructor", {}).get("name") and team_name:
-                existing["Constructor"] = {"name": team_name}
+            if winner:
+                if not existing:
+                    event["Results"].append({
+                        "Driver": winner,
+                        "Constructor": {"name": team_name or ""},
+                        "position": "1",
+                        "points": None,
+                        "session": session,
+                        "source": "Wikipedia season summary",
+                    })
+                elif not existing.get("Constructor", {}).get("name") and team_name:
+                    existing["Constructor"] = {"name": team_name}
             if pole_name and session not in ("Sprint Race", "Race 2"):
                 pole_driver = match_person(pole_name, drivers)
                 event["Results"].append({
