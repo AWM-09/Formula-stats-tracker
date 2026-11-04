@@ -78,3 +78,12 @@ The build workflow generates the cross-season indexes and per-entity profile JSO
 - Career records include driver and constructor points totals, with a warning that scoring systems changed between eras.
 - Driver comparison inputs support typing names and choosing autocomplete suggestions.
 - A YouTube channel link is shown in the site header and footer.
+
+
+## Race countdown and selectable weekend sessions
+- The dashboard counts down to the next event in the selected current-season calendar. It uses the event's UTC race start when supplied; F2/F3 entries without a session start time are labelled as a race-weekend date, not an exact start time.
+- F1 qualifying and Sprint classifications are imported from Jolpica's Ergast-compatible endpoints. The archive preserves scheduled Practice 1/2/3 and qualifying/Sprint session times.
+- Current-season F1 practice classifications are imported through FastF1 after the sessions are complete and the timing feed is available. FastF1 historical support is available from 2018; this automatic job currently backfills the selected current season only.
+- F2/F3 race pages provide Practice, Qualifying, Sprint Race and Feature Race choices. A tab with no stored classification clearly states that the source data has not been imported rather than presenting an empty table as a result.
+- The 2026 F2/F3 calendar is reconciled to the official FIA schedule, including the two remaining 2026 F2 rounds at Lusail and Yas Marina. F3's 2026 season calendar ends in Madrid.
+- YouTube: https://www.youtube.com/@AlexMyrusTalksSports

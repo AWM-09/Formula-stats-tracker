@@ -582,16 +582,24 @@ def add_wikipedia_summary_records(races: list[dict], wiki_races: list[dict], dri
             existing = next((x for x in event["Results"] if x.get("session") == session and x.get("position") == "1"), None)
             if winner:
                 if not existing:
-                    event["Results"].append({
+                    existing = {
                         "Driver": winner,
                         "Constructor": {"name": team_name or ""},
                         "position": "1",
                         "points": None,
                         "session": session,
                         "source": "Wikipedia season summary",
-                    })
-                elif not existing.get("Constructor", {}).get("name") and team_name:
-                    existing["Constructor"] = {"name": team_name}
+                    }
+                    event["Results"].append(existing)
+                else:
+                    # wiki_season_summary is passed as both the source and destination in recent seasons.
+                    # The matching row is therefore already in the event; enrich it instead of leaving
+                    # the championship winner without a Driver object.
+                    if not existing.get("Driver"):
+                        existing["Driver"] = winner
+                    if not existing.get("Constructor", {}).get("name") and team_name:
+                        existing["Constructor"] = {"name": team_name}
+                    existing["source"] = "Wikipedia season summary"
             if pole_name and session not in ("Sprint Race", "Race 2"):
                 pole_driver = match_person(pole_name, drivers)
                 event["Results"].append({
@@ -770,8 +778,66 @@ def import_season(series: str, year: int, force: bool = False) -> bool:
         "round": r.get("round"), "raceName": r.get("raceName"),
         "date": r.get("date"), "dateEnd": r.get("date"),
         "Circuit": r.get("Circuit") or {},
+        "sessionTypes": ["Practice", "Qualifying", "Sprint Race", "Feature Race"],
         "scheduleSource": "Season race archive",
     } for r in races]
+    if year == 2026:
+        if series == "f2":
+            schedule_2026 = [
+                (1,"Melbourne","2026-03-06","2026-03-08","Melbourne","Australia"),
+                (2,"Miami","2026-05-01","2026-05-03","Miami Gardens","USA"),
+                (3,"Montréal","2026-05-22","2026-05-24","Montréal","Canada"),
+                (4,"Monte Carlo","2026-06-04","2026-06-07","Monte Carlo","Monaco"),
+                (5,"Barcelona-Catalunya","2026-06-12","2026-06-14","Barcelona","Spain"),
+                (6,"Spielberg","2026-06-26","2026-06-28","Spielberg","Austria"),
+                (7,"Silverstone","2026-07-03","2026-07-05","Silverstone","United Kingdom"),
+                (8,"Spa-Francorchamps","2026-07-17","2026-07-19","Stavelot","Belgium"),
+                (9,"Budapest","2026-07-24","2026-07-26","Budapest","Hungary"),
+                (10,"Monza","2026-09-04","2026-09-06","Monza","Italy"),
+                (11,"Madrid","2026-09-11","2026-09-13","Madrid","Spain"),
+                (12,"Baku","2026-09-24","2026-09-26","Baku","Azerbaijan"),
+                (13,"Lusail","2026-11-27","2026-11-29","Lusail","Qatar"),
+                (14,"Yas Marina","2026-12-04","2026-12-06","Abu Dhabi","UAE"),
+            ]
+            calendar_source = "Official FIA Formula 2 2026 calendar"
+            calendar_url = "https://www.fiaformula2.com/en/latest/article/fia-formula-2-championship-2026-season-calendar-revealed.28OvYB98ektUm0D8vrUgYS"
+        else:
+            schedule_2026 = [
+                (1,"Melbourne","2026-03-06","2026-03-08","Melbourne","Australia"),
+                (2,"Monte Carlo","2026-06-04","2026-06-07","Monte Carlo","Monaco"),
+                (3,"Barcelona-Catalunya","2026-06-12","2026-06-14","Barcelona","Spain"),
+                (4,"Spielberg","2026-06-26","2026-06-28","Spielberg","Austria"),
+                (5,"Silverstone","2026-07-03","2026-07-05","Silverstone","United Kingdom"),
+                (6,"Spa-Francorchamps","2026-07-17","2026-07-19","Stavelot","Belgium"),
+                (7,"Budapest","2026-07-24","2026-07-26","Budapest","Hungary"),
+                (8,"Monza","2026-09-04","2026-09-06","Monza","Italy"),
+                (9,"Madrid","2026-09-11","2026-09-13","Madrid","Spain"),
+            ]
+            calendar_source = "Official FIA Formula 3 2026 calendar"
+            calendar_url = "https://www.fiaformula3.com/en/racing/2026"
+        actual_by_round = {str(item.get("round")): item for item in calendar}
+        calendar = []
+        for round_no, venue, date_start, date_end, locality, country in schedule_2026:
+            actual = actual_by_round.get(str(round_no), {})
+            circuit = dict(actual.get("Circuit") or {})
+            circuit.setdefault("circuitName", venue)
+            circuit.setdefault("Location", {"locality": locality, "country": country})
+            session_types = ["Practice", "Qualifying", "Sprint Race", "Feature Race"]
+            if series == "f2" and round_no == 12:
+                session_types = ["Practice", "Qualifying 1", "Qualifying 2", "Sprint Race", "Feature Race 1", "Feature Race 2"]
+            if series == "f3" and round_no == 9:
+                session_types = ["Practice", "Qualifying 1", "Qualifying 2", "Sprint Race", "Feature Race 1", "Feature Race 2"]
+            calendar.append({
+                **actual,
+                "round": str(round_no),
+                "raceName": actual.get("raceName") or venue,
+                "date": date_start,
+                "dateEnd": date_end,
+                "Circuit": circuit,
+                "sessionTypes": session_types,
+                "scheduleSource": calendar_source
+            })
+        sources.append({"name": calendar_source, "url": calendar_url})
     data = {
         "series": series,
         "season": year,

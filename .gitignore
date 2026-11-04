@@ -5,3 +5,7 @@ node_modules/
 *.log
 .npm/
 coverage/
+
+.fastf1-cache/
+__pycache__/
+*.pyc

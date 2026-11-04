@@ -38,6 +38,29 @@ async function scheduleFor(year){
  const data=await request(BASE+"/"+year+"/races.json?limit=100");
  return (data.RaceTable&&data.RaceTable.Races)||[];
 }
+async function sessionResultsFor(year,endpoint,field,sessionName){
+ const data=await request(BASE+"/"+year+"/"+endpoint+".json?limit=100");
+ const grouped=new Map();
+ for(const race of (data.RaceTable&&data.RaceTable.Races)||[]){
+  const rows=race[field]||[];
+  if(!rows.length)continue;
+  const converted=rows.map(row=>{
+   if(sessionName==="Qualifying"){
+    const q3=row.Q3||"",q2=row.Q2||"",q1=row.Q1||"";
+    return {
+     ...row,
+     session:"Qualifying",
+     Q1:q1,Q2:q2,Q3:q3,
+     Time:{time:q3||q2||q1||""},
+     points:null
+    };
+   }
+   return {...row,session:sessionName};
+  });
+  grouped.set(String(race.round),converted);
+ }
+ return grouped;
+}
 async function standings(year,type){
  if(type==="constructorStandings"&&year<1958)return [];
  const data=await request(BASE+"/"+year+"/"+type+".json?limit=100");
@@ -49,17 +72,31 @@ async function main(){
  await fs.mkdir(OUT,{recursive:true});
  for(let year=START;year<=END;year++){
   const file=path.join(OUT,year+".json"),exists=await fs.access(file).then(()=>true).catch(()=>false);
-  if(exists&&year!==END){console.log("Historical snapshot retained: "+year);continue;}
+  let sessionVersion=0;
+  if(exists){try{sessionVersion=Number(JSON.parse(await fs.readFile(file,"utf8")).sessionDataVersion)||0;}catch{}}
+  if(exists&&year!==END&&sessionVersion>=2){console.log("Historical snapshot retained: "+year);continue;}
   console.log("Fetching F1 "+year);
   const races=await resultsFor(year),schedule=await scheduleFor(year),driverStandings=await standings(year,"driverStandings"),constructorStandings=await standings(year,"constructorStandings");
+  const qualifying=await sessionResultsFor(year,"qualifying","QualifyingResults","Qualifying");
+  const sprints=year>=2021?await sessionResultsFor(year,"sprint","SprintResults","Sprint"):new Map();
   if(year<1958&&constructorStandings.length)throw new Error("Unexpected pre-1958 constructor standings.");
   const resultByRound=new Map(races.map(r=>[String(r.round),r]));
   const mergedRaces=schedule.map(s=>{
    const actual=resultByRound.get(String(s.round));
-   return actual?{...s,...actual,Circuit:actual.Circuit||s.Circuit}:{...s,Results:[]};
+   const event=actual?{...s,...actual,Circuit:actual.Circuit||s.Circuit}:{...s,Results:[]};
+   event.Results=event.Results||[];
+   const existing=new Set(event.Results.map(x=>x.session||"Race"));
+   for(const [session,rows] of [["Qualifying",qualifying.get(String(s.round))||[]],["Sprint",sprints.get(String(s.round))||[]]]){
+    if(rows.length&&!existing.has(session))event.Results.push(...rows);
+   }
+   return event;
   });
-  const calendar=schedule.map(r=>({round:String(r.round),raceName:r.raceName,date:r.date||null,time:r.time||null,Circuit:r.Circuit||{}}));
-  const data={series:"f1",season:year,updatedAt:new Date().toISOString(),source:"Jolpica F1 API",driverStandings,constructorStandings,races:mergedRaces,calendar};
+  const calendar=schedule.map(r=>({
+   round:String(r.round),raceName:r.raceName,date:r.date||null,time:r.time||null,Circuit:r.Circuit||{},
+   FirstPractice:r.FirstPractice||null,SecondPractice:r.SecondPractice||null,ThirdPractice:r.ThirdPractice||null,
+   Qualifying:r.Qualifying||null,Sprint:r.Sprint||null,SprintQualifying:r.SprintQualifying||r.SprintShootout||null
+  }));
+  const data={series:"f1",season:year,sessionDataVersion:2,updatedAt:new Date().toISOString(),source:"Jolpica F1 API",driverStandings,constructorStandings,races:mergedRaces,calendar,sessionCoverage:{qualifying:"Jolpica F1 API",sprint:year>=2021?"Jolpica F1 API":"Not applicable before 2021",practice:"FastF1 current-season practice imports where available"}};
   if(!races.length&&year<END)throw new Error("No race results returned for historical season "+year+"; refusing to save an empty snapshot.");
   await fs.writeFile(file,JSON.stringify(data));
   console.log(year+": "+races.length+" race weekends, "+driverStandings.length+" driver standings, "+constructorStandings.length+" constructor standings.");
