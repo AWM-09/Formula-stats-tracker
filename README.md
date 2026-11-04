@@ -69,3 +69,12 @@ The prediction model is an exploratory statistical estimate, not a guarantee. Re
 - Data Centre with coverage by season and documented source limitations.
 
 The build workflow generates the cross-season indexes and per-entity profile JSON files under `data/indexes/` and `data/profiles/`. Track length, corner counts, official lap records, qualifying, pit stops and telemetry are shown only when a verified source is connected.
+
+
+## November 2026 data-quality fixes
+- Race-centre pages merge the calendar schedule with the season's actual race-result entries, so schedule-only calendar data can no longer hide an available classification.
+- Driver and constructor career summaries calculate podium totals from classified results where a full classification archive exists.
+- Profiles show pole starts (grid position one) separately from verified qualifying pole positions, and expose fastest-lap counts where available.
+- Career records include driver and constructor points totals, with a warning that scoring systems changed between eras.
+- Driver comparison inputs support typing names and choosing autocomplete suggestions.
+- A YouTube channel link is shown in the site header and footer.

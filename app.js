@@ -5,6 +5,7 @@ const CURRENT_YEAR = new Date().getUTCFullYear();
 const state = {
   series:"f1", season:CURRENT_YEAR, data:null, route:["dashboard"],
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
+  compareDriverDirectory:new Map(),
   sessionFilter:"", predictionEvent:"", compareResult:""
 };
 const $ = id => document.getElementById(id);
@@ -134,18 +135,41 @@ async function renderRoute(force=false){
   }catch(error){console.error(error);pageError(error);}
 }
 function availableEvents(data){
-  const list=Array.isArray(data.calendar)&&data.calendar.length?data.calendar:(data.races||[]);
-  return list.map(event=>{
+  const races=Array.isArray(data.races)?data.races:[];
+  const schedule=Array.isArray(data.calendar)&&data.calendar.length?data.calendar:races;
+  const raceByRound=new Map(races.map(event=>[String(event.round),event]));
+  const merged=schedule.map(event=>{
+    const actual=raceByRound.get(String(event.round));
+    return {
+      ...(actual||{}),
+      ...event,
+      Circuit:(actual&&actual.Circuit)||event.Circuit||{},
+      Results:(actual&&Array.isArray(actual.Results)?actual.Results:event.Results)||[],
+      raceName:(actual&&actual.raceName)||event.raceName,
+      date:(actual&&actual.date)||event.date||null,
+      time:(actual&&actual.time)||event.time||null
+    };
+  });
+  const included=new Set(merged.map(event=>String(event.round)));
+  for(const event of races){
+    if(!included.has(String(event.round)))merged.push(event);
+  }
+  return merged.map(event=>{
     const circuit=event.Circuit||{};
     return {
-      round:String(event.round),raceName:event.raceName||circuit.circuitName||("Round "+event.round),
-      date:event.date||null,dateEnd:event.dateEnd||event.date||null,
-      time:event.time||null,Circuit:circuit,
+      ...event,
+      round:String(event.round),
+      raceName:event.raceName||circuit.circuitName||("Round "+event.round),
+      date:event.date||null,
+      dateEnd:event.dateEnd||event.date||null,
+      time:event.time||null,
+      Circuit:circuit,
       circuitId:circuit.circuitId||slug(circuit.circuitName||event.raceName),
       Results:event.Results||[]
     };
   }).sort((a,b)=>(Number(a.round)||0)-(Number(b.round)||0));
 }
+
 function eventHasResults(event){return (event.Results||[]).some(r=>!r.isRecordOnly&&r.Driver);}
 function eventCard(series,year,event){
   const location=event.Circuit&&event.Circuit.Location;
@@ -198,11 +222,11 @@ async function renderDriverProfile(series,id){
   const timeline=seasons.slice().reverse().map(s=>"<div class='season-item'><strong>"+esc(s.season)+"<small>"+esc(s.position==null?"Position unavailable":"P"+s.position)+"</small></strong><div><div class='secondary'>"+esc((s.constructors||[]).join(", ")||"Constructor not linked")+" · "+esc(number(s.points))+" pts</div><div class='mini-bar'><span style='width:"+Math.max(2,Math.min(100,(s.points||0)/maxPoints*100))+"%'></span></div></div>"+badge(s.position===1?"Champion":s.coverage||"Season")+"</div>").join("");
   const knownWins=c.wins==null?"—":c.wins+(c.winsComplete?"":"*");
   return pageHead("DRIVER PROFILE",p.name, [p.nationality,seriesLabel(series)+" career",c.firstSeason+"–"+c.lastSeason].filter(Boolean).join(" · "),"<a class='text-link' href='#/drivers'>← All drivers</a>")+
-    "<div class='profile-hero'><div><span class='eyebrow'>CAREER ARCHIVE · "+esc(seriesLabel(series))+"</span><h1>"+esc(p.name)+"</h1><p>"+esc(p.nationality||"Nationality not in source")+(p.code?" · "+esc(p.code):"")+(p.number?" · Car #"+esc(p.number):"")+"</p><div class='entity-meta'>"+teamHistory.slice(0,8).map(t=>badge(t)).join("")+"</div></div><div class='profile-number'>"+esc(p.number||"—")+"</div></div>"+
-    "<div class='profile-metrics'>"+metric("Championships",number(c.championships),"Season titles in archive")+metric("Race wins",knownWins,c.winsComplete?"Career total":"Available-source total*")+metric("Podiums",c.podiums==null?"—":c.podiums+(c.podiumsComplete?"":"*"),"Source coverage varies")+metric("Points",c.points==null?"—":number(c.points),"Across indexed seasons")+"</div>"+
+    "<div class='profile-hero'><div><span class='eyebrow'>CAREER ARCHIVE · "+esc(seriesLabel(series))+"</span><h1>"+esc(p.name)+"</h1><p>"+esc(p.nationality||"Nationality not in source")+(p.code?" · "+esc(p.code):"")+(p.number?" · Permanent number #"+esc(p.number):"")+"</p><div class='entity-meta'>"+teamHistory.slice(0,8).map(t=>badge(t)).join("")+"</div></div><div class='profile-number'>"+esc(p.number||"N/A")+"<small class='secondary'>"+(p.number?"PERMANENT NO.":"NO PERMANENT NUMBER ASSIGNED")+"</small></div></div>"+
+    "<div class='profile-metrics'>"+metric("Championships",number(c.championships),"Season titles in archive")+metric("Race wins",knownWins,c.winsComplete?"Career total":"Available-source total*")+metric("Podiums",c.podiums==null?"—":c.podiums+(c.podiumsComplete?"":"*"),c.podiumsComplete?"Derived from full classifications":"Available-source total*")+metric("Points",c.points==null?"—":number(c.points),"Raw historical championship points")+"</div>"+
     "<div class='grid-2'>"+panel("CAREER TIMELINE","Season-by-season performance","<div class='season-list'>"+(timeline||"<div class='empty-state'>No season history.</div>")+"</div>")+panel("CAREER OVERVIEW","Profile details","<div class='fact-grid'>"+[
-      ["Seasons competed",c.seasons],["First season",c.firstSeason||"—"],["Last season",c.lastSeason||"—"],["Classified results",c.classifiedResults],["Fastest laps",c.fastestLaps==null?"—":c.fastestLaps],["Poles",c.poles==null?"—":c.poles]
-    ].map(x=>"<div class='fact'><span>"+esc(x[0])+"</span><strong>"+esc(number(x[1]))+"</strong></div>").join("")+"</div><p class='secondary'>* Career totals are partial where a season's underlying source does not publish the metric.</p>")+"</div>"+
+      ["Seasons competed",c.seasons],["First season",c.firstSeason||"—"],["Last season",c.lastSeason||"—"],["Classified results",c.classifiedResults],["Fastest laps",c.fastestLaps==null?"—":c.fastestLaps+(c.fastestLapsComplete?"":"*")],["Pole starts",c.poleStarts==null?"—":c.poleStarts+(c.poleStartsComplete?"":"*")]
+    ].map(x=>"<div class='fact'><span>"+esc(x[0])+"</span><strong>"+esc(number(x[1]))+"</strong></div>").join("")+"</div><p class='secondary'>* Available-source total. Pole starts count cars that started from grid position one; this is not a substitute for an official qualifying pole record. Historical points systems also changed over time.</p>")+"</div>"+
     panel("RACE HISTORY","Most recent indexed results",table(["SEASON","EVENT / SESSION","CIRCUIT","POS","CONSTRUCTOR","POINTS"],resultRows),"<span class='secondary'>"+results.length+" result rows in profile archive</span>");
 }
 async function renderTeams(){
@@ -333,25 +357,34 @@ async function renderPredictions(){
 }
 async function renderComparisons(){
   const idx=await getIndex(state.series,"drivers");
-  const driverOptions=idx.drivers.map(d=>"<option value='"+esc(d.id)+"'>"+esc(d.name)+"</option>").join("");
+  state.compareDriverDirectory=new Map(idx.drivers.map(d=>[norm(d.name),d]));
+  const driverOptions=idx.drivers.map(d=>"<option value='"+esc(d.name)+"'></option>").join("");
   const years=idx.seasons.map(s=>s.year).sort((a,b)=>b-a);
   const seasonOptions=years.map(y=>"<option value='"+y+"'>"+y+"</option>").join("");
-  return pageHead("COMPARISON LAB","Compare careers & seasons","Compare drivers across their indexed career, or compare championship seasons.")+
-  "<div class='grid-2'><section class='panel'><div class='panel-header'><div><span class='eyebrow'>DRIVER HEAD-TO-HEAD</span><h2>Career comparison</h2></div></div><div class='toolbar'><label class='field'><span>DRIVER ONE</span><select id='compareDriverOne' class='field-select'>"+driverOptions+"</select></label><label class='field'><span>DRIVER TWO</span><select id='compareDriverTwo' class='field-select'>"+driverOptions+"</select></label></div><div id='driverCompareOutput' class='comparison-output'></div></section>"+
+  return pageHead("COMPARISON LAB","Compare careers & seasons","Type driver names and choose the matching suggestion, or compare championship seasons.")+
+  "<div class='grid-2'><section class='panel'><div class='panel-header'><div><span class='eyebrow'>DRIVER HEAD-TO-HEAD</span><h2>Career comparison</h2></div></div><div class='toolbar'><label class='field'><span>DRIVER ONE</span><input id='compareDriverOne' class='field-select' type='search' list='compareDriverNames' placeholder='Start typing a driver name…' autocomplete='off'></label><label class='field'><span>DRIVER TWO</span><input id='compareDriverTwo' class='field-select' type='search' list='compareDriverNames' placeholder='Start typing a driver name…' autocomplete='off'></label></div><datalist id='compareDriverNames'>"+driverOptions+"</datalist><p class='secondary'>You can type the driver's name instead of scrolling through a long dropdown. Select a matching suggestion to compare.</p><div id='driverCompareOutput' class='comparison-output'></div></section>"+
   "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>CHAMPIONSHIP HISTORY</span><h2>Season comparison</h2></div></div><div class='toolbar'><label class='field'><span>SEASON ONE</span><select id='compareSeasonOne' class='field-select'>"+seasonOptions+"</select></label><label class='field'><span>SEASON TWO</span><select id='compareSeasonTwo' class='field-select'>"+seasonOptions+"</select></label></div><div id='seasonCompareOutput' class='comparison-output'></div></section></div>";
 }
 async function runDriverCompare(){
-  const aId=$("compareDriverOne").value,bId=$("compareDriverTwo").value;
+  const aChoice=norm($("compareDriverOne").value),bChoice=norm($("compareDriverTwo").value);
+  const aEntry=state.compareDriverDirectory.get(aChoice),bEntry=state.compareDriverDirectory.get(bChoice);
   const out=$("driverCompareOutput");
-  if(!aId||!bId){out.innerHTML="<div class='empty-state'>Select two drivers.</div>";return;}
-  if(aId===bId){out.innerHTML="<div class='empty-state'>Choose two different drivers.</div>";return;}
+  if(!aEntry||!bEntry){
+    out.innerHTML="<div class='empty-state'>Type both driver names and choose an exact match from the suggestions above.</div>";
+    return;
+  }
+  if(aEntry.id===bEntry.id){
+    out.innerHTML="<div class='empty-state'>Choose two different drivers.</div>";
+    return;
+  }
   try{
-    const [a,b]=await Promise.all([getProfile(state.series,"drivers",aId),getProfile(state.series,"drivers",bId)]);
-    const fields=[["Championships","championships"],["Wins","wins"],["Podiums","podiums"],["Pole positions","poles"],["Fastest laps","fastestLaps"],["Points","points"],["Seasons","seasons"]];
+    const [a,b]=await Promise.all([getProfile(state.series,"drivers",aEntry.id),getProfile(state.series,"drivers",bEntry.id)]);
+    const fields=[["Championships","championships"],["Wins","wins"],["Podiums","podiums"],["Pole starts","poleStarts"],["Fastest laps","fastestLaps"],["Points","points"],["Seasons","seasons"]];
     const rows=fields.map(([label,key])=>"<tr><td>"+label+"</td><td class='num'>"+number(a.career[key])+(a.career[key+"Complete"]===false?"*":"")+"</td><td class='num'>"+number(b.career[key])+(b.career[key+"Complete"]===false?"*":"")+"</td></tr>");
-    out.innerHTML="<div class='compare-grid'><div class='compare-card'><h3>"+esc(a.name)+"</h3><p class='secondary'>"+esc(a.nationality||"")+"</p></div><div class='compare-card'><h3>"+esc(b.name)+"</h3><p class='secondary'>"+esc(b.nationality||"")+"</p></div></div>"+table(["CAREER METRIC",a.name,b.name],rows)+"<p class='secondary'>* Partial imported total; the complete value is not available in every season.</p>";
+    out.innerHTML="<div class='compare-grid'><div class='compare-card'><h3>"+esc(a.name)+"</h3><p class='secondary'>"+esc(a.nationality||"")+"</p></div><div class='compare-card'><h3>"+esc(b.name)+"</h3><p class='secondary'>"+esc(b.nationality||"")+"</p></div></div>"+table(["CAREER METRIC",a.name,b.name],rows)+"<p class='secondary'>* Available-source total. Points systems have changed over time, so raw career points are not adjusted for era.</p>";
   }catch(e){out.innerHTML="<div class='notice red'>"+esc(e.message)+"</div>";}
 }
+
 async function runSeasonCompare(){
   const one=Number($("compareSeasonOne").value),two=Number($("compareSeasonTwo").value),out=$("seasonCompareOutput");
   if(!one||!two){out.innerHTML="<div class='empty-state'>Select two seasons.</div>";return;}
@@ -368,12 +401,14 @@ async function renderRecords(){
   const [drivers,teams]=await Promise.all([getIndex(state.series,"drivers"),getIndex(state.series,"teams")]);
   const top=(items,key)=>items.filter(x=>x[key]!==null&&x[key]!==undefined).sort((a,b)=>(b[key]||0)-(a[key]||0)).slice(0,10);
   const recordCard=(title,key,items,kind)=>"<section class='panel'><div class='panel-header'><div><span class='eyebrow'>CAREER RECORDS</span><h2>"+title+"</h2></div></div>"+table(["RANK",kind==="drivers"?"DRIVER":"CONSTRUCTOR","VALUE"],top(items,key).map((x,i)=>"<tr><td class='rank'>"+(i+1)+"</td><td><a class='person-link' href='"+(kind==="drivers"?driverHref(state.series,x.id):teamHref(state.series,x.id))+"'>"+esc(x.name)+"</a></td><td class='num'>"+esc(x[key])+(x[key+"Complete"]===false?"*":"")+"</td></tr>"))+"</section>";
-  return pageHead("RECORD BOOK","Career & historical records","Rankings are calculated from the stored season archive. Partial series coverage is identified rather than silently treated as complete.")+
+  return pageHead("RECORD BOOK","Career & historical records","Rankings are calculated from the stored season archive. Partial totals are marked, and raw points are not normalized across eras.")+
     "<div class='grid-2'>"+recordCard("Most championship titles","championships",drivers.drivers,"drivers")+recordCard("Most race wins","wins",drivers.drivers,"drivers")+"</div>"+
-    "<div class='grid-2'>"+recordCard("Most podiums","podiums",drivers.drivers,"drivers")+recordCard("Most pole positions","poles",drivers.drivers,"drivers")+"</div>"+
-    "<div class='grid-2'>"+recordCard("Most fastest laps","fastestLaps",drivers.drivers,"drivers")+recordCard("Constructor championships","championships",teams.teams,"teams")+"</div>"+
-    "<div class='notice'>* Partial career total. This is a project-derived historical leaderboard, not a claim that every upstream season supplied every metric.</div>";
+    "<div class='grid-2'>"+recordCard("Most podiums","podiums",drivers.drivers,"drivers")+recordCard("Most career points","points",drivers.drivers,"drivers")+"</div>"+
+    "<div class='grid-2'>"+recordCard("Most pole starts","poleStarts",drivers.drivers,"drivers")+recordCard("Most fastest laps in available data","fastestLaps",drivers.drivers,"drivers")+"</div>"+
+    "<div class='grid-2'>"+recordCard("Constructor championships","championships",teams.teams,"teams")+recordCard("Constructor career points","points",teams.teams,"teams")+"</div>"+
+    "<div class='notice'>* Partial or source-limited total. Historical points systems changed considerably; points totals are shown as recorded, not adjusted to a common scoring system. Pole starts are based on starting-grid position one, not independently verified qualifying classifications.</div>";
 }
+
 async function renderAnalytics(){
   const idx=await getIndex(state.series,"drivers"),seasons=idx.seasons||[];
   const champions=seasons.filter(s=>s.status==="final"&&s.champion);
@@ -413,6 +448,8 @@ function bindDynamicEvents(){
     document.querySelectorAll("#raceArchiveList .searchable").forEach(card=>card.classList.toggle("hidden",!card.dataset.search.includes(query)));
   });
   $("predictionEventSelect")?.addEventListener("change",e=>{state.predictionEvent=e.target.value;renderRoute();});
+  $("compareDriverOne")?.addEventListener("input",runDriverCompare);
+  $("compareDriverTwo")?.addEventListener("input",runDriverCompare);
   $("compareDriverOne")?.addEventListener("change",runDriverCompare);
   $("compareDriverTwo")?.addEventListener("change",runDriverCompare);
   $("compareSeasonOne")?.addEventListener("change",runSeasonCompare);
@@ -422,11 +459,11 @@ function bindDynamicEvents(){
     renderRoute();
   }));
   if($("compareDriverOne")&&$("compareDriverTwo")){
-    const idxPromise=getIndex(state.series,"drivers");
-    idxPromise.then(idx=>{
-      const opts=idx.drivers.map(d=>"<option value='"+esc(d.id)+"'>"+esc(d.name)+"</option>").join("");
-      $("compareDriverOne").innerHTML=opts;$("compareDriverTwo").innerHTML=opts;
-      if(idx.drivers.length>1){$("compareDriverOne").value=idx.drivers[0].id;$("compareDriverTwo").value=idx.drivers[1].id;runDriverCompare();}
+    getIndex(state.series,"drivers").then(idx=>{
+      state.compareDriverDirectory=new Map(idx.drivers.map(d=>[norm(d.name),d]));
+      const list=$("compareDriverNames");
+      if(list)list.innerHTML=idx.drivers.map(d=>"<option value='"+esc(d.name)+"'></option>").join("");
+      runDriverCompare();
     }).catch(e=>{$("driverCompareOutput").innerHTML="<div class='notice red'>"+esc(e.message)+"</div>";});
   }
   if($("compareSeasonOne")&&$("compareSeasonTwo")){
@@ -439,6 +476,7 @@ function bindDynamicEvents(){
     }).catch(e=>{$("seasonCompareOutput").innerHTML="<div class='notice red'>"+esc(e.message)+"</div>";});
   }
 }
+
 document.querySelectorAll(".main-nav a").forEach(a=>a.addEventListener("click",()=>{}));
 $("seriesSelect").addEventListener("change",e=>{
   state.series=e.target.value;state.season=CURRENT_YEAR;state.sessionFilter="";state.predictionEvent="";fillSeasonOptions();navigate(["dashboard"]);

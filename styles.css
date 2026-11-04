@@ -141,3 +141,16 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 @media(max-width:1100px){.topbar{gap:14px}.connection{margin-left:auto}.main-nav{gap:1px}.main-nav a{padding:8px}.card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:760px){.app-shell{padding:0 14px}.topbar{align-items:flex-start}.top-controls{order:3;width:100%;margin-left:0}.top-controls label{flex:1}.top-controls select{width:100%}.connection{margin-left:auto}.main-nav{margin-right:-14px;padding-right:14px}.status-strip{align-items:flex-start;flex-wrap:wrap}.status-updated{margin-left:0}.hero-side{display:none}.grid-2,.grid-3{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-hero{grid-template-columns:1fr}.profile-number{font-size:37px}.fact-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card-grid{grid-template-columns:1fr}.footer{display:grid}.page-heading h1{font-size:24px}}
 @media(max-width:430px){.kpi strong{font-size:24px}.prediction-row{grid-template-columns:26px 1fr 75px}.event-row{grid-template-columns:38px 1fr}.event-side{grid-column:2;text-align:left}.season-item{grid-template-columns:50px 1fr}.season-item>a{grid-column:2}}
+
+.youtube-link{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border:1px solid #6e2c35;border-radius:7px;padding:9px 11px;background:#29151a;color:#ff8c96;font-size:9px;font-weight:950;letter-spacing:.1em}
+.youtube-link:hover{background:#421b23;border-color:#b94b58;color:#fff}
+.youtube-link span{font-size:9px}
+.youtube-footer-link{color:#ff8490;font-weight:850}
+.youtube-footer-link:hover{text-decoration:underline}
+.comparison-output{min-width:0;margin-top:14px}
+.comparison-output .compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:10px 0}
+.comparison-output .compare-card{min-width:0;border:1px solid var(--line);border-radius:8px;background:#121820;padding:12px}
+.comparison-output .compare-card h3{font-size:13px;margin:0;overflow-wrap:anywhere}
+.comparison-output .compare-card p{margin:4px 0}
+.field input[list]{min-width:220px}
+@media(max-width:760px){.youtube-link{order:4}.comparison-output .compare-grid{grid-template-columns:1fr}.field input[list]{width:100%;min-width:0}}

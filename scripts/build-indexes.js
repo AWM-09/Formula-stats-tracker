@@ -31,8 +31,31 @@ function summarizeCareer(seasons, results, type) {
     const present = seasons.map(s => s[key]).filter(v => v !== null && v !== undefined);
     return { value: present.length ? present.reduce((a,b) => a + b, 0) : null, complete: present.length === seasons.length && seasons.length > 0 };
   };
-  const wins = sumKnown("wins"), podiums = sumKnown("podiums"), poles = sumKnown("poles"), fastest = sumKnown("fastestLaps");
+  const classified = results.filter(r => r.position !== null && r.position !== undefined);
+  const allSeasonsClassified = seasons.length > 0
+    && seasons.every(s => s.coverage === "full")
+    && seasons.every(s => classified.some(r => r.season === s.season));
+  const hasAnyFullClassifications = results.some(r => r.coverage === "full" && r.position !== null);
+  const standingsWins = sumKnown("wins");
+  const derivedWins = classified.filter(r => Number(r.position) === 1).length;
+  const derivedPodiums = classified.filter(r => Number(r.position) >= 1 && Number(r.position) <= 3).length;
+  const wins = classified.length
+    ? { value: derivedWins, complete: allSeasonsClassified }
+    : standingsWins;
+  const podiums = hasAnyFullClassifications
+    ? { value: derivedPodiums, complete: allSeasonsClassified }
+    : sumKnown("podiums");
+  const standingsPoles = sumKnown("poles");
+  const fastestFromResults = results.filter(r => r.isFastestLap).length;
+  const standingsFastest = sumKnown("fastestLaps");
+  const fastest = fastestFromResults > 0
+    ? { value: fastestFromResults, complete: false }
+    : standingsFastest;
   const points = sumKnown("points");
+  const poleStarts = results.filter(r => r.grid === 1).length;
+  const poleStartDataComplete = results.length > 0
+    && allSeasonsClassified
+    && results.every(r => r.grid !== null && r.grid !== undefined);
   return {
     seasons: seasons.length,
     firstSeason: seasons.length ? seasons[0].season : null,
@@ -41,10 +64,11 @@ function summarizeCareer(seasons, results, type) {
     points: points.value, pointsComplete: points.complete,
     wins: wins.value, winsComplete: wins.complete,
     podiums: podiums.value, podiumsComplete: podiums.complete,
-    poles: poles.value, polesComplete: poles.complete,
+    poles: standingsPoles.value, polesComplete: standingsPoles.complete,
+    poleStarts, poleStartsComplete: poleStartDataComplete,
     fastestLaps: fastest.value, fastestLapsComplete: fastest.complete,
     eventResults: results.length,
-    classifiedResults: results.filter(r => r.position !== null).length,
+    classifiedResults: classified.length,
     resultCoverage: results.some(r => r.coverage === "winners-only" || r.coverage === "standings-only") ? "partial" : "classification"
   };
 }
@@ -182,7 +206,7 @@ async function buildSeries(series, firstYear, lastYear) {
     const career = summarizeCareer(p.seasons,p.results,"driver");
     const profile = { type:"driver", series, ...p, career };
     await writeProfile(series,"drivers",p.id,profile);
-    driverSummaries.push({ id:p.id, name:p.name, nationality:p.nationality, code:p.code, number:p.number, seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason, championships:career.championships, wins:career.wins, winsComplete:career.winsComplete, podiums:career.podiums, poles:career.poles, points:career.points, url:p.url });
+    driverSummaries.push({ id:p.id, name:p.name, nationality:p.nationality, code:p.code, number:p.number, seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason, championships:career.championships, wins:career.wins, winsComplete:career.winsComplete, podiums:career.podiums, podiumsComplete:career.podiumsComplete, poles:career.poles, poleStarts:career.poleStarts, poleStartsComplete:career.poleStartsComplete, fastestLaps:career.fastestLaps, fastestLapsComplete:career.fastestLapsComplete, points:career.points, pointsComplete:career.pointsComplete, url:p.url });
   }
   for (const p of teams.values()) {
     p.seasons.sort((a,b)=>a.season-b.season);
@@ -190,7 +214,7 @@ async function buildSeries(series, firstYear, lastYear) {
     const career = summarizeCareer(p.seasons,p.results,"team");
     const profile = { type:"team", series, id:p.id, name:p.name, nationality:p.nationality, url:p.url, seasons:p.seasons, results:p.results, drivers:Array.from(p.driverMap,([id,name])=>({id,name})).sort((a,b)=>a.name.localeCompare(b.name)), career };
     await writeProfile(series,"teams",p.id,profile);
-    teamSummaries.push({ id:p.id, name:p.name, nationality:p.nationality, seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason, championships:career.championships, wins:career.wins, winsComplete:career.winsComplete, podiums:career.podiums, points:career.points, url:p.url });
+    teamSummaries.push({ id:p.id, name:p.name, nationality:p.nationality, seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason, championships:career.championships, wins:career.wins, winsComplete:career.winsComplete, podiums:career.podiums, podiumsComplete:career.podiumsComplete, points:career.points, pointsComplete:career.pointsComplete, url:p.url });
   }
   for (const p of circuits.values()) {
     p.events.sort((a,b)=>a.series.localeCompare(b.series)||a.season-b.season||(a.round||0)-(b.round||0));
