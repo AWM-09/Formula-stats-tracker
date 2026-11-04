@@ -36,7 +36,7 @@ function summarizeCareer(seasons, results, type) {
     seasons: seasons.length,
     firstSeason: seasons.length ? seasons[0].season : null,
     lastSeason: seasons.length ? seasons[seasons.length - 1].season : null,
-    championships: seasons.filter(s => s.position === 1).length,
+    championships: seasons.filter(s => s.position === 1 && s.season < CURRENT_YEAR).length,
     points: points.value, pointsComplete: points.complete,
     wins: wins.value, winsComplete: wins.complete,
     podiums: podiums.value, podiumsComplete: podiums.complete,
@@ -56,12 +56,16 @@ async function buildSeries(series, firstYear, lastYear) {
     const championRow = (data.driverStandings || []).find(row => Number(row.position) === 1) || (data.driverStandings || [])[0] || null;
     const constructorChampion = (data.constructorStandings || []).find(row => Number(row.position) === 1) || (data.constructorStandings || [])[0] || null;
     seasons.push({
-      year, updatedAt: data.updatedAt || null, source: data.source || "",
+      year, status: year < lastYear ? "final" : "current",
+      updatedAt: data.updatedAt || null, source: data.source || "",
       coverage: data.coverage || { classification: "full" },
-      champion: championRow && championRow.Driver ? displayName(championRow.Driver) : null,
-      championId: championRow && championRow.Driver ? championRow.Driver.driverId : null,
+      champion: year < lastYear && championRow && championRow.Driver ? displayName(championRow.Driver) : null,
+      championId: year < lastYear && championRow && championRow.Driver ? championRow.Driver.driverId : null,
       championPoints: championRow ? n(championRow.points) : null,
-      constructorChampion: constructorChampion && constructorChampion.Constructor ? constructorChampion.Constructor.name : null
+      leader: year === lastYear && championRow && championRow.Driver ? displayName(championRow.Driver) : null,
+      leaderId: year === lastYear && championRow && championRow.Driver ? championRow.Driver.driverId : null,
+      constructorChampion: year < lastYear && constructorChampion && constructorChampion.Constructor ? constructorChampion.Constructor.name : null,
+      constructorLeader: year === lastYear && constructorChampion && constructorChampion.Constructor ? constructorChampion.Constructor.name : null
     });
 
     for (const row of data.driverStandings || []) {
