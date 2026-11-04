@@ -6,7 +6,7 @@ const state = {
   series:"f1", season:CURRENT_YEAR, data:null, route:["dashboard"],
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
   compareDriverDirectory:new Map(),
-  sessionFilter:"", predictionEvent:"", compareResult:""
+  sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null
 };
 const $ = id => document.getElementById(id);
 const esc = value => String(value==null?"":value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -93,6 +93,7 @@ function pageError(error){
   $("retryButton")?.addEventListener("click",()=>renderRoute(true));
 }
 async function renderRoute(force=false){
+  if(state.countdownTimer){clearInterval(state.countdownTimer);state.countdownTimer=null;}
   state.route=routeParse();
   const route=state.route[0]||"dashboard";
   if(["driver","team"].includes(route)&&state.route[1]&&SERIES[state.route[1]]){
@@ -132,6 +133,7 @@ async function renderRoute(force=false){
     }
     $("viewRoot").innerHTML=content;
     bindDynamicEvents();
+    startCountdown();
   }catch(error){console.error(error);pageError(error);}
 }
 function availableEvents(data){
@@ -179,6 +181,75 @@ function eventCard(series,year,event){
   const meta=[niceDate(event.date),venue,sessions.join(" / ")].filter(x=>x&&x!=="Date not supplied").join(" · ");
   return "<a class='event-row' href='"+raceHref(series,year,event.round)+"'><span class='event-round'>"+esc(event.round)+"</span><span class='event-main'><strong>"+esc(event.raceName)+"</strong><small>"+esc(meta||"Event listed · exact date or result detail not present in source")+"</small></span><span class='event-side'><strong>"+esc(winner?driverName(winner.Driver):eventHasResults(event)?"Results available":"Scheduled / classification pending")+"</strong><small>"+esc(winner?"Winner":"Open race page")+" ↗</small></span></a>";
 }
+function eventCountdownTarget(event){
+  if(!event||!event.date)return null;
+  if(event.time){
+    const dateTime=Date.parse(String(event.date).slice(0,10)+"T"+String(event.time));
+    if(Number.isFinite(dateTime))return {
+      timestamp:dateTime,
+      label:"RACE START",
+      precision:"Scheduled race start · shown in your local timezone"
+    };
+  }
+  const parts=String(event.date).slice(0,10).split("-").map(Number);
+  if(parts.length!==3||parts.some(value=>!Number.isFinite(value)))return null;
+  const timestamp=new Date(parts[0],parts[1]-1,parts[2],0,0,0,0).getTime();
+  return {
+    timestamp,
+    label:"RACE WEEKEND",
+    precision:"Weekend date supplied; exact session start time not published"
+  };
+}
+function countdownMarkup(events){
+  if(state.season!==CURRENT_YEAR){
+    return "<section class='countdown-panel countdown-muted'><div><span class='eyebrow'>UPCOMING RACE COUNTDOWN</span><h2>Historical season selected</h2><p>Choose the current season to see its next scheduled event.</p></div></section>";
+  }
+  const now=Date.now();
+  const upcoming=events.map(event=>({event,target:eventCountdownTarget(event)}))
+    .filter(item=>item.target&&item.target.timestamp>now)
+    .sort((a,b)=>a.target.timestamp-b.target.timestamp)[0];
+  if(!upcoming){
+    return "<section class='countdown-panel countdown-muted'><div><span class='eyebrow'>UPCOMING RACE COUNTDOWN</span><h2>Season complete</h2><p>No later event with a confirmed date is listed in this season's calendar.</p></div></section>";
+  }
+  const {event,target}=upcoming;
+  const location=event.Circuit&&event.Circuit.Location||{};
+  const venue=[location.locality,location.country].filter(Boolean).join(", ");
+  const dateText=new Date(target.timestamp).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric",hour:target.label==="RACE START"?"2-digit":undefined,minute:target.label==="RACE START"?"2-digit":undefined});
+  return "<section class='countdown-panel' id='nextRaceCountdown' data-target='"+target.timestamp+"'>"+
+    "<div class='countdown-info'><span class='eyebrow'>NEXT "+(target.label==="RACE START"?"RACE":"RACE WEEKEND")+"</span><h2>"+esc(event.raceName)+"</h2><p>"+esc([seriesLabel(state.series),venue,"Round "+event.round].filter(Boolean).join(" · "))+"</p><small>"+esc(dateText)+" · "+esc(target.precision)+"</small>"+
+    "<a class='countdown-link' href='"+raceHref(state.series,state.season,event.round)+"'>Open event centre ↗</a></div>"+
+    "<div class='countdown-clock' aria-live='off'><div><strong id='countdownDays'>—</strong><span>DAYS</span></div><b>:</b><div><strong id='countdownHours'>—</strong><span>HRS</span></div><b>:</b><div><strong id='countdownMinutes'>—</strong><span>MINS</span></div><b>:</b><div><strong id='countdownSeconds'>—</strong><span>SECS</span></div></div></section>";
+}
+function startCountdown(){
+  if(state.countdownTimer){clearInterval(state.countdownTimer);state.countdownTimer=null;}
+  const panel=$("nextRaceCountdown");
+  if(!panel)return;
+  const target=Number(panel.dataset.target);
+  if(!Number.isFinite(target))return;
+  const update=()=>{
+    const remaining=target-Date.now();
+    if(remaining<=0){
+      for(const id of ["countdownDays","countdownHours","countdownMinutes","countdownSeconds"]){
+        const element=$(id);if(element)element.textContent="00";
+      }
+      const eyebrow=panel.querySelector(".countdown-info .eyebrow");
+      if(eyebrow)eyebrow.textContent="EVENT STARTED";
+      return;
+    }
+    const total=Math.floor(remaining/1000);
+    const values={
+      countdownDays:Math.floor(total/86400),
+      countdownHours:Math.floor(total%86400/3600),
+      countdownMinutes:Math.floor(total%3600/60),
+      countdownSeconds:total%60
+    };
+    for(const [id,value] of Object.entries(values)){
+      const element=$(id);if(element)element.textContent=String(value).padStart(2,"0");
+    }
+  };
+  update();
+  state.countdownTimer=setInterval(update,1000);
+}
 async function renderDashboard(){
   const data=state.data,events=availableEvents(data),drivers=data.driverStandings||[],teams=data.constructorStandings||[];
   const leader=drivers[0],topTeam=teams[0];
@@ -187,6 +258,7 @@ async function renderDashboard(){
   const driverRows=drivers.slice(0,10).map(e=>"<tr><td class='rank'>"+esc(e.position||"—")+"</td><td>"+driverLink(state.series,e.Driver&&e.Driver.driverId,driverName(e.Driver))+"</td><td>"+esc((e.Constructors||[]).map(c=>c.name).join(", ")||"—")+"</td><td class='num'>"+esc(e.wins==null?"—":e.wins)+"</td><td class='num'>"+esc(number(e.points))+"</td></tr>");
   const teamRows=teams.slice(0,8).map(e=>"<tr><td class='rank'>"+esc(e.position||"—")+"</td><td>"+teamLink(state.series,(e.Constructor||{}).constructorId||slug(e.Constructor&&e.Constructor.name),e.Constructor&&e.Constructor.name)+"</td><td class='num'>"+esc(number(e.points))+"</td></tr>");
   return "<section class='hero'><div class='hero-kicker'><span class='red-line'></span> HISTORICAL MOTORSPORT ANALYTICS · "+esc(state.season)+"</div><div class='hero-layout'><div><h1>Every lap has<br><em>a story.</em></h1><p class='hero-copy'>Explore the people, teams, circuits and races behind "+esc(seriesLabel(state.series))+". From championship tables to individual race reports, this is your motorsport data lab.</p></div><div class='hero-side'><span>THE ARCHIVE</span><strong>"+esc(data.season||state.season)+"</strong><small>SELECTED SEASON</small></div></div></section>"+
+  countdownMarkup(events)+
   "<div class='kpi-grid'>"+kpi("Events in season",events.length,"Scheduled and recorded rounds")+kpi("Drivers in standings",drivers.length,"Season championship table")+kpi("Constructors",teams.length,"Team standings entries")+kpi("Championship leader",leader?driverName(leader.Driver):"—",leader?number(leader.points)+" points":"No standings", "accent")+"</div>"+
   "<div class='grid-2'>"+panel("CHAMPIONSHIP","Driver leaderboard",table(["POS","DRIVER","CONSTRUCTOR","WINS","POINTS"],driverRows),"<a class='text-link' href='#/drivers'>All drivers ↗</a>")+panel("CONSTRUCTOR BATTLE","Team standings",table(["POS","CONSTRUCTOR","POINTS"],teamRows),"<a class='text-link' href='#/teams'>All teams ↗</a>")+"</div>"+
   "<div class='grid-2'>"+panel("SEASON SCHEDULE","Race calendar","<div class='event-list'>"+latest.map(e=>eventCard(state.series,state.season,e)).join("")+"</div>","<a class='text-link' href='#/calendar'>Full calendar ↗</a>")+panel("QUICK EXPLORE","Open a database","<div class='event-list'>"+[
@@ -268,10 +340,69 @@ async function renderCircuitProfile(id){
     "<div class='grid-2'>"+panel("CIRCUIT RECORDS","Most recorded winners",table(["RANK","DRIVER","WINS IN ARCHIVE"],winnerRows))+panel("TRACK FACTS","What the archive can verify","<div class='notice'>These facts are calculated from this project's imported race archive. Track length, corner count, official lap record and opening date are not currently in the connected datasets, so they are not displayed as facts.</div><p class='secondary'>First indexed season: "+esc(p.firstSeason)+"</p><p class='secondary'>Most recent indexed season: "+esc(p.lastSeason)+"</p><p class='secondary'>Series represented: "+esc((p.series||[]).join(", ").toUpperCase())+"</p>")+"</div>"+
     panel("EVENT HISTORY","Races at this circuit",table(["SERIES","SEASON","ROUND","EVENT","DATE","SESSIONS"],eventRows));
 }
-function sessionNames(event){
-  const sessions=[...new Set((event.Results||[]).filter(r=>!r.isRecordOnly).map(r=>r.session||"Race"))];
-  return sessions.length?sessions:["Race"];
+function sessionNames(event,series=state.series){
+  const actual=[...new Set((event.Results||[]).filter(r=>!r.isRecordOnly).map(r=>r.session||"Race"))];
+  if(series==="f1"){
+    const options=[];
+    const has=(label,field)=>actual.includes(label)||!!event[field];
+    if(has("Practice 1","FirstPractice"))options.push("Practice 1");
+    if(has("Practice 2","SecondPractice"))options.push("Practice 2");
+    if(has("Practice 3","ThirdPractice"))options.push("Practice 3");
+    if(has("Sprint Qualifying","SprintQualifying")||actual.includes("Sprint Shootout")||event.SprintShootout)options.push("Sprint Qualifying");
+    if(has("Qualifying","Qualifying"))options.push("Qualifying");
+    if(has("Sprint","Sprint"))options.push("Sprint");
+    options.push("Race");
+    for(const session of actual)if(!options.includes(session))options.splice(options.length-1,0,session);
+    return options;
+  }
+  const canonical=["Practice","Qualifying","Sprint Race","Feature Race"];
+  const supplied=Array.isArray(event.sessionTypes)?event.sessionTypes:[];
+  const result=[];
+  for(const session of [...canonical,...supplied,...actual]){
+    if(!result.includes(session))result.push(session);
+  }
+  return result;
 }
+function sessionHasResults(event,session){
+  return (event.Results||[]).some(row=>!row.isRecordOnly&&(row.session||"Race")===session&&row.Driver);
+}
+function sessionScheduleInfo(event,series,session){
+  if(series==="f1"){
+    const fields={
+      "Practice 1":"FirstPractice","Practice 2":"SecondPractice","Practice 3":"ThirdPractice",
+      "Qualifying":"Qualifying","Sprint":"Sprint","Sprint Qualifying":"SprintQualifying"
+    };
+    const info=event[fields[session]];
+    if(!info||!info.date)return "";
+    const timestamp=info.time?Date.parse(String(info.date)+"T"+String(info.time)):Date.parse(String(info.date)+"T00:00:00");
+    const date=Number.isFinite(timestamp)?new Date(timestamp).toLocaleString("en-GB",{
+      weekday:"short",day:"numeric",month:"short",
+      hour:info.time?"2-digit":undefined,minute:info.time?"2-digit":undefined
+    }):niceDate(info.date);
+    return date+(info.time?" · local session time":" · exact time not supplied");
+  }
+  if(event.date){
+    const start=niceDate(event.date);
+    const end=event.dateEnd&&event.dateEnd!==event.date?niceDate(event.dateEnd):"";
+    return (end?start+" – "+end:start)+" · session start time not published in archive";
+  }
+  return "";
+}
+function sessionUnavailableMessage(series,year,session,event){
+  const scheduled=sessionScheduleInfo(event,series,session);
+  if(series==="f1"){
+    if(/^Practice/.test(session)){
+      return year>=2018
+        ?"No practice classification is stored for this event yet. FastF1 imports completed practice sessions for the current season when the official timing feed is available."
+        :"Practice classifications are not included in this historical F1 archive.";
+    }
+    if(session==="Qualifying")return "The event is listed in the calendar, but its qualifying classification has not been returned by the connected data source yet.";
+    if(session==="Sprint"||session==="Sprint Qualifying")return "This event has no Sprint classification stored. The session may not apply to this race weekend.";
+    return "The race classification is not available in this archive yet.";
+  }
+  return "This session is part of the championship weekend format, but a verified Practice/Qualifying classification is not stored in this F2/F3 archive yet. The page will not invent a result.";
+}
+
 function resultTableRows(series,event,session){
   const results=(event.Results||[]).filter(r=>!r.isRecordOnly&&(r.session||"Race")===session);
   results.sort((a,b)=>{
@@ -282,18 +413,28 @@ function resultTableRows(series,event,session){
   return results.map(r=>{
     const d=r.Driver||{},c=r.Constructor||{};
     const driverId=d.driverId||null,teamId=c.constructorId||slug(c.name);
+    if(["Qualifying","Sprint Qualifying","Sprint Shootout","Qualifying 1","Qualifying 2"].includes(session)){
+      return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc(r.Q1||"—")+"</td><td>"+esc(r.Q2||"—")+"</td><td>"+esc(r.Q3||((r.Time||{}).time)||r.time||"—")+"</td></tr>";
+    }
+    if(session==="Practice"||/^Practice /.test(session)){
+      return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||"—")+"</td><td class='num'>"+esc(number(r.laps))+"</td><td>"+esc(r.status||"—")+"</td></tr>";
+    }
     return "<tr><td class='rank'>"+esc(r.position||"—")+"</td><td>"+driverLink(series,driverId,driverName(d))+"</td><td>"+teamLink(series,teamId,c.name||"—")+"</td><td class='num'>"+esc(number(r.grid))+"</td><td class='num'>"+esc(number(r.laps))+"</td><td>"+esc((r.Time&&r.Time.time)||r.time||"—")+"</td><td>"+esc(r.gap||"—")+"</td><td class='num'>"+esc(number(r.points))+"</td><td>"+(r.FastestLap&&r.FastestLap.rank==="1"?badge("Fastest","green"):"—")+"</td></tr>";
   });
 }
+
 async function renderRaceDetail(series,year,round){
   if(!SERIES[series])throw new Error("Race series is not supported.");
   const data=await getSeason(series,year),events=availableEvents(data),event=events.find(e=>String(e.round)===String(round));
   if(!event)throw new Error("Race round "+round+" is not present in the "+year+" "+series.toUpperCase()+" archive.");
-  const sessions=sessionNames(event);
-  const session=state.sessionFilter&&sessions.includes(state.sessionFilter)?state.sessionFilter:sessions[0];
+  const sessions=sessionNames(event,series);
+  const defaultSession=series==="f1"?"Race":(sessions.includes("Feature Race")?"Feature Race":sessions.find(x=>sessionHasResults(event,x))||sessions[0]);
+  const session=state.sessionFilter&&sessions.includes(state.sessionFilter)?state.sessionFilter:defaultSession;
   state.sessionFilter=session;
+  const hasResults=sessionHasResults(event,session);
   const rows=resultTableRows(series,event,session);
-  const winner=(event.Results||[]).find(r=>!r.isRecordOnly&&(r.session||"Race")===session&&String(r.position)==="1"&&r.Driver);
+  const raceLike=["Race","Sprint","Sprint Race","Feature Race","Feature Race 1","Feature Race 2","Race 1","Race 2"].includes(session);
+  const winner=raceLike?(event.Results||[]).find(r=>!r.isRecordOnly&&(r.session||"Race")===session&&String(r.position)==="1"&&r.Driver):null;
   const location=event.Circuit&&event.Circuit.Location||{};
   const circuitId=event.circuitId||event.Circuit&&event.Circuit.circuitId||slug(event.Circuit&&event.Circuit.circuitName||event.raceName);
   let circuitProfile=null;try{circuitProfile=await getProfile(series,"circuits",circuitId);}catch{}
@@ -301,15 +442,29 @@ async function renderRaceDetail(series,year,round){
     "<div class='fact-grid'><div class='fact'><span>Events in archive</span><strong>"+esc(circuitProfile.eventCount)+"</strong></div><div class='fact'><span>Years represented</span><strong>"+esc(circuitProfile.firstSeason)+"–"+esc(circuitProfile.lastSeason)+"</strong></div><div class='fact'><span>Most recorded wins</span><strong>"+esc(circuitProfile.mostWins&&circuitProfile.mostWins[0]?circuitProfile.mostWins[0].driverName:"—")+"</strong></div></div>":
     "<div class='notice'>Track history is limited for this event in the current source archive. The circuit profile may contain additional indexed results.</div>";
   const resultCount=rows.length;
-  const coverage=data.coverage&&data.coverage.message?data.coverage.message:"The source archive supplies race classifications for this season.";
+  const coverage=data.coverage&&data.coverage.message?data.coverage.message:"The source archive supplies the displayed session data where available.";
+  const isQualifying=["Qualifying","Sprint Qualifying","Sprint Shootout","Qualifying 1","Qualifying 2"].includes(session);
+  const isPractice=session==="Practice"||/^Practice /.test(session);
+  const headers=isQualifying?["POS","DRIVER","CONSTRUCTOR","Q1","Q2","Q3"]:isPractice?["POS","DRIVER","CONSTRUCTOR","BEST LAP","LAPS","STATUS"]:["POS","DRIVER","CONSTRUCTOR","GRID","LAPS","TIME","GAP","PTS","FASTEST"];
+  const tabs=sessions.map(name=>{
+    const available=sessionHasResults(event,name);
+    const suffix=available?"":" · —";
+    return "<button class='session-tab "+(name===session?"active ":"")+(available?"":"session-tab-unavailable")+"' data-session='"+esc(name)+"' title='"+(available?"Classifications available":"No classification stored for this session")+"'>"+esc(name+suffix)+"</button>";
+  }).join("");
+  const scheduled=sessionScheduleInfo(event,series,session);
+  const emptyMessage=sessionUnavailableMessage(series,year,session,event);
+  const dateText=event.dateEnd&&event.dateEnd!==event.date?niceDate(event.date)+" – "+niceDate(event.dateEnd):niceDate(event.date);
+  const officialTimingUrl=series==="f2"?"https://www.fiaformula2.com/livetiming/index.html":series==="f3"?"https://www.fiaformula3.com/livetiming/index.html":"";
   return pageHead("RACE CENTRE",event.raceName,[seriesLabel(series),year,"Round "+round].join(" · "),"<a class='text-link' href='#/calendar'>← Season calendar</a>")+
-    "<div class='profile-hero'><div><span class='eyebrow'>"+esc(session)+" · "+esc(year)+"</span><h1>"+esc(event.raceName)+"</h1><p>"+esc([location.locality,location.country].filter(Boolean).join(" · ")||event.Circuit.circuitName||"Circuit location not supplied")+" · "+esc(niceDate(event.date))+"</p><a class='text-link' href='"+circuitHref(circuitId)+"'>Open circuit profile ↗</a></div><div class='profile-number'>R"+esc(round)+"</div></div>"+
+    "<div class='profile-hero'><div><span class='eyebrow'>"+esc(session)+" · "+esc(year)+"</span><h1>"+esc(event.raceName)+"</h1><p>"+esc([location.locality,location.country].filter(Boolean).join(" · ")||event.Circuit.circuitName||"Circuit location not supplied")+" · "+esc(dateText)+"</p><a class='text-link' href='"+circuitHref(circuitId)+"'>Open circuit profile ↗</a></div><div class='profile-number'>R"+esc(round)+"</div></div>"+
     (winner?"<div class='result-flag'><div><small>SESSION WINNER</small><strong>"+driverLink(series,winner.Driver.driverId,driverName(winner.Driver))+"</strong><small>"+esc(winner.Constructor&&winner.Constructor.name||"Constructor not supplied")+"</small></div>"+badge(session,"gold")+"</div>":"")+
-    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>SESSION CLASSIFICATION</span><h2>"+esc(resultCount)+" result entries</h2></div>"+badge(data.coverage&&data.coverage.classification||"Historical source")+"</div><div class='session-tabs'>"+sessions.map(s=>"<button class='session-tab "+(s===session?"active":"")+"' data-session='"+esc(s)+"'>"+esc(s)+"</button>").join("")+"</div>"+
-    (rows.length?table(["POS","DRIVER","CONSTRUCTOR","GRID","LAPS","TIME","GAP","PTS","FASTEST"],rows):"<div class='empty-state'>The selected source does not contain a full classification for this session.</div>")+
-    "<div class='notice'>"+esc(coverage)+"</div><div class='notice red'>Qualifying, pit stops, lap charts, tyre strategy and telemetry are not available in this archive unless explicitly listed above. Missing values are not inferred.</div></div>"+
+    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>RACE WEEKEND SESSION</span><h2>"+esc(resultCount)+" result entries</h2></div>"+badge(hasResults?"RESULTS AVAILABLE":"NOT IMPORTED",hasResults?"green":"gold")+"</div><div class='session-tabs'>"+tabs+"</div>"+
+    (scheduled?"<p class='secondary session-schedule'>Scheduled: "+esc(scheduled)+"</p>":"")+
+    (rows.length?table(headers,rows):"<div class='empty-state'><strong>"+esc(session)+"</strong><p>"+esc(emptyMessage)+"</p>"+(officialTimingUrl?"<a class='text-link' href='"+officialTimingUrl+"' target='_blank' rel='noopener'>Open official live timing ↗</a>":"")+"</div>")+
+    "<div class='notice'>"+esc(coverage)+"</div><div class='notice red'>"+(isPractice?"Practice result feed is imported after the session is completed and the source publishes a classification.":isQualifying?"Q1, Q2 and Q3 are displayed only where the source publishes those times.":"Pit stops, lap charts, tyre strategy and telemetry are not implied by a race classification.")+" Missing values are not inferred.</div></div>"+
     "<div class='grid-2'>"+panel("CIRCUIT INFORMATION",event.Circuit.circuitName||event.raceName,"<div class='fact-grid'><div class='fact'><span>Locality</span><strong>"+esc(location.locality||"—")+"</strong></div><div class='fact'><span>Country</span><strong>"+esc(location.country||"—")+"</strong></div><div class='fact'><span>Coordinates</span><strong>"+esc(location.lat&&location.long?location.lat+", "+location.long:"—")+"</strong></div></div>")+panel("TRACK FACTS","Historical archive summary",factContent)+"</div>";
 }
+
 async function renderRaceCentre(){
   const events=availableEvents(state.data).slice().reverse();
   const cards=events.map(event=>{

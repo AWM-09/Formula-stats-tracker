@@ -154,3 +154,20 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .comparison-output .compare-card p{margin:4px 0}
 .field input[list]{min-width:220px}
 @media(max-width:760px){.youtube-link{order:4}.comparison-output .compare-grid{grid-template-columns:1fr}.field input[list]{width:100%;min-width:0}}
+
+.countdown-panel{display:flex;align-items:center;justify-content:space-between;gap:26px;margin:12px 0 16px;padding:20px;border:1px solid #67313b;border-radius:10px;background:linear-gradient(110deg,#28151b 0%,#17131a 53%,#111720 100%)}
+.countdown-panel.countdown-muted{min-height:108px;background:linear-gradient(110deg,#17171d,#111720);border-color:var(--line)}
+.countdown-info{min-width:0}
+.countdown-info h2{font-size:clamp(20px,3vw,30px);letter-spacing:-.05em;margin:5px 0}
+.countdown-info p{color:#c3c7ce;font-size:11px;margin:4px 0}
+.countdown-info small{color:var(--muted);font-size:9px}
+.countdown-link{display:inline-block;margin-top:10px;color:#ff8791;font-size:10px;font-weight:950}
+.countdown-clock{display:flex;align-items:center;gap:9px;flex:none}
+.countdown-clock>div{display:grid;justify-items:center;min-width:54px}
+.countdown-clock strong{font-size:clamp(25px,4vw,42px);font-variant-numeric:tabular-nums;letter-spacing:-.07em;line-height:1.1;color:#fff}
+.countdown-clock span{font-size:8px;font-weight:950;letter-spacing:.14em;color:#aeb6c1}
+.countdown-clock>b{color:var(--red);font-size:22px;transform:translateY(-6px)}
+.session-schedule{margin:2px 0 12px!important;padding:0 2px}
+.session-tab-unavailable{opacity:.78;border-style:dashed}
+.session-tab-unavailable:hover{border-color:#8b6770;color:#fff}
+@media(max-width:760px){.countdown-panel{align-items:flex-start;flex-direction:column}.countdown-clock{width:100%;justify-content:space-between;gap:3px}.countdown-clock>div{min-width:0;flex:1}.countdown-clock strong{font-size:30px}}
