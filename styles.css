@@ -307,3 +307,44 @@ body{background:radial-gradient(ellipse at 82% -12%,#123044 0,transparent 38%),v
   .watch-card{align-items:flex-start;flex-direction:column}
   .watch-remove{align-self:flex-end}
 }
+
+
+/* Natural-language news feed */
+.smart-news-panel{margin-bottom:14px;background:linear-gradient(145deg,#142a38,#101d2a)}
+.smart-news-panel .panel-header{align-items:start}
+.smart-news-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;margin:12px 0}
+.smart-news-input-row .search-input{min-width:0}
+.primary-button{border:1px solid #4e9987;border-radius:8px;padding:10px 15px;background:#1b5c51;color:#f2fffa;font-size:11px;font-weight:950;cursor:pointer}
+.primary-button:hover{background:#267564}
+.smart-news-examples{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:10px 0 14px}
+.smart-news-examples>span{color:var(--muted);font-size:8px;font-weight:950;letter-spacing:.12em}
+.smart-news-examples button{border:1px solid var(--line);border-radius:18px;padding:6px 10px;background:#101e2b;color:var(--soft);font-size:9px;cursor:pointer}
+.smart-news-examples button:hover{border-color:#4e9987;color:#b8f1df}
+.smart-request-summary{display:grid;gap:5px;padding:12px 14px;border:1px solid #36566a;border-radius:9px;background:#0d1b28}
+.smart-request-summary strong{color:var(--text);font-size:12px}
+.smart-request-summary .secondary{font-size:10px;line-height:1.5}
+.smart-request-label{color:#78d8be;font-size:8px;font-weight:950;letter-spacing:.16em}
+.news-ai-tags{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 4px}
+.news-ai-tag,.news-entity-tag,.news-ai-badge{display:inline-flex;align-items:center;border-radius:5px;padding:4px 7px;font-size:8px;font-weight:850;text-transform:capitalize}
+.news-ai-tag{border:1px solid #315d61;background:#112c34;color:#9ee7d6}
+.news-entity-tag{border:1px solid #354e69;background:#14263a;color:#b7d0f0}
+.news-ai-badge{border:1px solid #806f42;background:#332d1b;color:#efd38b;letter-spacing:.06em}
+.news-feature-flag{display:inline-flex;margin:7px 6px 0 0;padding:5px 8px;border-radius:5px;background:#362d19;color:#f2d48c;font-size:8px;font-weight:950;letter-spacing:.08em}
+.news-feature-flag+.news-feature-flag{margin-left:0}
+
+/* Official FIA grid-penalty register */
+.grid-penalties-panel{margin-bottom:14px}
+.grid-penalties-panel .search-row{align-items:end}
+.grid-penalties-panel .field{min-width:160px}
+#gridPenaltyTable{min-width:980px}
+#gridPenaltyTable td{vertical-align:top;white-space:normal}
+#gridPenaltyTable td:nth-child(5){min-width:230px;max-width:420px;line-height:1.45;color:var(--soft);font-size:10px}
+#gridPenaltyTable td:nth-child(3){min-width:135px}
+@media(max-width:700px){
+  .smart-news-input-row{grid-template-columns:1fr 1fr}
+  .smart-news-input-row .search-input{grid-column:1/-1}
+  .smart-news-input-row .primary-button{grid-column:1}
+  .smart-news-input-row .text-button{grid-column:2}
+  .grid-penalties-panel .search-row{align-items:stretch}
+  .grid-penalties-panel .field{min-width:100%}
+}
