@@ -135,6 +135,19 @@ async function renderRoute(force=false){
     bindDynamicEvents();
     return;
   }
+  if(route==="grid-penalties"){
+    status("good","OFFICIAL FIA GRID-PENALTY REGISTER");
+    notice("Grid sanctions are listed only when explicit FIA document wording is available.");
+    $("updatedLabel").textContent="FIA DOCUMENT FEED";
+    $("viewRoot").innerHTML="<div class='page-loading'><span class='spinner'></span><p>Loading official FIA grid-penalty records…</p></div>";
+    try{
+      const snapshot=await fetchJson("data/grid-penalties.json",state.dataCache,force);
+      $("updatedLabel").textContent=snapshot.updatedAt?"FIA DOCS UPDATED "+formatNewsDate(snapshot.updatedAt).toUpperCase():"AWAITING FIRST IMPORT";
+      $("viewRoot").innerHTML=renderGridPenalties(snapshot);
+      bindDynamicEvents();
+    }catch(error){console.error(error);pageError(error);}
+    return;
+  }
   if(route==="news"){
     status("good","NEWS SNAPSHOT LOADED");
     notice("Publisher headlines from F1, F2 and F3. Open a story to read the full article on Crash.net.");
@@ -175,6 +188,7 @@ async function renderRoute(force=false){
       case "data-centre": content=await renderDataCentre();break;
       case "watchlist": content=await renderWatchlist();break;
       case "exports": content=renderExportCentre();break;
+      case "grid-penalties": content=renderGridPenalties(await fetchJson("data/grid-penalties.json",state.dataCache,force));break;
       default: content=await renderDashboard();
     }
     $("viewRoot").innerHTML=content;
@@ -326,26 +340,196 @@ function formatNewsDate(value){
   const date=new Date(value);
   return Number.isNaN(date.getTime())?"Date not supplied":date.toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/London"});
 }
+const SMART_NEWS_TEAMS = [
+  ["McLaren",/\bmclaren\b/i],
+  ["Mercedes",/\bmercedes\b/i],
+  ["Ferrari",/\bferrari\b/i],
+  ["Red Bull Racing",/\bred bull(?: racing)?\b/i],
+  ["Aston Martin",/\baston martin\b/i],
+  ["Williams",/\bwilliams\b/i],
+  ["Alpine",/\balpine\b/i],
+  ["Haas",/\bhaas\b/i],
+  ["Audi",/\baudi\b/i],
+  ["Racing Bulls",/\bracing bulls\b|\brb f1\b/i],
+  ["Cadillac",/\bcadillac\b/i]
+];
+const SMART_NEWS_STOP_WORDS = new Set([
+  "the","and","for","from","with","that","this","who","what","when","where","which",
+  "are","has","have","will","would","could","should","about","show","find","news",
+  "article","articles","latest","next","upcoming","weekend","race","races","grand",
+  "prix","f1","f2","f3","formula","one","me","my","team","teams","driver","drivers",
+  "major","big","significant","package","packages","updates","update","tell","more"
+]);
+function parseSmartNewsRequest(raw,articles=[]){
+  const value=String(raw||"").trim();
+  const lower=value.toLowerCase();
+  const request={
+    raw:value,
+    series:"",
+    categories:[],
+    topicTags:[],
+    team:"",
+    driver:"",
+    majorUpgradeOnly:false,
+    gridPenaltyOnly:false,
+    upgradeStatuses:[],
+    maxAgeDays:0,
+    terms:[]
+  };
+  if(/\bformula\s*1\b|\bf1\b/i.test(lower))request.series="f1";
+  else if(/\bformula\s*2\b|\bf2\b/i.test(lower))request.series="f2";
+  else if(/\bformula\s*3\b|\bf3\b/i.test(lower))request.series="f3";
+
+  for(const [name,pattern] of SMART_NEWS_TEAMS){
+    if(pattern.test(value)){request.team=name;break;}
+  }
+  if(/\b(grid[- ]?penalt(?:y|ies)|grid drop|starting grid)\b/i.test(value)){
+    request.gridPenaltyOnly=true;
+    request.topicTags.push("grid-penalty");
+  }
+  if(/\b(upgrade|upgrades|package|packages|floor|diffuser|front wing|rear wing|aero|aerodynamic|power unit update|technical update)\b/i.test(value)){
+    request.topicTags.push("technical-upgrade");
+    request.categories.push("Technical & rules");
+  }
+  if(/\b(major|significant|substantial|biggest|large)\b/i.test(value)&&request.topicTags.includes("technical-upgrade")){
+    request.majorUpgradeOnly=true;
+    request.upgradeStatuses=["confirmed","expected"];
+  }
+  if(/\b(driver move|driver moves|signing|signed|contract|joins|leaves|line[- ]?up)\b/i.test(value)){
+    request.topicTags.push("driver-moves");
+    request.categories.push("Driver moves");
+  }
+  if(/\b(team news|team principal|team boss|team announcement)\b/i.test(value)){
+    request.topicTags.push("team-news");
+    request.categories.push("Team news");
+  }
+  if(/\b(regulation|regulations|rule change|technical directive|stewards|fia)\b/i.test(value)){
+    request.topicTags.push("regulations");
+    request.categories.push("Governance & calendar");
+  }
+  if(/\b(next|upcoming|this weekend|next weekend|next race|coming race)\b/i.test(value)){
+    request.maxAgeDays=60;
+    if(request.topicTags.includes("technical-upgrade")&&request.upgradeStatuses.length===0){
+      request.upgradeStatuses=["confirmed","expected"];
+    }
+  }else if(/\b(recent|latest|this week|last week)\b/i.test(value)){
+    request.maxAgeDays=14;
+  }
+  const knownDrivers=[...new Set(articles.flatMap(a=>Array.isArray(a.drivers)?a.drivers:[]).filter(Boolean))];
+  const normalise=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  request.driver=knownDrivers.find(name=>lower.includes(String(name).toLowerCase()))||"";
+  const ignored = new Set([...SMART_NEWS_STOP_WORDS,...request.topicTags.map(x=>x.replace(/-/g," "))]);
+  request.terms=value.toLowerCase()
+    .replace(/[^a-z0-9\s'-]/g," ")
+    .split(/\s+/)
+    .filter(token=>token.length>2&&!ignored.has(token)&&!request.team.toLowerCase().includes(token)&&!request.driver.toLowerCase().includes(token));
+  request.topicTags=[...new Set(request.topicTags)];
+  request.categories=[...new Set(request.categories)];
+  return request;
+}
+function smartRequestSummary(request){
+  const parts=[];
+  if(request.series)parts.push(request.series.toUpperCase());
+  if(request.team)parts.push("Team: "+request.team);
+  if(request.driver)parts.push("Driver: "+request.driver);
+  if(request.gridPenaltyOnly)parts.push("Explicit grid penalties");
+  if(request.topicTags.includes("technical-upgrade"))parts.push(request.majorUpgradeOnly?"Major technical upgrades":"Technical upgrades");
+  if(request.categories.includes("Driver moves"))parts.push("Driver moves");
+  if(request.categories.includes("Team news"))parts.push("Team news");
+  if(request.maxAgeDays)parts.push("Published within "+request.maxAgeDays+" days");
+  if(request.terms.length)parts.push("Keywords: "+request.terms.join(", "));
+  return parts.length?parts.join(" · "):"All stories";
+}
+function articleMatchesSmartRequest(article,request){
+  if(!request)return true;
+  const tags=(article.topicTags||[]).map(x=>String(x).toLowerCase());
+  const teams=(article.teams||[]).map(x=>String(x).toLowerCase());
+  const drivers=(article.drivers||[]).map(x=>String(x).toLowerCase());
+  if(request.series&&article.series!==request.series)return false;
+  if(request.team&&!teams.some(x=>x.includes(request.team.toLowerCase())))return false;
+  if(request.driver&&!drivers.some(x=>x.includes(request.driver.toLowerCase())))return false;
+  if(request.categories.length&&!request.categories.includes(article.category))return false;
+  if(request.topicTags.some(tag=>!tags.includes(tag)))return false;
+  if(request.gridPenaltyOnly&&!article.gridPenaltyMentioned)return false;
+  if(request.majorUpgradeOnly&&!article.majorUpgrade)return false;
+  if(request.upgradeStatuses.length&&!request.upgradeStatuses.includes(article.upgradeStatus))return false;
+  if(request.maxAgeDays&&article.published){
+    const published=Date.parse(article.published);
+    if(Number.isFinite(published)&&Date.now()-published>request.maxAgeDays*86400000)return false;
+  }
+  if(request.terms.length){
+    const searchable=normaliseNewsText([
+      article.title,article.summary,article.event,article.category,
+      ...(article.topicTags||[]),...(article.teams||[]),...(article.drivers||[])
+    ].join(" "));
+    if(!request.terms.every(term=>searchable.includes(term.toLowerCase())))return false;
+  }
+  return true;
+}
+function normaliseNewsText(value){
+  return String(value||"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+}
+function buildSmartNewsFeed(){
+  const input=$("newsSmartQuery");
+  if(!input)return;
+  state.newsSearch=input.value.trim();
+  state.newsSmartRequest=parseSmartNewsRequest(state.newsSearch,state.newsArticles||[]);
+  const summary=$("newsSmartSummary");
+  if(summary){
+    const request=state.newsSmartRequest;
+    summary.innerHTML="<span class='smart-request-label'>STRUCTURED REQUEST</span><strong>"+esc(smartRequestSummary(request))+"</strong><span class='secondary'>"+(request.majorUpgradeOnly?"Only major upgrades tagged as confirmed or expected. ":"")+(request.gridPenaltyOnly?"News mentions are not official proof; check the Grid Penalties tracker. ":"")+"Matching feed stories update below.</span>";
+  }
+  applyNewsFilters();
+}
+function clearSmartNewsFeed(){
+  state.newsSearch="";
+  state.newsSmartRequest=null;
+  const input=$("newsSmartQuery");
+  if(input)input.value="";
+  const summary=$("newsSmartSummary");
+  if(summary)summary.innerHTML="<span class='smart-request-label'>STRUCTURED REQUEST</span><strong>All motorsport stories</strong><span class='secondary'>Enter a question or choose an example to build a focused feed.</span>";
+  applyNewsFilters();
+}
+
 function applyNewsFilters(){
-  const query=String(state.newsSearch||"").toLowerCase().trim();
+  const request=state.newsSmartRequest;
   const cards=[...document.querySelectorAll(".news-card")];
   let visible=0;
   cards.forEach(card=>{
     const seriesOk=state.newsSeriesFilter==="all"||card.dataset.series===state.newsSeriesFilter;
     const categoryOk=state.newsCategoryFilter==="all"||card.dataset.category===state.newsCategoryFilter;
-    const searchOk=!query||(card.dataset.search||"").includes(query);
-    const show=seriesOk&&categoryOk&&searchOk;
+    const smartOk=!request||articleMatchesSmartRequest({
+      id:card.dataset.id,
+      series:card.dataset.series,
+      category:card.dataset.category,
+      title:card.dataset.title,
+      summary:card.dataset.summary,
+      event:card.dataset.event,
+      topicTags:(card.dataset.tags||"").split("|").filter(Boolean),
+      teams:(card.dataset.teams||"").split("|").filter(Boolean),
+      drivers:(card.dataset.drivers||"").split("|").filter(Boolean),
+      majorUpgrade:card.dataset.majorUpgrade==="true",
+      upgradeStatus:card.dataset.upgradeStatus,
+      gridPenaltyMentioned:card.dataset.gridPenalty==="true",
+      published:card.dataset.published
+    },request);
+    const show=seriesOk&&categoryOk&&smartOk;
     card.classList.toggle("hidden",!show);
     if(show)visible++;
   });
   const empty=$("newsEmpty");
   if(empty){
     empty.classList.toggle("hidden",visible>0);
-    empty.textContent=cards.length?"No stories match the selected filters or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.";
+    empty.textContent=cards.length
+      ? "No stories match this structured request. Try removing one constraint or broaden the time window."
+      : "No headlines are available in the cached feed yet. The scheduled importer will retry.";
   }
+  const count=$("newsVisibleCount");
+  if(count)count.textContent=visible+" matching stories";
 }
 function renderNews(snapshot){
   const articles=Array.isArray(snapshot.articles)?snapshot.articles:[];
+  state.newsArticles=articles;
   const filters=[["all","ALL"],["f1","F1"],["f2","F2"],["f3","F3"]];
   const categories=["all","Race weekend","Driver moves","Technical & rules","Team news","Governance & calendar","General"];
   const filterMarkup=filters.map(([value,label])=>
@@ -360,36 +544,52 @@ function renderNews(snapshot){
     const shortSeries=["f1","f2","f3"].includes(series)?series.toUpperCase():"NEWS";
     const title=String(article.title||"Untitled story");
     const summary=String(article.summary||"");
-    const source=String(article.source||"Crash.net");
+    const source=String(article.source||"Motorsport");
     const category=String(article.category||"General");
     const link=String(article.link||"");
     const safeLink=/^https?:\/\//i.test(link)?link:"";
-    const searchable=[title,summary,seriesLabel,source,category].join(" ").toLowerCase();
+    const tags=Array.isArray(article.topicTags)?article.topicTags:[];
+    const teams=Array.isArray(article.teams)?article.teams:[];
+    const drivers=Array.isArray(article.drivers)?article.drivers:[];
+    const searchable=[title,summary,seriesLabel,source,category,article.event||"",...tags,...teams,...drivers].join(" ").toLowerCase();
     const date=article.published?formatNewsDate(article.published):"Date not supplied";
-    return "<article class='news-card' data-series='"+esc(series)+"' data-category='"+esc(category)+"' data-search='"+esc(searchable)+"'>"+
+    const tagMarkup=tags.slice(0,4).map(tag=>"<span class='news-ai-tag'>"+esc(String(tag).replace(/-/g," "))+"</span>").join("");
+    const entityMarkup=[...teams.slice(0,2),...drivers.slice(0,2)].map(name=>"<span class='news-entity-tag'>"+esc(name)+"</span>").join("");
+    return "<article class='news-card' data-id='"+esc(article.id||"")+"' data-series='"+esc(series)+"' data-category='"+esc(category)+"' data-search='"+esc(searchable)+"' data-title='"+esc(title)+"' data-summary='"+esc(summary)+"' data-event='"+esc(article.event||"")+"' data-tags='"+esc(tags.join("|"))+"' data-teams='"+esc(teams.join("|"))+"' data-drivers='"+esc(drivers.join("|"))+"' data-major-upgrade='"+String(!!article.majorUpgrade)+"' data-upgrade-status='"+esc(article.upgradeStatus||"")+"' data-grid-penalty='"+String(!!article.gridPenaltyMentioned)+"' data-published='"+esc(article.published||"")+"'>"+
       "<div class='news-card-meta'><span class='news-series-pill'>"+esc(shortSeries)+"</span><span class='news-category-pill'>"+esc(category)+"</span><span>"+esc(source)+"</span><time datetime='"+esc(article.published||"")+"'>"+esc(date)+"</time></div>"+
       "<h2>"+esc(title)+"</h2>"+
       (summary?"<p>"+esc(summary)+"</p>":"")+
+      (teams.length||drivers.length||tags.length?"<div class='news-ai-tags'>"+tagMarkup+entityMarkup+(article.aiTagged?"<span class='news-ai-badge'>AI STRUCTURED</span>":"")+"</div>":"")+
+      (article.majorUpgrade?"<div class='news-feature-flag'>MAJOR UPGRADE · "+esc(article.upgradeStatus||"status not supplied")+"</div>":"")+
+      (article.gridPenaltyMentioned?"<div class='news-feature-flag'>GRID-PENALTY STORY · CHECK OFFICIAL FIA RECORD</div>":"")+
       (safeLink?"<a class='news-link' href='"+esc(safeLink)+"' target='_blank' rel='noopener noreferrer'>Read on "+esc(source)+" ↗</a>":"")+
       "</article>";
   }).join("");
   const stale=Object.entries(snapshot.feedStatus||{}).filter(([,value])=>value!=="ok").map(([key])=>key.toUpperCase());
   const warning=stale.length?" Some feeds were unavailable during the last update; their previous headlines have been retained ("+esc(stale.join(", "))+").":"";
   const updated=snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"Awaiting first import";
-  return pageHead("MOTORSPORT NEWS","Latest news","Search stories and filter by championship or category. Headlines and short feed summaries are credited to the publisher.")+
-    "<div class='news-toolbar'><div class='news-filters' aria-label='Filter news by championship'>"+filterMarkup+"</div>"+
-    "<label class='news-search'><span>SEARCH STORIES</span><input class='search-input' id='newsSearch' type='search' value='"+esc(state.newsSearch)+"' placeholder='Driver, team, topic…'></label></div>"+
+  const aiLabel=snapshot.aiEnrichment==="openai-structured"?"GPT-6 structured tags enabled":"Structured local fallback · AI key not configured";
+  const currentRequest=state.newsSearch?parseSmartNewsRequest(state.newsSearch,articles):null;
+  state.newsSmartRequest=currentRequest;
+  return pageHead("MOTORSPORT NEWS","Build your own news feed","Ask in plain language. The tracker converts your request into topic, team, driver, priority and time filters, then matches the structured story metadata.")+
+    "<section class='panel smart-news-panel'><div class='panel-header'><div><span class='eyebrow'>NATURAL-LANGUAGE FEED BUILDER</span><h2>What do you want to follow?</h2><p>Examples: “McLaren’s next major upgrade package” or “F1 grid-penalty stories from this weekend”.</p></div>"+badge(snapshot.aiEnrichment==="openai-structured"?"AI TAGGING ON":"SMART TAGS","green")+"</div>"+
+    "<div class='smart-news-input-row'><input class='search-input' id='newsSmartQuery' type='search' value='"+esc(state.newsSearch)+"' placeholder='Ask for a topic, team, driver or upcoming update…'><button class='primary-button' id='newsSmartApply' type='button'>Build my feed</button><button class='text-button' id='newsSmartClear' type='button'>Clear</button></div>"+
+    "<div class='smart-news-examples'><span>TRY:</span><button type='button' data-smart-example='Show major upgrades expected for the next race'>Next major upgrades</button><button type='button' data-smart-example='Show McLaren technical upgrades'>McLaren upgrades</button><button type='button' data-smart-example='Show F1 grid penalties this weekend'>Grid penalties</button><button type='button' data-smart-example='Latest driver moves in Formula 1'>Driver moves</button></div>"+
+    "<div class='smart-request-summary' id='newsSmartSummary'><span class='smart-request-label'>STRUCTURED REQUEST</span><strong>"+esc(currentRequest?smartRequestSummary(currentRequest):"All motorsport stories")+"</strong><span class='secondary'>"+esc(aiLabel)+". The model never turns a news headline into an official FIA penalty record.</span></div></section>"+
+    "<div class='news-toolbar'><div class='news-filters' aria-label='Filter news by championship'>"+filterMarkup+"</div></div>"+
     "<div class='news-category-filters' aria-label='Filter news by category'>"+categoryMarkup+"</div>"+
-    "<div class='news-feed-info'><span>"+articles.length+" stories in the latest snapshot</span><span>Updated: "+esc(updated)+" · Source: Crash.net RSS</span></div>"+
+    "<div class='news-feed-info'><span>"+articles.length+" stories in the latest snapshot · <strong id='newsVisibleCount'>"+articles.length+" matching stories</strong></span><span>Updated: "+esc(updated)+" · Sources: Crash.net, Autosport and FIA</span></div>"+
     (warning?"<div class='notice'>"+warning+"</div>":"")+
     "<div class='news-grid'>"+cards+"</div>"+
-    "<div class='empty-state "+(articles.length?"hidden":"")+"' id='newsEmpty'>"+(articles.length?"No stories match the selected filters or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.")+"</div>";
+    "<div class='empty-state "+(articles.length?"hidden":"")+"' id='newsEmpty'>"+(articles.length?"No stories match this structured request. Try removing one constraint or broaden the time window.":"No headlines are available in the cached feed yet. The scheduled importer will retry.")+"</div>";
 }
+
 function renderDashboard(){
   const cards=[
     ["📊","CORE STATISTICS","Season Overview","Championship standings, driver and constructor battles, season totals and key performance statistics.","overview"],
     ["🏁","RACE SCHEDULE","Race Calendar","Browse the Formula 1, Formula 2 and Formula 3 calendars, upcoming rounds and completed events.","calendar"],
     ["📰","MOTORSPORT NEWS","Latest News","Follow F1, F2 and F3 headlines in one searchable feed, with every story linked to its publisher.","news"],
+    ["⚑","OFFICIAL DOCUMENTS","Grid Penalties","See confirmed and pending Formula One grid penalties sourced from FIA decisions and official grid documents.","grid-penalties"],
     ["🏎️","DRIVER DATABASE","Driver Profiles","Search driver profiles, explore career progression, season statistics, teams and race histories.","drivers"],
     ["🏆","TEAM DATABASE","Constructor Database","Explore constructor histories, championship performance, line-ups and team statistics across seasons.","teams"],
     ["🏎","CIRCUIT DATABASE","Circuit Explorer","Discover circuits, locations, race histories and the statistics behind each venue.","circuits"],
@@ -418,6 +618,47 @@ async function renderCalendar(){
     "<div class='kpi-grid'>"+kpi("Rounds listed",events.length,"Events in selected season")+kpi("With result data",completed,"At least one classified result")+kpi("Without result data",events.length-completed,"Scheduled or summary-only entries")+kpi("Season",state.season,"Change using the selector above")+"</div>"+
     "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>ROUND BY ROUND</span><h2>Season events</h2></div><span class='badge'>"+esc(seriesLabel(state.series))+" · "+esc(state.season)+"</span></div><div class='event-list'>"+(races||"<div class='empty-state'>No events have been archived for this season.</div>")+"</div></div>";
 }
+function renderGridPenalties(snapshot){
+  const penalties=Array.isArray(snapshot.penalties)?snapshot.penalties:[];
+  const current=penalties.filter(item=>Number(item.season)===CURRENT_YEAR);
+  const confirmed=current.filter(item=>item.status==="confirmed");
+  const pending=current.filter(item=>item.status==="pending");
+  const events=[...new Set(penalties.map(item=>item.event).filter(Boolean))];
+  const rows=penalties.map(item=>{
+    const driver=item.driver||("Car "+(item.carNumber||"number not supplied"));
+    const statusKind=item.status==="confirmed"?"green":"gold";
+    return "<tr><td>"+esc(item.event||"Event not identified")+"</td><td>"+esc(item.season||"—")+"</td><td><strong>"+esc(driver)+"</strong>"+(item.team?"<div class='secondary'>"+esc(item.team)+"</div>":"")+"</td><td>"+esc(item.penalty||"Grid sanction not supplied")+"</td><td>"+esc(item.reason||"Reason not extracted from the FIA document")+"</td><td>"+badge(item.status==="pending"?"Pending":"Confirmed",statusKind)+"</td><td>"+(item.sourceUrl?"<a class='text-link' href='"+esc(item.sourceUrl)+"' target='_blank' rel='noopener'>FIA document ↗</a>":"—")+"</td></tr>";
+  });
+  const documentRows=(snapshot.documents||[]).slice(0,18).map(doc=>
+    "<tr><td>"+esc(doc.event||"Event not identified")+"</td><td>"+esc(doc.published?formatNewsDate(doc.published):"Date not supplied")+"</td><td>"+esc(doc.title||"FIA document")+"</td><td><a class='text-link' href='"+esc(doc.url||"https://www.fia.com/documents/championships/fia-formula-one-world-championship-")+"' target='_blank' rel='noopener'>Open source ↗</a></td></tr>"
+  );
+  return pageHead("OFFICIAL FIA DOCUMENT TRACKER","Grid penalties","Track explicit Formula One grid drops found in FIA steward decisions and official starting-grid documents. News headlines are not treated as confirmation.")+
+    "<div class='kpi-grid'>"+kpi("Confirmed · "+CURRENT_YEAR,confirmed.length,"Explicit FIA grid sanctions")+kpi("Pending / summons",pending.length,"Allegations are not final decisions")+kpi("FIA PDFs scanned",snapshot.documentsScanned||0,"Latest document refresh")+kpi("Records in archive",penalties.length,"Imported official-document evidence")+"</div>"+
+    "<section class='panel grid-penalties-panel'><div class='panel-header'><div><span class='eyebrow'>CURRENT SEASON · "+CURRENT_YEAR+"</span><h2>Driver grid-penalty register</h2><p>Search by driver, team, circuit, sanction or reason.</p></div><span class='secondary'>Updated "+esc(snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"not yet imported")+"</span></div>"+
+    "<div class='search-row'><input class='search-input' id='gridPenaltySearch' type='search' placeholder='Search drivers, teams, event or penalty…'><label class='field'><span>EVENT</span><select id='gridPenaltyEvent' class='field-select'><option value='all'>All events</option>"+events.map(event=>"<option value='"+esc(event)+"'>"+esc(event)+"</option>").join("")+"</select></label><label class='field'><span>STATUS</span><select id='gridPenaltyStatus' class='field-select'><option value='all'>All statuses</option><option value='confirmed'>Confirmed</option><option value='pending'>Pending</option></select></label></div>"+
+    (confirmed.length===0&&pending.length===0?"<div class='notice'>No explicit "+CURRENT_YEAR+" grid-drop decision was found in the latest FIA PDF scan. This does not mean no future penalties will be issued; the FIA document feed is refreshed automatically.</div>":"")+
+    "<div class='table-wrap'><table id='gridPenaltyTable'><thead><tr><th>EVENT</th><th>SEASON</th><th>DRIVER / TEAM</th><th>SANCTION</th><th>REASON / FIA EXTRACT</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody>"+rows.join("")+"</tbody></table><div class='empty-state hidden' id='gridPenaltyEmpty'>No records match this search.</div></div></section>"+
+    "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>DOCUMENT MONITOR</span><h2>Recent FIA documents scanned</h2><p>Decision, infringement and grid-related documents are checked for explicit grid-drop wording.</p></div></div>"+table(["EVENT","PUBLISHED","DOCUMENT","SOURCE"],documentRows)+"</section>"+
+    "<div class='grid-2'><section class='panel'><span class='eyebrow'>OFFICIAL SOURCE</span><h2>FIA decision documents</h2><p class='secondary'>The register uses FIA PDFs. Open the original document to verify the decision and context.</p><a class='text-link' href='https://www.fia.com/documents/championships/fia-formula-one-world-championship-' target='_blank' rel='noopener'>Open FIA Formula One documents ↗</a></section><section class='panel'><span class='eyebrow'>DATA RULE</span><h2>Confirmed means written</h2><p class='secondary'>Only explicit sanction wording is listed. Summonses or allegations are marked pending. Engine or gearbox usage is not converted into an expected grid penalty without an official decision.</p><p class='secondary'>Driver names are resolved from the current season archive when the FIA document identifies a car number.</p></section></div>";
+}
+function applyGridPenaltyFilters(){
+  const query=String($("gridPenaltySearch")?.value||"").toLowerCase().trim();
+  const event=$("gridPenaltyEvent")?.value||"all";
+  const statusFilter=$("gridPenaltyStatus")?.value||"all";
+  let visible=0;
+  document.querySelectorAll("#gridPenaltyTable tbody tr").forEach(row=>{
+    const text=row.textContent.toLowerCase();
+    const eventOk=event==="all"||row.cells[0]?.textContent===event;
+    const statusText=row.cells[5]?.textContent.toLowerCase()||"";
+    const statusOk=statusFilter==="all"||statusText.includes(statusFilter);
+    const show=eventOk&&statusOk&&(!query||text.includes(query));
+    row.classList.toggle("hidden",!show);
+    if(show)visible++;
+  });
+  const empty=$("gridPenaltyEmpty");
+  if(empty)empty.classList.toggle("hidden",visible>0);
+}
+
 async function renderDrivers(){
   const idx=await getIndex(state.series,"drivers");
   const cards=idx.drivers.map(d=>"<a class='entity-card searchable' data-search='"+esc((d.name+" "+d.nationality+" "+d.code).toLowerCase())+"' href='"+driverHref(state.series,d.id)+"'><div class='card-top'>"+badge(d.nationality||"Nationality not supplied")+"<span class='secondary'>"+esc(d.code||"DRIVER")+"</span></div><h3>"+esc(d.name)+"</h3><p>"+esc(d.seasons)+" seasons · "+esc(d.firstSeason||"—")+"–"+esc(d.lastSeason||"—")+"</p><div class='entity-meta'>"+badge("Titles "+number(d.championships),"gold")+badge("Wins "+(d.wins==null?"—":d.wins+(d.winsComplete?"":"+")),"green")+badge("Podiums "+number(d.podiums))+"</div></a>").join("");
@@ -1123,7 +1364,17 @@ function bindDynamicEvents(){
     document.querySelectorAll("#raceArchiveList .searchable").forEach(card=>card.classList.toggle("hidden",!card.dataset.search.includes(query)));
   });
   $("predictionEventSelect")?.addEventListener("change",e=>{state.predictionEvent=e.target.value;renderRoute();});
-  $("newsSearch")?.addEventListener("input",e=>{state.newsSearch=e.target.value;applyNewsFilters();});
+  $("newsSmartApply")?.addEventListener("click",buildSmartNewsFeed);
+  $("newsSmartClear")?.addEventListener("click",clearSmartNewsFeed);
+  $("newsSmartQuery")?.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();buildSmartNewsFeed();}});
+  document.querySelectorAll("[data-smart-example]").forEach(button=>button.addEventListener("click",()=>{
+    const input=$("newsSmartQuery");
+    if(input){input.value=button.dataset.smartExample||"";buildSmartNewsFeed();}
+  }));
+  if($("newsSmartQuery")&&state.newsSmartRequest)applyNewsFilters();
+  $("gridPenaltySearch")?.addEventListener("input",applyGridPenaltyFilters);
+  $("gridPenaltyEvent")?.addEventListener("change",applyGridPenaltyFilters);
+  $("gridPenaltyStatus")?.addEventListener("change",applyGridPenaltyFilters);
   document.querySelectorAll("[data-news-series]").forEach(button=>button.addEventListener("click",()=>{
     state.newsSeriesFilter=button.dataset.newsSeries;
     document.querySelectorAll("[data-news-series]").forEach(tab=>tab.classList.toggle("active",tab===button));
