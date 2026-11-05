@@ -117,7 +117,7 @@ The platform also includes browser-local driver/constructor watchlists, race-by-
 
 
 ## Grid penalties and smart news
-The **Grid Penalties** page scans recent official FIA Formula One PDFs and reports only explicit grid-drop wording. Summonses/allegations are marked pending, decisions are marked confirmed, and every entry links to the source document. A lack of a matching entry is not proof that the FIA has issued no penalty.
+The **Grid Penalties** page scans the live official FIA Formula One document archive, including Final Starting Grid PDFs. It records each driver sanction separately (grid drop, back-of-grid or pit-lane start), marks provisional/summons records as pending and final-grid sanctions as confirmed, and links each entry to the source PDF. If the FIA scan returns no readable PDFs, the page labels status as unknown rather than claiming there are no penalties.
 
 The **News** page includes a natural-language feed builder. Type a request such as `McLaren's next major upgrade package` or `F1 grid penalties this weekend`; the client converts the wording into team, topic, priority and recency filters and shows the structured request it applied.
 
