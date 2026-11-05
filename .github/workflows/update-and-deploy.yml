@@ -43,7 +43,7 @@ jobs:
       - name: Install F2/F3 and circuit import dependencies
         run: |
           python -m pip install --disable-pip-version-check beautifulsoup4 pyyaml pypdf openpyxl
-          python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py scripts/fetch-news.py scripts/fetch-circuit-data.py scripts/fetch-fia-grid-penalties.py scripts/import-historical-grid-penalties.py
+          python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py scripts/fetch-news.py scripts/fetch-circuit-data.py scripts/fetch-fia-grid-penalties.py scripts/import-historical-grid-penalties.py scripts/import-series-grid-penalties.py scripts/build-f1-upgrade-watch.py
       - name: Install FastF1 for scheduled historical refreshes
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: python -m pip install --disable-pip-version-check fastf1
@@ -76,6 +76,14 @@ jobs:
         id: fetch_grid_history
         continue-on-error: true
         run: python scripts/import-historical-grid-penalties.py
+      - name: Import official F2 and F3 grid penalties
+        id: fetch_f2_f3_grid_penalties
+        continue-on-error: true
+        run: python scripts/import-series-grid-penalties.py
+      - name: Build F1 team upgrade watch
+        id: build_upgrade_watch
+        continue-on-error: true
+        run: python scripts/build-f1-upgrade-watch.py
       - name: Build searchable career and circuit indexes
         run: node scripts/build-indexes.js
       - name: Save every completed historical snapshot
