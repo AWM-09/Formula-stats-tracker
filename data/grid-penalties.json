@@ -1,12 +1,77 @@
 {
-  "updatedAt": "2026-11-05T21:43:59Z",
+  "updatedAt": "2026-11-05T21:45:20Z",
   "source": "FIA official Formula One documents",
   "sourcePages": [
     "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14",
     "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
   ],
-  "documentsScanned": 0,
-  "documents": [],
-  "penalties": [],
+  "documentsScanned": 1,
+  "documents": [
+    {
+      "title": "Doc 52 - Final Starting Grid - Hungarian Grand Prix",
+      "url": "https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "published": "2026-07-26T12:00:00Z",
+      "event": "Final Starting Grid - Hungarian Grand Prix"
+    }
+  ],
+  "penalties": [
+    {
+      "id": "2026|Final Starting Grid - Hungarian Grand Prix|44|3-place grid drop|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "series": "f1",
+      "season": 2026,
+      "event": "Final Starting Grid - Hungarian Grand Prix",
+      "published": "2026-07-26T12:00:00Z",
+      "driver": "Lewis Hamilton",
+      "team": "Ferrari",
+      "carNumber": "44",
+      "penalty": "3-place grid drop",
+      "gridPlaces": 3,
+      "sanctionType": "grid-drop",
+      "status": "confirmed",
+      "reason": "Car 44 - 3 place grid penalty - Impeding another driver - Stewards' document no. 36",
+      "documentTitle": "Doc 52 - Final Starting Grid - Hungarian Grand Prix",
+      "sourceUrl": "https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "sourceTitle": "Official FIA document",
+      "sourcePage": "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
+    },
+    {
+      "id": "2026|Final Starting Grid - Hungarian Grand Prix|12|3-place grid drop|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "series": "f1",
+      "season": 2026,
+      "event": "Final Starting Grid - Hungarian Grand Prix",
+      "published": "2026-07-26T12:00:00Z",
+      "driver": "Andrea Kimi Antonelli",
+      "team": "Mercedes",
+      "carNumber": "12",
+      "penalty": "3-place grid drop",
+      "gridPlaces": 3,
+      "sanctionType": "grid-drop",
+      "status": "confirmed",
+      "reason": "Car 12 - 3 place grid penalty - Failing to slow for yellow flags - Stewards' document no. 41",
+      "documentTitle": "Doc 52 - Final Starting Grid - Hungarian Grand Prix",
+      "sourceUrl": "https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "sourceTitle": "Official FIA document",
+      "sourcePage": "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
+    },
+    {
+      "id": "2026|Final Starting Grid - Hungarian Grand Prix|11|Pit-lane start|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "series": "f1",
+      "season": 2026,
+      "event": "Final Starting Grid - Hungarian Grand Prix",
+      "published": "2026-07-26T12:00:00Z",
+      "driver": "Sergio Pérez",
+      "team": "Cadillac F1 Team",
+      "carNumber": "11",
+      "penalty": "Pit-lane start",
+      "gridPlaces": null,
+      "sanctionType": "pit-lane-start",
+      "status": "confirmed",
+      "reason": "Car 11 - Required to start from the pit lane - Car modified whilst under Parc Fermé conditions - Stewards' document no. 50 The F1 FORMULA 1 logo, F1 logo, FORMULA 1, FORMULA ONE, F1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trade marks of Formula One Licensing BV, a Formula 1",
+      "documentTitle": "Doc 52 - Final Starting Grid - Hungarian Grand Prix",
+      "sourceUrl": "https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "sourceTitle": "Official FIA document",
+      "sourcePage": "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
+    }
+  ],
   "coverageNote": "Only explicit grid-drop wording found in FIA PDFs is listed. Summonses and allegations are marked pending; headlines and component usage are not treated as proof."
 }
