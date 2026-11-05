@@ -87,3 +87,21 @@ The scheduled GitHub Actions pipeline builds cross-season driver, constructor an
 - Season points progression is calculated from race-session points present in the selected season archive. Sprint points are only included where the data is represented in the stored session rows.
 - The Export Centre downloads CSV standings, calendars and session results, plus the stored season snapshot as JSON.
 - News categories are heuristic labels based on publisher feed headlines and summaries. They are filters, not an editorially verified classification.
+
+
+## Grid penalties — official FIA documents
+- Source: [FIA Formula One World Championship document register](https://www.fia.com/documents/championships/fia-formula-one-world-championship-) and the [FIA decision-document register](https://www.fia.com/documents/decision-documents).
+- Importer: `scripts/fetch-fia-grid-penalties.py`. It scans recent linked FIA PDFs with relevant document titles, extracts the text of the first five pages, and records only explicit grid-drop wording such as a numbered grid-place penalty or a decision to start at the back of the grid.
+- A summons or allegation is labelled **pending**. A steward decision with explicit grid-drop wording is labelled **confirmed**. Starting-grid, engine-element and gearbox documents can be shown in the document monitor but do not create a penalty record unless the document itself contains explicit sanction wording.
+- Driver names and teams are resolved from the matching season archive when a car number is present. If the mapping is unavailable, the car number is shown and the driver/team fields remain blank.
+- This is a document scan, not a live FIA API. It can lag the FIA document publication, and a missing result does not prove that no penalty exists. Every listed record links to its original FIA PDF.
+- FIA publishes separate penalty and driving-standards guidance. Those guidelines describe the framework; they are not evidence that a particular driver has received a penalty. See the [2026 FIA penalty guidelines](https://www.fia.com/sites/default/files/2026_f1_penalty_guidelines.pdf).
+
+## News sources and structured search
+- F1 headlines: [Crash.net F1 RSS](https://www.crash.net/rss/f1) and [Autosport F1 RSS](https://www.autosport.com/rss/feed/f1).
+- F2/F3 headlines: Crash.net RSS feeds for each championship.
+- FIA news: [FIA RSS](https://www.fia.com/rss/news), restricted by the importer to stories that refer to Formula One / F1 / Grand Prix.
+- The news importer generates structured fields for topic tags, teams, drivers, event, major-upgrade status, upgrade timing and explicit grid-penalty mentions. A natural-language query is converted in the browser into structured team/topic/priority/time filters.
+- When `OPENAI_API_KEY` is configured as a GitHub Actions repository secret, the importer enriches stories through the OpenAI Responses API using a strict JSON Schema. The default model is `gpt-6-luna`. Without that secret, local tag rules are used and the natural-language filter remains available, but **AI enrichment is off**.
+- Never expose an API key in browser JavaScript, a committed file or the public Pages bundle. Enable AI enrichment only through the private GitHub Actions repository secret. API usage is metered by OpenAI; the key owner is responsible for any usage charges.
+- The natural-language parser is intentionally conservative. "Upcoming" and "next race" are mapped to a recent-news window, not a verified race calendar promise. A news article is not treated as proof of a grid penalty or a confirmed technical introduction.
