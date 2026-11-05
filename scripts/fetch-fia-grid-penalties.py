@@ -23,8 +23,10 @@ from pypdf import PdfReader
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "data" / "grid-penalties.json"
 FIA_PAGES = [
-    "https://www.fia.com/documents/championships/fia-formula-one-world-championship-",
-    "https://www.fia.com/documents/decision-documents",
+    # Current FIA championship document archive. It resolves to the active season.
+    "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14",
+    # Explicit 2026 season archive as a resilient fallback while the current route changes.
+    "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072",
 ]
 USER_AGENT = "FormulaStatsTracker/1.0 (personal motorsport statistics project)"
 CURRENT_YEAR = datetime.now(timezone.utc).year
@@ -48,6 +50,11 @@ BACK_OF_GRID = re.compile(
     r"(?:penalt\w*|demot\w*|relegat\w*).{0,120}back\s+of\s+the\s+grid|"
     r"back\s+of\s+the\s+grid.{0,120}(?:penalt\w*|demot\w*|relegat\w*)",
     re.I | re.S,
+)
+PIT_LANE_START = re.compile(
+    r"(?:required|instructed|ordered)\s+to\s+start\s+from\s+the\s+pit\s+lane|"
+    r"start\s+from\s+the\s+pit\s+lane",
+    re.I,
 )
 CAR_NUMBER = re.compile(r"\bcar\s*#?\s*(\d{1,2})\b", re.I)
 PUBLISHED_DATE = re.compile(r"Published on\s+(\d{2}\.\d{2}\.\d{2})", re.I)
@@ -222,7 +229,8 @@ def extract_penalty(document: dict, text: str, driver_maps: dict[str, dict]) -> 
             break
 
     back_of_grid = bool(BACK_OF_GRID.search(source_text))
-    if place_count is None and not back_of_grid:
+    pit_lane_start = bool(PIT_LANE_START.search(source_text))
+    if place_count is None and not back_of_grid and not pit_lane_start:
         return None
 
     title = str(document.get("title") or "")
@@ -248,7 +256,11 @@ def extract_penalty(document: dict, text: str, driver_maps: dict[str, dict]) -> 
         match = BACK_OF_GRID.search(source_text)
         reason = " ".join(source_text[max(0, match.start() - 190):min(len(source_text), match.end() + 260)].split())
 
-    penalty = "Back of the grid" if back_of_grid else f"{place_count}-place grid drop"
+    penalty = (
+        "Pit-lane start" if pit_lane_start and place_count is None and not back_of_grid
+        else "Back of the grid" if back_of_grid
+        else f"{place_count}-place grid drop"
+    )
     event = event_name(title, document.get("context", ""), text)
     key = f"{year}|{event}|{car_number}|{penalty}|{document['url']}"
     return {
@@ -262,6 +274,7 @@ def extract_penalty(document: dict, text: str, driver_maps: dict[str, dict]) -> 
         "carNumber": car_number,
         "penalty": penalty,
         "gridPlaces": place_count,
+        "sanctionType": "pit-lane-start" if pit_lane_start else "grid-drop",
         "status": status,
         "reason": reason[:520],
         "documentTitle": title or "FIA steward document",
