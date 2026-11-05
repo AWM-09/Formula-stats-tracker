@@ -505,7 +505,7 @@ async function runDataExport(kind){
     const rows=[];
     for(const event of data.races||[])for(const result of event.Results||[]){
       if(result.isRecordOnly)continue;
-      rows.push({series:state.series,season:state.season,round:event.round,event:event.raceName,circuit:event.Circuit&&event.Circuit.circuitName,session:result.session||"Race",position:result.position,driver:driverName(result.Driver),driverId:result.Driver&&result.Driver.driverId,constructor:result.Constructor&&result.Constructor.name,grid:result.grid,laps:result.laps,time:result.Time&&result.Time.time,gap:result.gap,points:result.points,status:result.status,fastestLap:result.FastestLap&&result.FastestLap.Time&&result.FastestLap.Time.time});
+      rows.push({series:state.series,season:state.season,round:event.round,event:event.raceName,circuit:event.Circuit&&event.Circuit.circuitName,session:result.session||"Race",position:result.position,driver:driverName(result.Driver),driverId:result.Driver&&result.Driver.driverId,constructor:result.Constructor&&result.Constructor.name,grid:result.grid,laps:result.laps,time:(result.Time&&result.Time.time)||result.time||"",gap:result.gap||"",points:result.points,status:result.status,fastestLap:(result.FastestLap&&result.FastestLap.Time&&result.FastestLap.Time.time)||result.fastestLap||""});
     }
     filename=prefix+"-race-session-results.csv";content=rowsToCsv(["series","season","round","event","circuit","session","position","driver","driverId","constructor","grid","laps","time","gap","points","status","fastestLap"],rows);
   }else if(kind==="calendar"){
@@ -549,10 +549,13 @@ async function renderCircuits(){
 function circuitLayoutForSeason(layouts,year){
   const target=Number(year);
   return (layouts||[]).find(layout=>{
-    const ranges=String(layout.seasons||"").match(/\d{4}(?:\s*-\s*\d{4})?/g)||[];
+    const ranges=String(layout.seasons||"").split(",");
     return ranges.some(range=>{
-      const parts=range.split(/\s*-\s*/).map(Number);
-      const first=parts[0],last=parts[1]||first;
+      const match=range.trim().match(/^(\d{4})(?:\s*-\s*(\d{4}|present))?$/i);
+      if(!match)return false;
+      const first=Number(match[1]);
+      const end=String(match[2]||first).toLowerCase();
+      const last=end==="present"?CURRENT_YEAR:Number(end);
       return target>=first&&target<=last;
     });
   })||null;
@@ -573,7 +576,7 @@ function findCircuitTrackRecord(trackData,profile){
     const candidate=Math.hypot(lat-cLat,lon-cLon);
     if(candidate<distance){distance=candidate;closest=circuit;}
   }
-  return distance<=0.5?closest:null;
+  return distance<=0.15?closest:null;
 }
 function timeToSeconds(value){
   if(!value)return null;
@@ -594,7 +597,7 @@ function renderCircuitLayoutPanel(track,selectedLayout){
   return "<section class='panel circuit-layout-panel'><div class='panel-header'><div><span class='eyebrow'>TRACK CONFIGURATION</span><h2>Track layout</h2><p>Choose a historic configuration to match the era being researched.</p></div><label class='circuit-layout-select'><span>LAYOUT / ERA</span><select id='circuitLayoutSelect' class='field-select'>"+options+"</select></label></div>"+
     "<div class='circuit-map-stage'><img id='circuitLayoutImage' src='"+esc(selectedLayout.svgUrl)+"' alt='"+esc(track.name)+" circuit layout, "+esc(selectedLayout.seasons||"season range not supplied")+"' loading='lazy'><div class='circuit-map-tag'>HISTORICAL TRACK OUTLINE</div></div>"+
     "<div class='circuit-layout-stats'><div><span>CONFIGURATION LENGTH</span><strong id='circuitLayoutLength'>"+esc(selectedLayout.lengthKm==null?"Not supplied":number(selectedLayout.lengthKm)+" km")+"</strong></div><div><span>NUMBER OF TURNS</span><strong id='circuitLayoutTurns'>"+esc(selectedLayout.turns==null?"Not supplied":number(selectedLayout.turns))+"</strong></div><div><span>SEASONS USED</span><strong id='circuitLayoutSeasons'>"+esc(selectedLayout.seasons||"Not supplied")+"</strong></div></div>"+
-    "<p class='secondary'>Layout artwork: MisterSix2295/f1-circuits-svg (MIT). Track specifications: F1DB (CC BY 4.0). Layout variants describe the circuit outline; pit-lane and resurfacing changes may not be represented.</p></section>";
+    "<p class='secondary'>Layout artwork: <a href='https://github.com/MisterSix2295/f1-circuits-svg' target='_blank' rel='noopener'>MisterSix2295/f1-circuits-svg (MIT)</a>. Track specifications: <a href='https://github.com/f1db/f1db' target='_blank' rel='noopener'>F1DB (CC BY 4.0)</a>. Layout variants describe the circuit outline; pit-lane and resurfacing changes may not be represented.</p></section>";
 }
 async function renderCircuitProfile(id){
   const [p,trackData]=await Promise.all([
@@ -645,13 +648,11 @@ async function renderCircuitProfile(id){
   const selectedLength=length==null?"Not supplied":number(length)+" km";
   const selectedTurns=turns==null?"Not supplied":number(turns);
   const stats=[
-    ["Layout distance",selectedLength],
-    ["Turns on selected layout",selectedTurns],
     ["Events in this archive",p.eventCount],
     ["Years represented",(p.firstSeason||"—")+"–"+(p.lastSeason||"—")],
-    ["Archived race laps",raceLaps.length?number(raceLaps.reduce((a,b)=>a+b,0)):"—"],
-    ["Average winner's laps",averageLaps==null?"—":number(averageLaps)],
-    ["Recorded race distance",distanceEvents?number(totalDistance)+" km":"—"],
+    ["Archived session-winning laps",raceLaps.length?number(raceLaps.reduce((a,b)=>a+b,0)):"—"],
+    ["Average winner's laps per session",averageLaps==null?"—":number(averageLaps)],
+    ["Recorded classified distance",distanceEvents?number(totalDistance)+" km":"—"],
     ["Most recorded wins",wins[0]?wins[0].driverName:"—"]
   ];
   const fastestText=bestArchiveLap?bestArchiveLap.time+" · "+bestArchiveLap.driver+" ("+bestArchiveLap.season+")":"Not supplied in archive";
@@ -1123,6 +1124,7 @@ function bindDynamicEvents(){
       const list=$("compareDriverNames");
       if(list)list.innerHTML=idx.drivers.map(d=>"<option value='"+esc(d.name)+"'></option>").join("");
       runDriverCompare();
+      runRaceBattle();
     }).catch(e=>{$("driverCompareOutput").innerHTML="<div class='notice red'>"+esc(e.message)+"</div>";});
   }
   if($("compareSeasonOne")&&$("compareSeasonTwo")){
