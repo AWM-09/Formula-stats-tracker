@@ -687,12 +687,15 @@ function renderF1UpgradeWatch(snapshot){
     const source=update.sourceUrl&&/^https?:\/\//i.test(update.sourceUrl)
       ? "<a class='text-link' href='"+esc(update.sourceUrl)+"' target='_blank' rel='noopener noreferrer'>"+esc(update.sourceTitle||"Read source")+" ↗</a>"
       : "";
+    const additionalSources=(update.additionalSources||[]).filter(item=>item.url&&/^https?:\/\//i.test(item.url)).map(item=>
+      "<a class='text-link upgrade-additional-source' href='"+esc(item.url)+"' target='_blank' rel='noopener noreferrer'>"+esc(item.title||"Related report")+" ↗</a>"
+    ).join("");
     return "<article class='upgrade-team-card has-upgrade' data-upgrade-team='"+esc(team.team.toLowerCase())+"' data-upgrade-status='"+esc(status)+"'>"+
       "<div class='upgrade-team-heading'><div><span class='eyebrow'>TEAM DEVELOPMENT</span><h3>"+esc(team.team)+"</h3></div>"+badge(statusLabel,statusColor)+"</div>"+
       "<div class='upgrade-next-line'><span>"+(eventPassed?"REPORTED FOR":"EXPECTED AT")+"</span><strong>"+esc(update.event||"Event not confirmed")+"</strong><small>"+esc(dateText)+"</small></div>"+
       "<div class='upgrade-components'><span class='upgrade-label'>REPORTED COMPONENTS</span><div class='upgrade-component-list'>"+componentMarkup+"</div></div>"+
       (update.detail?"<p class='upgrade-detail'>"+esc(update.detail)+"</p>":"")+
-      "<div class='upgrade-source-row'><span class='secondary'>"+esc(update.sourceDate?niceDate(update.sourceDate):"Source date not supplied")+" · "+esc(update.sourceType==="official-fia"?"Official FIA document":"Media report")+"</span>"+source+"</div>"+
+      "<div class='upgrade-source-row'><span class='secondary'>"+esc(update.sourceDate?niceDate(update.sourceDate):"Source date not supplied")+" · "+esc(update.sourceType==="official-fia"?"Official FIA document":"Reported by team / media")+"</span>"+source+"</div>"+(additionalSources?"<div class='upgrade-additional-sources'>"+additionalSources+"</div>":"")+
       "</article>";
   }).join("");
   const currentEventText=nextRace
