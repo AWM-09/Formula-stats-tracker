@@ -28,7 +28,7 @@ const state = {
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
   compareDriverDirectory:new Map(),
   sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null,
-  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", newsSmartRequest:null, newsArticles:[], watchlist:loadWatchlist()
+  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", newsSmartRequest:null, newsArticles:[], gridPenaltyYear:"selected", watchlist:loadWatchlist()
 };
 const $ = id => document.getElementById(id);
 const esc = value => String(value==null?"":value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -618,13 +618,60 @@ async function renderCalendar(){
     "<div class='kpi-grid'>"+kpi("Rounds listed",events.length,"Events in selected season")+kpi("With result data",completed,"At least one classified result")+kpi("Without result data",events.length-completed,"Scheduled or summary-only entries")+kpi("Season",state.season,"Change using the selector above")+"</div>"+
     "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>ROUND BY ROUND</span><h2>Season events</h2></div><span class='badge'>"+esc(seriesLabel(state.series))+" · "+esc(state.season)+"</span></div><div class='event-list'>"+(races||"<div class='empty-state'>No events have been archived for this season.</div>")+"</div></div>";
 }
+function gridSanctionType(item){
+  if(item&&item.sanctionType)return String(item.sanctionType);
+  const value=String(item&&item.penalty||"").toLowerCase();
+  if(/pit[\s-]?lane/.test(value))return "pit-lane-start";
+  if(/back of (?:the )?grid/.test(value))return "back-of-grid";
+  if(Number(item&&item.gridPlaces)>0||/\d+[\s-]place grid drop/.test(value))return "grid-drop";
+  return "other";
+}
+function gridSanctionLabel(type){
+  return ({
+    "grid-drop":"Grid-place drop",
+    "back-of-grid":"Back of the grid",
+    "pit-lane-start":"Pit-lane start",
+    other:"Other sanction"
+  })[type]||"Other sanction";
+}
+function gridStatusLabel(status){
+  return ({
+    confirmed:"Confirmed",
+    pending:"Pending",
+    overturned:"Overturned",
+    "no-action":"No action"
+  })[status]||"Recorded";
+}
 function renderGridPenalties(snapshot){
-  const penalties=Array.isArray(snapshot.penalties)?snapshot.penalties:[];
-  const current=penalties.filter(item=>Number(item.season)===CURRENT_YEAR);
-  const confirmed=current.filter(item=>item.status==="confirmed");
-  const pending=current.filter(item=>item.status==="pending");
-  const documents=Array.isArray(snapshot.documents)?snapshot.documents:[];
-  const events=[...new Set(penalties.map(item=>item.event).filter(Boolean))];
+  const allPenalties=Array.isArray(snapshot.penalties)?snapshot.penalties:[];
+  const availableYears=[...new Set([
+    ...(snapshot.coverageYears||[]).map(Number),
+    ...allPenalties.map(item=>Number(item.season))
+  ].filter(year=>Number.isInteger(year)&&year>1900))].sort((a,b)=>b-a);
+  const yearMode=state.gridPenaltyYear||"selected";
+  const selectedYear=yearMode==="all"?null:yearMode==="selected"?Number(state.season):Number(yearMode);
+  const penalties=selectedYear===null
+    ? allPenalties
+    : allPenalties.filter(item=>Number(item.season)===selectedYear);
+  const confirmedGridDrops=penalties.filter(item=>
+    item.status==="confirmed"&&["grid-drop","back-of-grid"].includes(gridSanctionType(item))
+  );
+  const confirmedPitLaneStarts=penalties.filter(item=>
+    item.status==="confirmed"&&gridSanctionType(item)==="pit-lane-start"
+  );
+  const pending=penalties.filter(item=>item.status==="pending");
+  const overturned=penalties.filter(item=>item.status==="overturned"||item.status==="no-action");
+  const documentsAll=Array.isArray(snapshot.documents)?snapshot.documents:[];
+  const documents=selectedYear===null?documentsAll:documentsAll.filter(doc=>{
+    const year=Number(doc.season)||(doc.published?Number(String(doc.published).slice(0,4)):null);
+    return year===null||year===selectedYear;
+  });
+  const events=[...new Set(penalties.map(item=>item.event).filter(Boolean))].sort();
+  const yearOptions=availableYears.map(year=>
+    "<option value='"+year+"' "+(yearMode!=="all"&&selectedYear===year?"selected":"")+">"+year+"</option>"
+  ).join("");
+  const yearLabel=selectedYear===null?"All seasons":String(selectedYear);
+  const selectedYearValue=yearMode==="all"?"all":yearMode==="selected"?"selected":String(selectedYear);
   const liveDocumentsFound=snapshot.liveDocumentsFound===true;
   const nextEvent=snapshot.nextEvent||null;
   const nextStatus=snapshot.nextEventStatus||"unknown";
@@ -644,49 +691,95 @@ function renderGridPenalties(snapshot){
   const statusColor=nextStatus==="confirmed"?"green":nextStatus==="no-sanction-listed"?"blue":"gold";
   const rows=penalties.map(item=>{
     const driver=item.driver||("Car "+(item.carNumber||"number not supplied"));
-    const statusKind=item.status==="confirmed"?"green":"gold";
-    const seriesLabel=String(item.series||"f1").toUpperCase();
-    return "<tr><td>"+esc(item.event||"Event not identified")+"</td><td>"+esc(item.season||"—")+"</td><td><strong>"+esc(driver)+"</strong>"+(item.team?"<div class='secondary'>"+esc(item.team)+"</div>":"")+"</td><td>"+esc(item.penalty||"Grid sanction not supplied")+"</td><td>"+esc(item.reason||"Reason not extracted from the FIA document")+"</td><td>"+badge(item.status==="pending"?"Pending":"Confirmed",statusKind)+"</td><td>"+(item.sourceUrl?"<a class='text-link' href='"+esc(item.sourceUrl)+"' target='_blank' rel='noopener'>FIA document ↗</a>":"—")+"</td></tr>";
+    const sanctionType=gridSanctionType(item);
+    const sanctionLabel=gridSanctionLabel(sanctionType);
+    const status=item.status||"confirmed";
+    const statusKind=status==="confirmed"?"green":status==="pending"?"gold":status==="overturned"||status==="no-action"?"red":"blue";
+    const sourceType=item.sourceType||(
+      String(item.sourceUrl||"").includes("fia.com/system/files/")?"official-fia":"historical-dataset"
+    );
+    const sourceLabel=sourceType==="official-fia"?"FIA PDF ↗":sourceType==="historical-dataset"?"Dataset / source ↗":"Source ↗";
+    const sourceUrl=item.sourceUrl||item.sourcePage||"";
+    const date=item.date||item.published||"";
+    const reason=item.reason||"Reason not supplied in the imported record.";
+    return "<tr data-sanction-type='"+esc(sanctionType)+"' data-status='"+esc(status)+"' data-event='"+esc(item.event||"")+"'>"+
+      "<td>"+esc(item.event||"Event not identified")+"</td>"+
+      "<td>"+esc(date?formatNewsDate(date):"Date not supplied")+"</td>"+
+      "<td>"+esc(item.round||"—")+"</td>"+
+      "<td><strong>"+esc(driver)+"</strong>"+(item.team?"<div class='secondary'>"+esc(item.team)+"</div>":"")+"</td>"+
+      "<td><strong>"+esc(item.penalty||sanctionLabel)+"</strong><div class='secondary'>"+esc(sanctionLabel)+"</div></td>"+
+      "<td>"+esc(reason)+"</td>"+
+      "<td>"+badge(gridStatusLabel(status),statusKind)+"</td>"+
+      "<td>"+(sourceUrl?"<a class='text-link' href='"+esc(sourceUrl)+"' target='_blank' rel='noopener'>"+sourceLabel+"</a>":"—")+"</td>"+
+      "</tr>";
   });
-  const documentRows=documents.slice(0,18).map(doc=>
-    "<tr><td>"+esc(doc.event||"Event not identified")+"</td><td>"+esc(doc.published?formatNewsDate(doc.published):"Date not supplied")+"</td><td>"+esc(doc.title||"FIA document")+(doc.bootstrapFallback?"<div class='secondary'>Bootstrap source</div>":"")+"</td><td><a class='text-link' href='"+esc(doc.url||"https://www.fia.com/documents/championships/fia-formula-one-world-championship-14")+"' target='_blank' rel='noopener'>Open source ↗</a></td></tr>"
-  );
+  const documentRows=documents.slice().sort((a,b)=>String(b.published||"").localeCompare(String(a.published||""))).map(doc=>{
+    const sourceType=doc.sourceType||"official-fia";
+    const date=doc.published?formatNewsDate(doc.published):"Date not supplied";
+    return "<tr><td>"+esc(doc.event||"Event not identified")+"</td><td>"+esc(doc.season||"—")+"</td><td>"+esc(date)+"</td><td>"+esc(doc.title||"FIA document")+(doc.bootstrapFallback?"<div class='secondary'>Bootstrap source</div>":"")+"</td><td><a class='text-link' href='"+esc(doc.url||"")+"' target='_blank' rel='noopener'>"+(sourceType==="historical-dataset"?"Open dataset ↗":"Open FIA PDF ↗")+"</a></td></tr>";
+  });
   const nextPenaltyRows=nextPenalties.map(item=>
     "<li><strong>"+esc(item.driver||("Car "+(item.carNumber||"number not supplied")))+"</strong> · "+esc(item.penalty)+" · "+esc(item.reason||"See FIA document")+"</li>"
   ).join("");
-  const nextEventPanel="<section class='panel next-grid-event-panel'><div class='panel-header'><div><span class='eyebrow'>UPCOMING GRAND PRIX</span><h2>"+esc(nextEvent?nextEvent.name:"Next event not available")+"</h2><p>"+(nextEvent?"Scheduled date: "+esc(niceDate(nextEvent.date))+(nextEvent.round?" · Round "+esc(nextEvent.round):""):"The next event could not be read from the season calendar.")+"</p></div>"+badge(statusLabels[nextStatus]||"Unknown",statusColor)+"</div>"+
-    "<p class='secondary'>"+esc(statusDescriptions[nextStatus]||statusDescriptions.unknown)+"</p>"+
-    (nextPenaltyRows?"<ul class='next-event-sanctions'>"+nextPenaltyRows+"</ul>":"")+
-    (!liveDocumentsFound?"<div class='notice warning'>Live FIA PDF discovery is not currently working in the scheduled importer. The season register below includes a verified historical FIA PDF as a fallback; it must not be mistaken for this weekend’s penalty list.</div>":"")+
-    "<p class='secondary'>The next-event status changes only when the importer reads an official FIA Final Starting Grid PDF for that event.</p></section>";
-  return pageHead("OFFICIAL FIA DOCUMENT TRACKER","Grid penalties","Know which drivers have confirmed grid drops or pit-lane starts. Official FIA documents are the source of truth; historical sanctions are kept separate from the upcoming weekend.")+
+  const showNextEvent=selectedYear===null||selectedYear===CURRENT_YEAR;
+  const nextEventPanel=showNextEvent
+    ? "<section class='panel next-grid-event-panel'><div class='panel-header'><div><span class='eyebrow'>UPCOMING GRAND PRIX</span><h2>"+esc(nextEvent?nextEvent.name:"Next event not available")+"</h2><p>"+(nextEvent?"Scheduled date: "+esc(niceDate(nextEvent.date))+(nextEvent.round?" · Round "+esc(nextEvent.round):""):"The next event could not be read from the season calendar.")+"</p></div>"+badge(statusLabels[nextStatus]||"Unknown",statusColor)+"</div>"+
+      "<p class='secondary'>"+esc(statusDescriptions[nextStatus]||statusDescriptions.unknown)+"</p>"+
+      (nextPenaltyRows?"<ul class='next-event-sanctions'>"+nextPenaltyRows+"</ul>":"")+
+      (!liveDocumentsFound?"<div class='notice warning'>Live FIA PDF discovery is not currently working in the scheduled importer. Historical records are shown separately below and should not be mistaken for a confirmed upcoming-weekend list.</div>":"")+
+      "<p class='secondary'>The next-event status changes only when the importer reads an official FIA Final Starting Grid PDF for that event.</p></section>"
+    : "";
+  const sourceCount=penalties.filter(item=>item.sourceType==="historical-dataset").length;
+  const pre2020Notice=selectedYear!==null&&selectedYear<2020
+    ? "<div class='notice warning'>The connected historical penalty dataset starts in 2020. Earlier seasons are not currently covered by this register.</div>"
+    : "";
+  const noRecordsNotice=penalties.length===0
+    ? "<div class='notice warning'>No grid-sanction records were imported for "+esc(yearLabel)+". This means the connected sources have no records for this selection; it does not prove that no penalties were issued.</div>"
+    : "";
+  const note="<p class='secondary'>Grid-place drops and back-of-grid sanctions are counted separately from pit-lane starts. Overturned and no-action records remain visible for context but are not counted as confirmed penalties. Historical spreadsheet records are attributed to their dataset and link to the FIA PDF where the source supplied one.</p>";
+  return pageHead("OFFICIAL FIA + HISTORICAL REGISTER","Grid penalties","Choose a season to inspect recorded Formula One grid drops, back-of-grid sanctions and pit-lane starts. Every row identifies whether it comes from an official FIA PDF or the historical compilation.")+
     nextEventPanel+
-    "<div class='kpi-grid'>"+kpi("Confirmed · "+CURRENT_YEAR,confirmed.length,"Season-wide confirmed sanctions")+kpi("Pending / provisional",pending.length,"Not final until FIA decision")+kpi("Live FIA PDFs",snapshot.liveDocumentCount||0,"PDF links discovered in live archive")+kpi("Historical fallback PDFs",snapshot.bootstrapDocumentsUsed||0,"Verified documents retained as bootstrap")+"</div>"+
-    "<section class='panel grid-penalties-panel'><div class='panel-header'><div><span class='eyebrow'>SEASON ARCHIVE · "+CURRENT_YEAR+"</span><h2>All recorded driver sanctions</h2><p>These records can belong to earlier rounds. Use the event filter to narrow the list.</p></div><span class='secondary'>Updated "+esc(snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"not yet imported")+"</span></div>"+
-    "<div class='search-row'><input class='search-input' id='gridPenaltySearch' type='search' placeholder='Search drivers, teams, event or penalty…'><label class='field'><span>EVENT</span><select id='gridPenaltyEvent' class='field-select'><option value='all'>All events</option>"+events.map(event=>"<option value='"+esc(event)+"'>"+esc(event)+"</option>").join("")+"</select></label><label class='field'><span>STATUS</span><select id='gridPenaltyStatus' class='field-select'><option value='all'>All statuses</option><option value='confirmed'>Confirmed</option><option value='pending'>Pending</option></select></label></div>"+
-    "<div class='table-wrap'><table id='gridPenaltyTable'><thead><tr><th>EVENT</th><th>SEASON</th><th>DRIVER / TEAM</th><th>SANCTION</th><th>REASON / FIA EXTRACT</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody>"+rows.join("")+"</tbody></table><div class='empty-state "+(rows.length?"hidden":"")+"' id='gridPenaltyEmpty'>No penalty records have been imported yet.</div></div></section>"+
-    "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>DOCUMENT MONITOR</span><h2>FIA documents scanned</h2><p>Each listed penalty links to the original FIA PDF. Bootstrap records are labelled.</p></div></div>"+table(["EVENT","PUBLISHED","DOCUMENT","SOURCE"],documentRows)+"</section>"+
-    "<div class='grid-2'><section class='panel'><span class='eyebrow'>OFFICIAL SOURCE</span><h2>FIA decision documents</h2><p class='secondary'>The register uses FIA Formula One PDFs. Open the original document to verify the decision and context.</p><a class='text-link' href='https://www.fia.com/documents/championships/fia-formula-one-world-championship-14' target='_blank' rel='noopener'>Open FIA Formula One documents ↗</a></section><section class='panel'><span class='eyebrow'>DATA RULE</span><h2>Confirmed means written</h2><p class='secondary'>Only explicit sanction wording is listed. Provisional grids and summonses remain pending. Engine or gearbox element usage is not converted into a grid penalty unless the FIA document states the sanction.</p><p class='secondary'>Driver names are resolved from the matching season archive when the FIA PDF identifies a car number.</p></section></div>";
+    "<div class='kpi-grid'>"+
+      kpi("Confirmed grid drops",confirmedGridDrops.length,yearLabel+" · grid and back-of-grid sanctions")+
+      kpi("Pit-lane starts",confirmedPitLaneStarts.length,yearLabel+" · shown separately")+
+      kpi("Pending decisions",pending.length,yearLabel+" · not final")+
+      kpi("Records in view",penalties.length,sourceCount+" from historical compilation")+
+    "</div>"+
+    "<section class='panel grid-penalties-panel'><div class='panel-header'><div><span class='eyebrow'>SEASON ARCHIVE · "+esc(yearLabel.toUpperCase())+"</span><h2>"+esc(yearLabel==="All seasons"?"All recorded driver sanctions":"Driver sanctions · "+yearLabel)+"</h2><p>Use the season selector, then narrow the records by event, sanction type or status.</p></div><span class='secondary'>Updated "+esc(snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"not yet imported")+"</span></div>"+
+    "<div class='search-row grid-penalty-controls'>"+
+      "<label class='field'><span>SEASON</span><select id='gridPenaltyYearSelect' class='field-select'><option value='selected' "+(selectedYear===null?"":"selected")+">Use header season ("+esc(state.season)+")</option><option value='all' "+(selectedYear===null?"selected":"")+">All seasons</option>"+yearOptions+"</select></label>"+
+      "<label class='field'><span>EVENT</span><select id='gridPenaltyEvent' class='field-select'><option value='all'>All events</option>"+events.map(event=>"<option value='"+esc(event)+"'>"+esc(event)+"</option>").join("")+"</select></label>"+
+      "<label class='field'><span>SANCTION TYPE</span><select id='gridPenaltyType' class='field-select'><option value='all'>All sanctions</option><option value='grid-drop'>Grid-place drop</option><option value='back-of-grid'>Back of the grid</option><option value='pit-lane-start'>Pit-lane start</option></select></label>"+
+      "<label class='field'><span>STATUS</span><select id='gridPenaltyStatus' class='field-select'><option value='all'>All statuses</option><option value='confirmed'>Confirmed</option><option value='pending'>Pending</option><option value='overturned'>Overturned</option><option value='no-action'>No action</option></select></label>"+
+      "<label class='field grid-penalty-search'><span>SEARCH</span><input class='search-input' id='gridPenaltySearch' type='search' placeholder='Driver, team, event or reason…'></label>"+
+    "</div>"+
+    pre2020Notice+noRecordsNotice+
+    "<div class='table-wrap'><table id='gridPenaltyTable'><thead><tr><th>EVENT</th><th>DATE</th><th>ROUND</th><th>DRIVER / TEAM</th><th>SANCTION</th><th>REASON / FIA EXTRACT</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody>"+rows.join("")+"</tbody></table><div class='empty-state "+(rows.length?"hidden":"")+"' id='gridPenaltyEmpty'>No sanctions have been imported for this season.</div></div>"+note+"</section>"+
+    "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>DOCUMENT MONITOR · "+esc(yearLabel.toUpperCase())+"</span><h2>Source documents</h2><p>Official FIA PDFs and attributed historical dataset records supporting the register.</p></div></div>"+table(["EVENT","SEASON","PUBLISHED","DOCUMENT","SOURCE"],documentRows)+"</section>"+
+    "<div class='grid-2'><section class='panel'><span class='eyebrow'>OFFICIAL SOURCE</span><h2>FIA decision documents</h2><p class='secondary'>Steward decisions and final starting grids are the primary evidence for new penalties.</p><a class='text-link' href='https://www.fia.com/documents/championships/fia-formula-one-world-championship-14' target='_blank' rel='noopener'>Open FIA Formula One documents ↗</a></section><section class='panel'><span class='eyebrow'>HISTORICAL SOURCE</span><h2>Historical penalty dataset</h2><p class='secondary'>The historical compilation covers 2020 onward and includes grid-place, back-of-grid and pit-lane sanctions. Each row is attributed; direct FIA PDF links are used where present.</p><a class='text-link' href='https://github.com/j5t3313/F1_Penalties_Dashboard' target='_blank' rel='noopener'>Open source dataset ↗</a></section></div>";
 }
 
 function applyGridPenaltyFilters(){
   const query=String($("gridPenaltySearch")?.value||"").toLowerCase().trim();
   const event=$("gridPenaltyEvent")?.value||"all";
+  const type=$("gridPenaltyType")?.value||"all";
   const statusFilter=$("gridPenaltyStatus")?.value||"all";
   let visible=0;
   document.querySelectorAll("#gridPenaltyTable tbody tr").forEach(row=>{
     const text=row.textContent.toLowerCase();
-    const eventOk=event==="all"||row.cells[0]?.textContent===event;
-    const statusText=row.cells[5]?.textContent.toLowerCase()||"";
-    const statusOk=statusFilter==="all"||statusText.includes(statusFilter);
-    const show=eventOk&&statusOk&&(!query||text.includes(query));
+    const eventOk=event==="all"||row.dataset.event===event;
+    const typeOk=type==="all"||row.dataset.sanctionType===type;
+    const statusOk=statusFilter==="all"||row.dataset.status===statusFilter;
+    const show=eventOk&&typeOk&&statusOk&&(!query||text.includes(query));
     row.classList.toggle("hidden",!show);
     if(show)visible++;
   });
   const empty=$("gridPenaltyEmpty");
-  if(empty)empty.classList.toggle("hidden",visible>0);
+  if(empty){
+    empty.classList.toggle("hidden",visible>0);
+    if(visible===0)empty.textContent="No records match these filters.";
+  }
 }
-
 async function renderDrivers(){
   const idx=await getIndex(state.series,"drivers");
   const cards=idx.drivers.map(d=>"<a class='entity-card searchable' data-search='"+esc((d.name+" "+d.nationality+" "+d.code).toLowerCase())+"' href='"+driverHref(state.series,d.id)+"'><div class='card-top'>"+badge(d.nationality||"Nationality not supplied")+"<span class='secondary'>"+esc(d.code||"DRIVER")+"</span></div><h3>"+esc(d.name)+"</h3><p>"+esc(d.seasons)+" seasons · "+esc(d.firstSeason||"—")+"–"+esc(d.lastSeason||"—")+"</p><div class='entity-meta'>"+badge("Titles "+number(d.championships),"gold")+badge("Wins "+(d.wins==null?"—":d.wins+(d.winsComplete?"":"+")),"green")+badge("Podiums "+number(d.podiums))+"</div></a>").join("");
@@ -1400,7 +1493,16 @@ function bindDynamicEvents(){
     if(input){input.value=button.dataset.smartExample||"";buildSmartNewsFeed();}
   }));
   if($("newsSmartQuery")&&state.newsSmartRequest)applyNewsFilters();
+  $("gridPenaltyYearSelect")?.addEventListener("change",e=>{
+    state.gridPenaltyYear=e.target.value;
+    if(e.target.value!=="all"&&e.target.value!=="selected"){
+      state.season=Number(e.target.value);
+      $("seasonSelect").value=String(state.season);
+    }
+    renderRoute();
+  });
   $("gridPenaltySearch")?.addEventListener("input",applyGridPenaltyFilters);
+  $("gridPenaltyType")?.addEventListener("change",applyGridPenaltyFilters);
   $("gridPenaltyEvent")?.addEventListener("change",applyGridPenaltyFilters);
   $("gridPenaltyStatus")?.addEventListener("change",applyGridPenaltyFilters);
   document.querySelectorAll("[data-news-series]").forEach(button=>button.addEventListener("click",()=>{
@@ -1470,7 +1572,7 @@ $("seriesSelect").addEventListener("change",e=>{
   state.series=e.target.value;state.season=CURRENT_YEAR;state.sessionFilter="";state.predictionEvent="";fillSeasonOptions();navigate(["dashboard"]);
 });
 $("seasonSelect").addEventListener("change",e=>{
-  state.season=Number(e.target.value);state.sessionFilter="";state.predictionEvent="";renderRoute();
+  state.season=Number(e.target.value);state.sessionFilter="";state.predictionEvent="";if(state.route[0]==="grid-penalties")state.gridPenaltyYear="selected";renderRoute();
 });
 $("refreshButton").addEventListener("click",()=>{
   const key=state.series+"/"+state.season;state.dataCache.delete(key);
