@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T19:54:29Z",
+  "updatedAt": "2026-11-05T21:31:57Z",
   "source": "Crash.net RSS",
   "feedStatus": {
     "f1": "ok",
@@ -7,6 +7,26 @@
     "f3": "ok"
   },
   "articles": [
+    {
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "George Russell explains hasty exit after Mexico GP: “I try not to spit my dummy out”",
+      "summary": "George Russell explains why he left Mexico City early after Sunday's race.",
+      "link": "https://www.crash.net/f1/news/1109344/1/george-russell-explains-hasty-exit-after-mexico-gp-i-try-not-spit-my-dummy-out",
+      "published": "2026-11-05T20:50:41Z",
+      "category": "Race weekend",
+      "source": "Crash.net"
+    },
+    {
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "Kimi Antonelli reveals Ayrton Senna F1 tribute helmet for Brazil GP",
+      "summary": "Kimi Antonelli has shown off his Ayrton Senna F1 tribute helmet.",
+      "link": "https://www.crash.net/f1/news/1109343/1/kimi-antonelli-reveals-ayrton-senna-f1-tribute-helmet-brazil-gp",
+      "published": "2026-11-05T20:14:31Z",
+      "category": "General",
+      "source": "Crash.net"
+    },
     {
       "series": "f1",
       "seriesLabel": "F1",
@@ -385,26 +405,6 @@
       "link": "https://www.crash.net/f1/news/1109271/1/valtteri-bottas-escapes-injury-scary-crash-stopped-mexico-gp",
       "published": "2026-11-02T10:09:01Z",
       "category": "Race weekend",
-      "source": "Crash.net"
-    },
-    {
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Kimi Antonelli makes F1 history - where he ranks among youngest world champions",
-      "summary": "Kimi Antonelli has just made F1 history by becoming the youngest-ever world champion.",
-      "link": "https://www.crash.net/f1/feature/1107916/1/kimi-antonelli-makes-f1-history-where-he-ranks-among-youngest-world-champions",
-      "published": "2026-11-02T09:34:48Z",
-      "category": "General",
-      "source": "Crash.net"
-    },
-    {
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Ryo Hirakawa scores point on F1 debut at Mexico GP after double Alpine penalty",
-      "summary": "A double post-race penalty for Alpine hands Ryo Hirakawa a point on his F1 debut in Mexico.",
-      "link": "https://www.crash.net/f1/news/1109264/1/ryo-hirakawa-scores-point-f1-debut-mexico-gp-after-double-alpine-penalty",
-      "published": "2026-11-02T02:20:58Z",
-      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
