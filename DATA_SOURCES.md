@@ -105,3 +105,11 @@ The scheduled GitHub Actions pipeline builds cross-season driver, constructor an
 - When `OPENAI_API_KEY` is configured as a GitHub Actions repository secret, the importer enriches stories through the OpenAI Responses API using a strict JSON Schema. The default model is `gpt-6-luna`. Without that secret, local tag rules are used and the natural-language filter remains available, but **AI enrichment is off**.
 - Never expose an API key in browser JavaScript, a committed file or the public Pages bundle. Enable AI enrichment only through the private GitHub Actions repository secret. API usage is metered by OpenAI; the key owner is responsible for any usage charges.
 - The natural-language parser is intentionally conservative. "Upcoming" and "next race" are mapped to a recent-news window, not a verified race calendar promise. A news article is not treated as proof of a grid penalty or a confirmed technical introduction.
+
+
+## Historical Formula One grid-penalty archive
+- Historical source: [j5t3313/F1_Penalties_Dashboard](https://github.com/j5t3313/F1_Penalties_Dashboard), with season sheets from 2020 onward in `data/F1Penalties.xlsx`. The repository describes its data as compiled from official FIA decisions and includes Grand Prix, date, driver, team, session, allegation, outcome, grid penalty, penalty points and document URL fields.
+- The upstream repository is MIT-licensed; its copyright and licence notice are retained here: [MIT licence](https://github.com/j5t3313/F1_Penalties_Dashboard/blob/main/LICENSE).
+- Importer: `scripts/import-historical-grid-penalties.py`. It downloads the upstream workbook during the scheduled build, imports season sheets from 2020 onward, and merges the result with the live FIA PDF snapshot. Where a direct FIA document URL is present in the workbook it is retained on the record; otherwise the record links to the historical dataset.
+- Sanction types are kept separate: numeric grid drops, back-of-grid starts and pit-lane starts. Pit-lane starts are not counted as grid-place drops. Overturned/no-action records are not counted as confirmed sanctions.
+- The historical workbook is a compiled secondary dataset, not a live FIA API. Each record shows its source type and links to a direct FIA document when the source provides one.
