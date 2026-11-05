@@ -6,7 +6,8 @@ const state = {
   series:"f1", season:CURRENT_YEAR, data:null, route:["dashboard"],
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
   compareDriverDirectory:new Map(),
-  sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null
+  sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null,
+  newsSeriesFilter:"all", newsSearch:""
 };
 const $ = id => document.getElementById(id);
 const esc = value => String(value==null?"":value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -111,6 +112,19 @@ async function renderRoute(force=false){
     $("updatedLabel").textContent=state.season+" SEASON SELECTED";
     $("viewRoot").innerHTML=renderDashboard();
     bindDynamicEvents();
+    return;
+  }
+  if(route==="news"){
+    status("good","NEWS SNAPSHOT LOADED");
+    notice("Publisher headlines from F1, F2 and F3. Open a story to read the full article on Crash.net.");
+    $("updatedLabel").textContent="NEWS FEED";
+    $("viewRoot").innerHTML="<div class='page-loading'><span class='spinner'></span><p>Loading motorsport headlines…</p></div>";
+    try{
+      const snapshot=await fetchJson("data/news.json",state.dataCache,force);
+      $("updatedLabel").textContent=snapshot.updatedAt?"NEWS UPDATED "+formatNewsDate(snapshot.updatedAt).toUpperCase():"AWAITING FIRST NEWS IMPORT";
+      $("viewRoot").innerHTML=renderNews(snapshot);
+      bindDynamicEvents();
+    }catch(error){console.error(error);pageError(error);}
     return;
   }
   $("viewRoot").innerHTML="<div class='page-loading'><span class='spinner'></span><p>Loading "+esc(route.replace(/-/g," "))+"…</p></div>";
@@ -285,10 +299,67 @@ async function renderSeasonOverview(){
   ].map(x=>"<a class='event-row' href='#"+x[2]+"'><span class='event-round'>↗</span><span class='event-main'><strong>"+x[0]+"</strong><small>"+x[1]+"</small></span></a>").join("")+"</div>")+"</div>"+
   "<div class='notice'>Season pages only display verified fields. If a historic F2/F3 source supplies winners but not full classifications, the race centre will say so rather than inventing finishing positions.</div>";
 }
+function formatNewsDate(value){
+  const date=new Date(value);
+  return Number.isNaN(date.getTime())?"Date not supplied":date.toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/London"});
+}
+function applyNewsFilters(){
+  const query=String(state.newsSearch||"").toLowerCase().trim();
+  const cards=[...document.querySelectorAll(".news-card")];
+  let visible=0;
+  cards.forEach(card=>{
+    const seriesOk=state.newsSeriesFilter==="all"||card.dataset.series===state.newsSeriesFilter;
+    const searchOk=!query||(card.dataset.search||"").includes(query);
+    const show=seriesOk&&searchOk;
+    card.classList.toggle("hidden",!show);
+    if(show)visible++;
+  });
+  const empty=$("newsEmpty");
+  if(empty){
+    empty.classList.toggle("hidden",visible>0);
+    empty.textContent=cards.length?"No stories match the selected championship or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.";
+  }
+}
+function renderNews(snapshot){
+  const articles=Array.isArray(snapshot.articles)?snapshot.articles:[];
+  const filters=[["all","ALL"],["f1","F1"],["f2","F2"],["f3","F3"]];
+  const filterMarkup=filters.map(([value,label])=>
+    "<button class='news-filter "+(state.newsSeriesFilter===value?"active":"")+"' type='button' data-news-series='"+value+"'>"+label+"</button>"
+  ).join("");
+  const cards=articles.map(article=>{
+    const series=String(article.series||"").toLowerCase();
+    const seriesLabel=SERIES[series]?.label||"Motorsport";
+    const shortSeries=["f1","f2","f3"].includes(series)?series.toUpperCase():"NEWS";
+    const title=String(article.title||"Untitled story");
+    const summary=String(article.summary||"");
+    const source=String(article.source||"Crash.net");
+    const link=String(article.link||"");
+    const safeLink=/^https?:\/\//i.test(link)?link:"";
+    const searchable=[title,summary,seriesLabel,source].join(" ").toLowerCase();
+    const date=article.published?formatNewsDate(article.published):"Date not supplied";
+    return "<article class='news-card' data-series='"+esc(series)+"' data-search='"+esc(searchable)+"'>"+
+      "<div class='news-card-meta'><span class='news-series-pill'>"+esc(shortSeries)+"</span><span>"+esc(source)+"</span><time datetime='"+esc(article.published||"")+"'>"+esc(date)+"</time></div>"+
+      "<h2>"+esc(title)+"</h2>"+
+      (summary?"<p>"+esc(summary)+"</p>":"")+
+      (safeLink?"<a class='news-link' href='"+esc(safeLink)+"' target='_blank' rel='noopener noreferrer'>Read on "+esc(source)+" ↗</a>":"")+
+      "</article>";
+  }).join("");
+  const stale=Object.entries(snapshot.feedStatus||{}).filter(([,value])=>value!=="ok").map(([key])=>key.toUpperCase());
+  const warning=stale.length?" Some feeds were unavailable during the last update; their previous headlines have been retained ("+esc(stale.join(", "))+").":"";
+  const updated=snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"Awaiting first import";
+  return pageHead("MOTORSPORT NEWS","Latest news","Search stories and filter the feed by championship. Headlines and short feed summaries are credited to the publisher.")+
+    "<div class='news-toolbar'><div class='news-filters' aria-label='Filter news by championship'>"+filterMarkup+"</div>"+
+    "<label class='news-search'><span>SEARCH STORIES</span><input class='search-input' id='newsSearch' type='search' value='"+esc(state.newsSearch)+"' placeholder='Driver, team, topic…'></label></div>"+
+    "<div class='news-feed-info'><span>"+articles.length+" stories in the latest snapshot</span><span>Updated: "+esc(updated)+" · Source: Crash.net RSS</span></div>"+
+    (warning?"<div class='notice'>"+warning+"</div>":"")+
+    "<div class='news-grid'>"+cards+"</div>"+
+    "<div class='empty-state "+(articles.length?"hidden":"")+"' id='newsEmpty'>"+(articles.length?"No stories match the selected championship or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.")+"</div>";
+}
 function renderDashboard(){
   const cards=[
     ["📊","CORE STATISTICS","Season Overview","Championship standings, driver and constructor battles, season totals and key performance statistics.","overview"],
     ["🏁","RACE SCHEDULE","Race Calendar","Browse the Formula 1, Formula 2 and Formula 3 calendars, upcoming rounds and completed events.","calendar"],
+    ["📰","MOTORSPORT NEWS","Latest News","Follow F1, F2 and F3 headlines in one searchable feed, with every story linked to its publisher.","news"],
     ["🏎️","DRIVER DATABASE","Driver Profiles","Search driver profiles, explore career progression, season statistics, teams and race histories.","drivers"],
     ["🏆","TEAM DATABASE","Constructor Database","Explore constructor histories, championship performance, line-ups and team statistics across seasons.","teams"],
     ["🏎","CIRCUIT DATABASE","Circuit Explorer","Discover circuits, locations, race histories and the statistics behind each venue.","circuits"],
@@ -645,6 +716,12 @@ function bindDynamicEvents(){
     document.querySelectorAll("#raceArchiveList .searchable").forEach(card=>card.classList.toggle("hidden",!card.dataset.search.includes(query)));
   });
   $("predictionEventSelect")?.addEventListener("change",e=>{state.predictionEvent=e.target.value;renderRoute();});
+  $("newsSearch")?.addEventListener("input",e=>{state.newsSearch=e.target.value;applyNewsFilters();});
+  document.querySelectorAll("[data-news-series]").forEach(button=>button.addEventListener("click",()=>{
+    state.newsSeriesFilter=button.dataset.newsSeries;
+    document.querySelectorAll("[data-news-series]").forEach(tab=>tab.classList.toggle("active",tab===button));
+    applyNewsFilters();
+  }));
   $("compareDriverOne")?.addEventListener("input",runDriverCompare);
   $("compareDriverTwo")?.addEventListener("input",runDriverCompare);
   $("compareDriverOne")?.addEventListener("change",runDriverCompare);
