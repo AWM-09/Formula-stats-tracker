@@ -122,3 +122,9 @@ The **Grid Penalties** page scans the live official FIA Formula One document arc
 The **News** page includes a natural-language feed builder. Type a request such as `McLaren's next major upgrade package` or `F1 grid penalties this weekend`; the client converts the wording into team, topic, priority and recency filters and shows the structured request it applied.
 
 News is tagged locally by default. For GPT-6 structured tagging of teams, drivers, topics, major-upgrade status and explicit grid-penalty mentions, add an `OPENAI_API_KEY` repository secret in GitHub Actions settings. The secret is used only by the scheduled/server-side importer and is never exposed to the public website. The default model is GPT-6 Luna. Without the secret, the local structured tag fallback remains active. API usage is metered.
+
+
+## Grid penalties and F1 upgrade watch
+The Grid Penalties page lets you browse the full championship season range (F1 from 1950, F2 from 2017 and F3 from 2019), while clearly distinguishing years that have verified penalty records from years with no connected data. The current F1 historical penalty compilation begins in 2020; F2/F3 sanctions are imported from their own FIA decision archives where those season pages are available. Pit-lane starts are kept separate from grid-place drops.
+
+The F1 Upgrade Watch tracks team-by-team public upgrade reports, the event they are linked to, named components and source links. Team/media reports are not labelled FIA-confirmed. See [DATA_SOURCES.md](DATA_SOURCES.md) for full coverage and source limitations.
