@@ -1053,17 +1053,29 @@ async function renderAnalytics(){
     panel("CHAMPIONSHIP ARCHIVE","Season champions and current leader",table(["SEASON","DRIVER CHAMPION / LEADER","POINTS","CONSTRUCTOR CHAMPION / LEADER"],timeline.concat(leaderRow)));
 }
 async function renderDataCentre(){
-  const idx=await getIndex(state.series,"drivers");
+  const [idx,teams,circuits,trackData]=await Promise.all([
+    getIndex(state.series,"drivers"),
+    getIndex(state.series,"teams"),
+    getIndex(state.series,"circuits"),
+    fetchJson("data/circuit-track-data.json",state.dataCache).catch(()=>({circuits:[],updatedAt:null}))
+  ]);
   const rows=idx.seasons.slice().reverse().map(s=>{
     const c=s.coverage||{};
     const label=c.classification||"full";
     const kind=label==="full"?"green":label==="winners-only"?"gold":"red";
     return "<tr><td>"+s.year+"</td><td>"+badge(label,kind)+"</td><td>"+esc(s.champion||"—")+"</td><td>"+esc(s.constructorChampion||"—")+"</td><td>"+esc(s.updatedAt?niceDate(s.updatedAt.slice(0,10)):"—")+"</td><td>"+esc(s.source||"—")+"</td></tr>";
   });
-  return pageHead("DATA TRANSPARENCY","Sources & coverage","See which seasons are indexed and what each source actually supplies.")+
-    "<div class='kpi-grid'>"+kpi("Seasons indexed",idx.seasonCount,"Selected championship")+kpi("Driver profiles",idx.drivers.length,"Generated from season tables")+kpi("Constructor profiles",(await getIndex(state.series,"teams")).teams.length,"Cross-season team archive")+kpi("Circuit directory",(await getIndex(state.series,"circuits")).circuits.length,"Shared circuit index")+"</div>"+
+  const trackCircuits=Array.isArray(trackData.circuits)?trackData.circuits:[];
+  const layoutCount=trackCircuits.reduce((sum,c)=>sum+(Array.isArray(c.layouts)?c.layouts.length:0),0);
+  const configuredLayouts=trackCircuits.reduce((sum,c)=>sum+(c.layouts||[]).filter(l=>l.lengthKm!=null&&l.turns!=null).length,0);
+  const trackUpdated=trackData.updatedAt?niceDate(trackData.updatedAt.slice(0,10)):"Not imported yet";
+  return pageHead("DATA TRANSPARENCY","Sources & coverage","See which seasons, circuit layouts and statistics are indexed, when they were updated and what each source actually supplies.")+
+    "<div class='kpi-grid'>"+kpi("Seasons indexed",idx.seasonCount,"Selected championship")+kpi("Driver profiles",idx.drivers.length,"Generated from season tables")+kpi("Constructor profiles",teams.teams.length,"Cross-season team archive")+kpi("Circuit directory",circuits.circuits.length,"Selected championship")+
+    kpi("Circuit venues",trackCircuits.length,"F1 layout reference set")+kpi("Layout variants",layoutCount,configuredLayouts+" have length and turn data")+"</div>"+
     panel("SEASON COVERAGE","Imported data by year",table(["SEASON","CLASSIFICATION COVERAGE","CHAMPION","CONSTRUCTOR CHAMPION","UPDATED","SOURCE"],rows))+
-    "<div class='grid-2'>"+panel("PRIMARY SOURCES","Data provenance","<p><a class='text-link' href='https://github.com/jolpica/jolpica-f1' target='_blank' rel='noopener'>Jolpica F1 API ↗</a> · F1 historical race data and standings.</p><p><a class='text-link' href='https://github.com/Alarchemn/F2-Data-Pipeline' target='_blank' rel='noopener'>F2 historical archive ↗</a> · 2017–2023 classifications.</p><p><a class='text-link' href='https://www.fia.com/' target='_blank' rel='noopener'>FIA ↗</a> · Championship context and official archive references.</p><p><a class='text-link' href='./DATA_SOURCES.md'>Full source and methodology notes ↗</a></p>")+panel("KNOWN GAPS","Not yet connected","<ul class='secondary'><li>Qualifying classifications for the full historical span.</li><li>F2/F3 full results in years where only winners are available.</li><li>Official track length, corner count and circuit lap records.</li><li>Pit stops, tyre strategy, telemetry and lap charts.</li><li>Prediction-model back-testing and calibrated probabilities.</li></ul>")+"</div>";
+    "<div class='grid-2'>"+panel("CIRCUIT CONFIGURATIONS","Track layouts and specifications","<div class='fact-grid'><div class='fact'><span>Venues in layout source</span><strong>"+number(trackCircuits.length)+"</strong></div><div class='fact'><span>Layout versions indexed</span><strong>"+number(layoutCount)+"</strong></div><div class='fact'><span>Layouts with length + turns</span><strong>"+number(configuredLayouts)+"</strong></div><div class='fact'><span>Track data updated</span><strong>"+esc(trackUpdated)+"</strong></div></div><p class='secondary'>Physical dimensions are shown per historic configuration where the source publishes them. F2/F3 profiles reuse a verified matching venue layout; unmatched venues remain explicitly unavailable.</p><p><a class='text-link' href='https://github.com/MisterSix2295/f1-circuits-svg' target='_blank' rel='noopener'>Circuit layout source ↗</a> · <a class='text-link' href='https://github.com/f1db/f1db' target='_blank' rel='noopener'>Track specification source ↗</a></p>")+
+    panel("PRIMARY SOURCES","Data provenance","<p><a class='text-link' href='https://github.com/jolpica/jolpica-f1' target='_blank' rel='noopener'>Jolpica F1 API ↗</a> · F1 historical race data and standings.</p><p><a class='text-link' href='https://github.com/Alarchemn/F2-Data-Pipeline' target='_blank' rel='noopener'>F2 historical archive ↗</a> · 2017–2023 classifications.</p><p><a class='text-link' href='https://www.fia.com/' target='_blank' rel='noopener'>FIA ↗</a> · Championship context and official archive references.</p><p><a class='text-link' href='./DATA_SOURCES.md'>Full source and methodology notes ↗</a></p>")+"</div>"+
+    "<div class='grid-2'>"+panel("KNOWN GAPS","Metrics not yet connected","<ul class='secondary'><li>Full historical qualifying and complete F2/F3 classifications for every season.</li><li>Official all-time circuit lap records, independently verified across eras.</li><li>Layout artwork for venues outside the connected F1 circuit reference set.</li><li>Pit stops, tyre strategy, detailed telemetry and lap charts where a verified feed is not imported.</li><li>Prediction-model back-testing and calibrated probabilities.</li></ul>")+panel("DATA INTEGRITY","How to interpret the numbers","<p class='secondary'>A blank field means the source did not provide a value; it is not zero. Circuit distance totals are calculated from stored winning-lap counts and the matching season layout length. Fastest laps captured from the archive are not presented as official circuit records.</p><p class='secondary'>Watchlists are stored in this browser only. Career totals and comparisons show the available source coverage and are not automatically complete all-time totals.</p>")+"</div>";
 }
 function bindDynamicEvents(){
   $("entitySearch")?.addEventListener("input",e=>{
