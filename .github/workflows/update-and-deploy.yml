@@ -40,10 +40,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install F2/F3 HTML parser
+      - name: Install F2/F3 and circuit import dependencies
         run: |
-          python -m pip install --disable-pip-version-check beautifulsoup4 fastf1 pyyaml
+          python -m pip install --disable-pip-version-check beautifulsoup4 pyyaml
           python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py scripts/fetch-news.py scripts/fetch-circuit-data.py
+      - name: Install FastF1 for scheduled historical refreshes
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python -m pip install --disable-pip-version-check fastf1
       - name: Import completed current-season F1 practice classifications
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         id: fetch_practice
