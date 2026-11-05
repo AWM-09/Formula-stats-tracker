@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T23:45:19Z",
+  "updatedAt": "2026-11-05T23:54:00Z",
   "season": 2026,
   "nextRace": {
     "name": "Brazilian Grand Prix",
@@ -12,28 +12,40 @@
     {
       "team": "McLaren",
       "nextUpgrade": {
-        "id": "000700602d20f6cd:McLaren",
+        "id": "mclaren-sao-paulo-2026-autosport",
         "team": "McLaren",
         "season": 2026,
         "event": "Brazilian Grand Prix",
         "eventDate": "2026-11-08",
         "components": [
-          "Front wing"
+          "Front wing",
+          "Rear wing",
+          "Floor"
         ],
         "status": "reported",
-        "statusLabel": "Reported by publisher",
-        "detail": "McLaren will introduce upgrades to its MCL40 Formula 1 car at this weekend’s Brazil Grand Prix, featuring a front wing concept which is expected to feature on its 2027 challenger. The team had surged to the front when it substantially updated the MCL40 in Hungary, with Lando Nor…",
-        "sourceTitle": "McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
-        "sourceUrl": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
+        "statusLabel": "Team development report",
+        "detail": "McLaren's Chief Technical Officer for Aerodynamics, Peter Prodromou, said the Brazil package includes updates across the front wing, rear wing and floor. The front-wing concept is also intended to inform the 2027 launch specification. This is a team development report carried by Autosport, not an FIA car-presentation declaration.",
+        "sourceTitle": "Autosport — McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
+        "sourceUrl": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/",
         "sourceDate": "2026-11-03",
-        "sourceType": "media-report"
+        "sourceType": "team-statement-reported",
+        "additionalSources": [
+          {
+            "title": "Sky Sports — Norris wary of new McLaren upgrades in São Paulo",
+            "url": "https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car"
+          },
+          {
+            "title": "Formula1.com — Norris wary of new McLaren upgrades in São Paulo",
+            "url": "https://www.formula1.com/en/latest/article/want-to-believe-that-we-can-still-make-improvements-norris-wary-of-new-mclaren-upgrades-in-sao-paulo.6NvdXqDIqBz1Mw1xveJv0k"
+          }
+        ]
       },
       "reportedUpdates": [
         {
-          "id": "mclaren-sao-paulo-2026-skysports",
+          "id": "mclaren-sao-paulo-2026-autosport",
           "team": "McLaren",
           "season": 2026,
-          "event": "São Paulo Grand Prix",
+          "event": "Brazilian Grand Prix",
           "eventDate": "2026-11-08",
           "components": [
             "Front wing",
@@ -41,44 +53,22 @@
             "Floor"
           ],
           "status": "reported",
-          "statusLabel": "Reported for upcoming weekend",
-          "detail": "Sky Sports reported that McLaren was bringing a new front wing, rear wing and floor components to São Paulo. This is a media report, not an FIA car-presentation confirmation.",
-          "sourceTitle": "Sky Sports — McLaren upgrades for São Paulo",
-          "sourceUrl": "https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car",
-          "sourceDate": "2026-11-05",
-          "sourceType": "media-report"
-        },
-        {
-          "id": "e3164db865539201:McLaren",
-          "team": "McLaren",
-          "season": 2026,
-          "event": "",
-          "eventDate": "",
-          "components": [],
-          "status": "reported",
-          "statusLabel": "Reported by publisher",
-          "detail": "McLaren has confirmed it will bring another upgrade to Brazil.",
-          "sourceTitle": "McLaren’s Brazil GP upgrade will feature first look at 2027 F1 car development",
-          "sourceUrl": "https://www.crash.net/f1/news/1109304/1/mclarens-brazil-gp-upgrade-will-feature-first-look-2027-f1-car-development",
-          "sourceDate": "2026-11-04",
-          "sourceType": "media-report"
-        },
-        {
-          "id": "000700602d20f6cd:McLaren",
-          "team": "McLaren",
-          "season": 2026,
-          "event": "Brazilian Grand Prix",
-          "eventDate": "2026-11-08",
-          "components": [
-            "Front wing"
-          ],
-          "status": "reported",
-          "statusLabel": "Reported by publisher",
-          "detail": "McLaren will introduce upgrades to its MCL40 Formula 1 car at this weekend’s Brazil Grand Prix, featuring a front wing concept which is expected to feature on its 2027 challenger. The team had surged to the front when it substantially updated the MCL40 in Hungary, with Lando Nor…",
-          "sourceTitle": "McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
-          "sourceUrl": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
+          "statusLabel": "Team development report",
+          "detail": "McLaren's Chief Technical Officer for Aerodynamics, Peter Prodromou, said the Brazil package includes updates across the front wing, rear wing and floor. The front-wing concept is also intended to inform the 2027 launch specification. This is a team development report carried by Autosport, not an FIA car-presentation declaration.",
+          "sourceTitle": "Autosport — McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
+          "sourceUrl": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/",
           "sourceDate": "2026-11-03",
-          "sourceType": "media-report"
+          "sourceType": "team-statement-reported",
+          "additionalSources": [
+            {
+              "title": "Sky Sports — Norris wary of new McLaren upgrades in São Paulo",
+              "url": "https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car"
+            },
+            {
+              "title": "Formula1.com — Norris wary of new McLaren upgrades in São Paulo",
+              "url": "https://www.formula1.com/en/latest/article/want-to-believe-that-we-can-still-make-improvements-norris-wary-of-new-mclaren-upgrades-in-sao-paulo.6NvdXqDIqBz1Mw1xveJv0k"
+            }
+          ]
         }
       ],
       "status": "reported"
@@ -144,5 +134,5 @@
       "status": "not-announced"
     }
   ],
-  "coverageNote": "Only publicly reported upgrade information found in the connected news sources is shown. Media reports are not FIA confirmation. Teams without a listing may still be developing parts; their next package has not been identified in the connected sources."
+  "coverageNote": "Only publicly reported upgrade information found in connected news sources is shown. Media and team-statement reports are not FIA confirmation. Teams without a listing may still be developing parts; their next package has not been identified in connected sources."
 }
