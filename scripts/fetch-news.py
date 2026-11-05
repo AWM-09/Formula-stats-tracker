@@ -66,6 +66,21 @@ def normalise_date(value: str) -> str | None:
         return None
 
 
+def classify_category(title: str, summary: str) -> str:
+    text = (title + " " + summary).lower()
+    if re.search(r"\b(signs?|signed|signing|contract|joins?|join|leaves?|departure|transfer|moves?|line[- ]?up|reserve driver)\b", text):
+        return "Driver moves"
+    if re.search(r"\b(technical|upgrade|floor|diffuser|wing|power unit|engine|brake|tyre|tire|aero|aerodynamic|regulation|rules?|technical directive)\b", text):
+        return "Technical & rules"
+    if re.search(r"\b(team principal|team boss|team announces|team confirms|constructor|team news|team update|ownership)\b", text):
+        return "Team news"
+    if re.search(r"\b(fia|stewards|penalty|penalties|calendar|schedule|venue|promoter|governance|hearing|appeal|investigation)\b", text):
+        return "Governance & calendar"
+    if re.search(r"\b(grand prix|race|qualifying|sprint|practice|pole|podium|championship|points|fastest lap|grid|round|session)\b", text):
+        return "Race weekend"
+    return "General"
+
+
 def parse_feed(payload: bytes, series: str) -> list[dict]:
     root = ET.fromstring(payload)
     entries = [node for node in root.iter() if local_name(str(node.tag)) in {"item", "entry"}]
@@ -98,6 +113,7 @@ def parse_feed(payload: bytes, series: str) -> list[dict]:
                 "summary": summary,
                 "link": link,
                 "published": published,
+                "category": classify_category(title, summary),
                 "source": "Crash.net",
             }
         )
