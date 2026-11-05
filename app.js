@@ -664,7 +664,7 @@ async function renderCircuitProfile(id){
     panel("CIRCUIT RECORDS","Most recorded winners",table(["RANK","DRIVER","WINS IN ARCHIVE"],winnerRows))+"</div>"+
     panel("EVENT HISTORY","Races at this circuit",table(["SERIES","SEASON","ROUND","EVENT","DATE","SESSIONS"],eventRows));
 }
-function sessionNames(function sessionNames(event,series=state.series){
+function sessionNames(event,series=state.series){
   const actual=[...new Set((event.Results||[]).filter(r=>!r.isRecordOnly).map(r=>r.session||"Race"))];
   if(series==="f1"){
     const options=[];
@@ -823,7 +823,7 @@ async function renderRaceDetail(series,year,round){
   return pageHead("RACE CENTRE",event.raceName,[seriesLabel(series),year,"Round "+round].join(" · "),"<a class='text-link' href='#/calendar'>← Season calendar</a>")+
     "<div class='profile-hero'><div><span class='eyebrow'>"+esc(session)+" · "+esc(year)+"</span><h1>"+esc(event.raceName)+"</h1><p>"+esc([location.locality,location.country].filter(Boolean).join(" · ")||event.Circuit.circuitName||"Circuit location not supplied")+" · "+esc(dateText)+"</p><a class='text-link' href='"+circuitHref(circuitId)+"'>Open circuit profile ↗</a></div><div class='profile-number'>R"+esc(round)+"</div></div>"+
     (winner?"<div class='result-flag'><div><small>SESSION WINNER</small><strong>"+driverLink(series,winner.Driver.driverId,driverName(winner.Driver))+"</strong><small>"+esc(winner.Constructor&&winner.Constructor.name||"Constructor not supplied")+"</small></div>"+badge(session,"gold")+"</div>":"")+
-    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>SESSION STATISTICS</span><h2>Weekend snapshot</h2></div></div>" + sessionSummary + "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>RACE WEEKEND SESSION</span><h2>"+esc(resultCount)+" result entries</h2></div>"+badge(hasResults?"RESULTS AVAILABLE":"NOT IMPORTED",hasResults?"green":"gold")+"</div><div class='session-tabs'>"+tabs+"</div>"+
+    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>SESSION STATISTICS</span><h2>Weekend snapshot</h2></div></div>" + sessionSummary + "</div><div class='panel'><div class='panel-header'><div><span class='eyebrow'>RACE WEEKEND SESSION</span><h2>"+esc(resultCount)+" result entries</h2></div>"+badge(hasResults?"RESULTS AVAILABLE":"NOT IMPORTED",hasResults?"green":"gold")+"</div><div class='session-tabs'>"+tabs+"</div>"+
     (scheduled?"<p class='secondary session-schedule'>Scheduled: "+esc(scheduled)+"</p>":"")+
     (rows.length?table(headers,rows):"<div class='empty-state'><strong>"+esc(session)+"</strong><p>"+esc(emptyMessage)+"</p>"+(officialTimingUrl?"<a class='text-link' href='"+officialTimingUrl+"' target='_blank' rel='noopener'>Open official live timing ↗</a>":"")+"</div>")+
     "<div class='notice'>"+esc(coverage)+"</div><div class='notice red'>"+(isPractice?"Practice result feed is imported after the session is completed and the source publishes a classification.":isQualifying?"Q1, Q2 and Q3 are displayed only where the source publishes those times.":"Pit stops, lap charts, tyre strategy and telemetry are not implied by a race classification.")+" Missing values are not inferred.</div></div>"+
@@ -992,8 +992,10 @@ function renderPointsProgression(data,series){
   events.forEach((event,index)=>{
     for(const result of event.Results||[]){
       if(result.isRecordOnly||!result.Driver||!isRaceClassification(series,result.session))continue;
-      const points=Number(result.points),id=result.Driver.driverId;
-      if(!id||!Number.isFinite(points))continue;
+      const pointsValue=result.points;
+      const points=Number(pointsValue),id=result.Driver.driverId;
+      const pointsSession=isRaceClassification(series,result.session)||(series==="f1"&&String(result.session)==="Sprint");
+      if(!pointsSession||pointsValue===null||pointsValue===undefined||pointsValue===""||!id||!Number.isFinite(points))continue;
       const entry=totals.get(id)||{id,name:driverName(result.Driver),points:0};
       entry.points+=points;totals.set(id,entry);
     }
