@@ -63,3 +63,11 @@ The scheduled GitHub Actions pipeline builds cross-season driver, constructor an
 - F2/F3 calendar entries are currently derived from the season's available event archive. Historical season summary pages do not always supply a reliable date, so the calendar may show an event round and circuit without a date.
 - Race-centre pages expose only fields actually present in the selected season archive. Qualifying, pit stops, telemetry, tyre strategy and official circuit lap records are not implied when absent.
 - Circuit "fun facts" are computed from the archive (event count, years represented, and repeat winners). Physical circuit specifications such as length and corners are not guessed.
+
+
+## Motorsport news feed
+- Source: Crash.net RSS feeds for F1, F2 and F3: [feed directory](https://www.crash.net/rssnewsfeeds).
+- The scheduled GitHub Actions workflow stores article headlines, a short publisher-provided feed summary, publication time, source attribution and the direct story URL in `data/news.json`.
+- Full article text and publisher images are not copied into this project. Each news card links directly to the original Crash.net story.
+- The browser reads the cached snapshot, so the news page does not depend on a third-party RSS proxy or direct cross-origin feed access.
+- If one feed is unavailable, its previous snapshot is retained; if all feeds fail, the existing news file is left unchanged.
