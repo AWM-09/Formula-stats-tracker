@@ -108,3 +108,9 @@ The build workflow generates the cross-season indexes and per-entity profile JSO
 - FIA result names such as "K. Maini IND" are resolved to the full driver records in the championship standings.
 - Qualifying best-lap times are stored in the race-centre Time field so they are visible in the table.
 - Weekends with Feature Race 1 and Feature Race 2 no longer show a redundant generic Feature Race entry.
+
+
+## Circuit layouts, track facts and extended tools
+Circuit profiles now include a season-aware layout selector where a verified layout is available, along with configuration-specific length and turn counts. Circuit pages also calculate race-session laps and recorded classified distance from the imported winners' lap counts and the layout length applicable to that season. These calculated figures are clearly distinguished from official lap records and physical facts are left unavailable where sources do not match.
+
+The platform also includes browser-local driver/constructor watchlists, race-by-race driver head-to-head comparisons, cumulative season-points progression, expanded career records, CSV/JSON exports and category filters in the news feed. See [DATA_SOURCES.md](DATA_SOURCES.md) for sources, licences, calculation notes and coverage limitations.
