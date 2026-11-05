@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T18:30:00Z",
+  "updatedAt": "2026-11-05T19:51:47Z",
   "source": "Crash.net RSS",
   "feedStatus": {
     "f1": "ok",
@@ -10,10 +10,31 @@
     {
       "series": "f1",
       "seriesLabel": "F1",
+      "title": "Lewis Hamilton comes out swinging after Charles Leclerc clash: “I’m not going to be silenced”",
+      "summary": "Lewis Hamilton has come out on the attack after his clash with Ferrari team-mate Charles Leclerc in Mexico.",
+      "link": "https://www.crash.net/f1/news/1109342/1/lewis-hamilton-comes-out-swinging-after-charles-leclerc-clash-im-not-going-be",
+      "published": "2026-11-05T19:48:49Z",
+      "category": "General",
+      "source": "Crash.net"
+    },
+    {
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "Max Verstappen addresses 24-race F1 calendar: ‘I wish it was less’",
+      "summary": "Max Verstappen has addressed concerns about the length of the F1 calendar.",
+      "link": "https://www.crash.net/f1/news/1109339/1/max-verstappen-addresses-24-race-f1-calendar-i-wish-it-was-less",
+      "published": "2026-11-05T18:42:37Z",
+      "category": "Governance & calendar",
+      "source": "Crash.net"
+    },
+    {
+      "series": "f1",
+      "seriesLabel": "F1",
       "title": "Fernando Alonso reacts as Lewis Hamilton joins his exclusive F1 club",
       "summary": "Fernando Alonso responds with Lewis Hamilton set to join him in F1's '400 club'.",
       "link": "https://www.crash.net/f1/news/1109337/1/fernando-alonso-reacts-lewis-hamilton-joins-his-exclusive-f1-club",
       "published": "2026-11-05T18:07:05Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -23,6 +44,7 @@
       "summary": "Rafael Camara has been picked to replace Esteban Ocon at Haas in F1. But who is he?",
       "link": "https://www.crash.net/f1/news/1105094/1/rafael-camara-who-is-Ferrari-junior-making-F1-debut-with-Haas-in-2027",
       "published": "2026-11-05T15:46:25Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -32,6 +54,7 @@
       "summary": "Kimi Antonelli has returned to the grave of his F1 idol Ayrton Senna, this time as champion.",
       "link": "https://www.crash.net/f1/news/1109334/1/kimi-antoneli-visits-ayrton-senna%27s-grave-as-F1-champion-ahead-of-Brazil-GP",
       "published": "2026-11-05T15:34:18Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -41,6 +64,7 @@
       "summary": "Ralf Schumacher has launched a scathing criticism of Lewis Hamilton after his clash with Ferrari team-mate Charles Leclerc.",
       "link": "https://www.crash.net/f1/news/1109333/1/lewis-hamilton-compared-famous-gangster-stunning-ralf-schumacher-criticism",
       "published": "2026-11-05T14:48:57Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -50,6 +74,7 @@
       "summary": "Lance Stroll will miss Thursday's media day in Brazil as he recovers from illness.",
       "link": "https://www.crash.net/f1/news/1109331/1/lance-stroll-struck-illness-two-f1-drivers-miss-brazil-gp-media-day",
       "published": "2026-11-05T14:18:28Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -59,6 +84,7 @@
       "summary": "Former F1 world champion Alan Jones passes away aged 80.",
       "link": "https://www.crash.net/f1/news/1109325/1/first-williams-f1-world-champion-alan-jones-dies-aged-80",
       "published": "2026-11-05T08:57:57Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -68,6 +94,7 @@
       "summary": "Sky Sports F1 has added new talent to its presenting team.",
       "link": "https://www.crash.net/f1/news/1109321/1/sky-f1-announces-new-signing-make-debut-brazil-gp",
       "published": "2026-11-04T16:40:35Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -77,6 +104,7 @@
       "summary": "Lewis Hamilton shared a touching moment with his former F1 race engineer in Mexico City.",
       "link": "https://www.crash.net/f1/news/1109320/1/lewis-hamilton-shares-emotional-moment-former-f1-race-engineer-peter-bonnington",
       "published": "2026-11-04T16:17:37Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -86,6 +114,7 @@
       "summary": "The owners of Liverpool FC is reportedly interested in purchasing a majority stake in the Cadillac F1 team.",
       "link": "https://www.crash.net/f1/news/1109319/1/liverpool-fc-owners-emerge-potential-buyers-cadillac-f1-team-stake",
       "published": "2026-11-04T15:42:23Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -95,6 +124,7 @@
       "summary": "Kimi Antonelli's car developed a late in Mexico, Mercedes has revealed.",
       "link": "https://www.crash.net/f1/news/1109316/1/mercedes-reveals-kimi-antonelli-was-edge-retirement-mexico-gp",
       "published": "2026-11-04T14:52:26Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -104,6 +134,7 @@
       "summary": "Charles and Alexandra Leclerc have welcomed their first child.",
       "link": "https://www.crash.net/f1/news/1109315/1/charles-and-alexandra-leclerc-share-heartwarming-news-brazil-gp",
       "published": "2026-11-04T13:15:57Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -113,6 +144,7 @@
       "summary": "Liam Lawson is fighting to retain his Racing Bulls F1 seat for 2027.",
       "link": "https://www.crash.net/f1/news/1109313/1/liam-lawson-makes-worrying-admission-racing-bulls-f1-seat-under-threat",
       "published": "2026-11-04T12:30:16Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -122,6 +154,7 @@
       "summary": "The next round of the 2026 Formula 1 season takes place at Sao Paulo Grand Prix.",
       "link": "https://www.crash.net/f1/news/1109311/1/what-time-next-f1-race-brazil-gp-dates-and-full-schedule",
       "published": "2026-11-04T11:58:41Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -131,6 +164,7 @@
       "summary": "More details have emerged about Haas' decision to bench Esteban Ocon in Mexico.",
       "link": "https://www.crash.net/f1/news/1109068/1/end-esteban-ocons-f1-career-details-emerge-about-big-row-haas",
       "published": "2026-11-04T11:13:00Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -140,6 +174,7 @@
       "summary": "Karun Chandhok gives his verdict on Lewis Hamilton and Charles Leclerc's latest clash.",
       "link": "https://www.crash.net/f1/news/1109309/1/karun-chandhoks-telling-one-word-response-charles-leclerc-problem-question",
       "published": "2026-11-04T11:07:53Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -149,6 +184,7 @@
       "summary": "Martin Brundle offers George Russell advice after his F1 title loss.",
       "link": "https://www.crash.net/f1/news/1109308/1/martin-brundle-tells-broken-george-russell-what-he-must-do-after-f1-title-defeat",
       "published": "2026-11-04T10:28:38Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -158,6 +194,7 @@
       "summary": "Colton Herta will be handed chance to earn his missing superlicence point with Cadillac in Brazil.",
       "link": "https://www.crash.net/f1/news/1109306/1/colton-herta-handed-another-cadillac-f1-chance-after-superlicence-confusion",
       "published": "2026-11-04T09:57:57Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -167,6 +204,7 @@
       "summary": "McLaren has confirmed it will bring another upgrade to Brazil.",
       "link": "https://www.crash.net/f1/news/1109304/1/mclarens-brazil-gp-upgrade-will-feature-first-look-2027-f1-car-development",
       "published": "2026-11-04T09:35:09Z",
+      "category": "Technical & rules",
       "source": "Crash.net"
     },
     {
@@ -176,6 +214,7 @@
       "summary": "Rafael Camara will make his F1 debut with Haas at this weekend's Sao Paulo Grand Prix.",
       "link": "https://www.crash.net/f1/news/1109302/1/rafael-camara-make-early-haas-f1-debut-brazil-esteban-ocon-axed",
       "published": "2026-11-03T20:48:11Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -185,6 +224,7 @@
       "summary": "Honda has explained the reliability issues that plagued Aston Martin throughout the Mexico Grand Prix weekend.",
       "link": "https://www.crash.net/f1/news/1109301/1/honda-reveals-cause-aston-martins-reliability-woes-mexico-grand-prix",
       "published": "2026-11-03T17:00:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -194,6 +234,7 @@
       "summary": "Toto Wolff has hit back at those who questioned his decision to replace Lewis Hamilton with Kimi Antonelli, insisting he never doubted the Italian's ability to succeed in Formula 1.",
       "link": "https://www.crash.net/f1/news/1109298/1/toto-wolff-sends-message-kimi-antonelli-doubters-after-record-breaking-f1-title",
       "published": "2026-11-03T16:00:00Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -203,6 +244,7 @@
       "summary": "The Ferrari team principal was left furious after an opening-lap battle between his drivers cost the Italian squad a potential victory at the Mexico Grand Prix.",
       "link": "https://www.crash.net/f1/news/1109296/1/fred-vasseur-demands-respect-stern-warning-lewis-hamilton-and-charles-leclerc",
       "published": "2026-11-03T15:15:00Z",
+      "category": "Team news",
       "source": "Crash.net"
     },
     {
@@ -212,6 +254,7 @@
       "summary": "An emotional Sky Sports F1 presenter fought back tears as she congratulated Kimi Antonelli on his historic maiden Formula 1 world championship triumph.",
       "link": "https://www.crash.net/f1/news/1109294/1/sky-f1-presenter-reduced-tears-after-kimi-antonelli-crowned-champion",
       "published": "2026-11-03T13:30:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -221,6 +264,7 @@
       "summary": "After winning the 2026 title, Kimi Antonelli has decided what race number he will use for the 2027 Formula 1 season.",
       "link": "https://www.crash.net/f1/news/1109293/1/kimi-antonelli-confirms-2027-f1-race-number-following-maiden-title-win",
       "published": "2026-11-03T12:55:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -230,6 +274,7 @@
       "summary": "Daniel Ricciardo was considered for a potential move to Formula E with a new Australian team, but informal discussions did not progress.",
       "link": "https://www.crash.net/f1/news/1109292/1/daniel-ricciardo-eyed-surprise-formula-e-opportunity",
       "published": "2026-11-03T12:00:00Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -239,6 +284,7 @@
       "summary": "The seven-time world champion offered glowing praise for his young successor in Mexico, despite a frustrating clash with Charles Leclerc costing him a potential victory.",
       "link": "https://www.crash.net/f1/news/1109290/1/lewis-hamilton-praises-kimi-antonellis-historic-f1-title-so-well-deserved",
       "published": "2026-11-03T11:15:00Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -248,6 +294,7 @@
       "summary": "At least seven potential buyers are reportedly circling F1's newest outfit, marking a dramatic shift after firm denials just months ago.",
       "link": "https://www.crash.net/f1/news/1109288/1/cadillac-f1-team-owner-evaluating-3-billion-sale-after-sudden-u-turn",
       "published": "2026-11-03T10:30:00Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -257,6 +304,7 @@
       "summary": "After suffering a difficult run of results, George Russell speaks out on his 2026 struggles as he looks to reset for the final four races of the season.",
       "link": "https://www.crash.net/f1/news/1109286/1/george-russell-breaks-silence-after-kimi-antonellis-title-win-more-bad-days-good",
       "published": "2026-11-03T09:40:00Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -266,6 +314,7 @@
       "summary": "Ferrari must get a handle on its driver spat, or risk open war between Lewis Hamilton and Charles Leclerc.",
       "link": "https://www.crash.net/f1/feature/1109282/1/spineless-ferrari-risks-open-war-amid-lewis-hamilton-charles-leclerc-feud",
       "published": "2026-11-02T16:08:42Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -275,6 +324,7 @@
       "summary": "Sebastian Vettel reacts to Kimi Antonelli beating his long-held F1 record.",
       "link": "https://www.crash.net/f1/news/1109279/1/sebastian-vettels-heartfelt-message-kimi-antonelli-after-f1-record-shattered",
       "published": "2026-11-02T14:50:49Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -284,6 +334,7 @@
       "summary": "Italian daily sports newspaper La Gazzetta dello Sport took a swipe at Ferrari after Kimi Antonelli's F1 title triumph.",
       "link": "https://www.crash.net/f1/news/1109278/1/italian-newspapers-brutal-ferrari-swipe-kimi-antonelli-crowned-f1-champion",
       "published": "2026-11-02T14:23:07Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -293,6 +344,7 @@
       "summary": "Nico Rosberg pulled no punches in his assessment of Lewis Hamilton and Charles Leclerc's latest scrap.",
       "link": "https://www.crash.net/f1/news/1109276/1/nico-rosberg-pulls-no-punches-ferrari-clash-its-always-charles-fault",
       "published": "2026-11-02T12:57:29Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -302,6 +354,7 @@
       "summary": "MotoGP legend Rossi shared his joy at Kimi Antonelli’s F1 world title",
       "link": "https://www.crash.net/motogp/news/1109275/1/valentino-rossi-leads-motogp-tributes-f1-champion-kimi-antonelli",
       "published": "2026-11-02T11:48:21Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -311,6 +364,7 @@
       "summary": "George Russell failed to carry out his post-race media obligations in Mexico City.",
       "link": "https://www.crash.net/f1/news/1109274/1/mercedes-fined-after-distraught-george-russell-skipped-post-race-media-mexico-gp",
       "published": "2026-11-02T11:45:41Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -320,6 +374,7 @@
       "summary": "The FIA stewards have explained their reasoning for Charles Leclerc's penalty in Mexico.",
       "link": "https://www.crash.net/f1/news/1109272/1/charles-leclercs-controversial-mexico-gp-penalty-explained",
       "published": "2026-11-02T11:03:56Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -329,6 +384,7 @@
       "summary": "Valtteri Bottas escaped injury in a scary race-halting F1 crash at the Mexico City Grand Prix.",
       "link": "https://www.crash.net/f1/news/1109271/1/valtteri-bottas-escapes-injury-scary-crash-stopped-mexico-gp",
       "published": "2026-11-02T10:09:01Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -338,6 +394,7 @@
       "summary": "Kimi Antonelli has just made F1 history by becoming the youngest-ever world champion.",
       "link": "https://www.crash.net/f1/feature/1107916/1/kimi-antonelli-makes-f1-history-where-he-ranks-among-youngest-world-champions",
       "published": "2026-11-02T09:34:48Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -347,24 +404,7 @@
       "summary": "A double post-race penalty for Alpine hands Ryo Hirakawa a point on his F1 debut in Mexico.",
       "link": "https://www.crash.net/f1/news/1109264/1/ryo-hirakawa-scores-point-f1-debut-mexico-gp-after-double-alpine-penalty",
       "published": "2026-11-02T02:20:58Z",
-      "source": "Crash.net"
-    },
-    {
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "New F1 championship standings after the Mexico Grand Prix",
-      "summary": "Updated F1 championship results after the Mexico City Grand Prix.",
-      "link": "https://www.crash.net/f1/results/1109260/1/new-f1-championship-standings-after-mexico-grand-prix",
-      "published": "2026-11-02T02:18:50Z",
-      "source": "Crash.net"
-    },
-    {
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "F1 Mexico Grand Prix: Updated race results after post-race penalties",
-      "summary": "Full race results from the 2026 Formula 1 Mexico Grand Prix",
-      "link": "https://www.crash.net/f1/results/1109251/1/formula-1-mexico-grand-prix-full-race-results",
-      "published": "2026-11-02T02:10:00Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -374,6 +414,7 @@
       "summary": "Baku will host an extra Formula 2 feature race.",
       "link": "https://www.crash.net/f2/news/1104700/1/f2-supersize-baku-round-amid-ongoing-f1-calendar-uncertainty",
       "published": "2026-09-14T10:35:50Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -383,6 +424,7 @@
       "summary": "The Formula 3 title was decided after Ugo Ugochukwu and Freddie Slater entered the final race level on points.",
       "link": "https://www.crash.net/f3/news/1104530/1/ex-mclaren-junior-wins-f3-title-after-dramatic-madrid-showdown",
       "published": "2026-09-13T08:31:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -392,6 +434,7 @@
       "summary": "Formula 3 provided the first ever racing action at the all-new Madring Formula 1 Spanish Grand Prix circuit",
       "link": "https://www.crash.net/f1/news/1104329/1/dull-madring-racing-debut-gives-worrying-indication-f1-spanish-gp",
       "published": "2026-09-12T09:50:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -401,6 +444,7 @@
       "summary": "Red flags have been expected at the Spanish Grand Prix weekend.",
       "link": "https://www.crash.net/f2/news/1104118/1/fiery-f2-crash-causes-lengthy-stoppage-new-madrid-f1-track",
       "published": "2026-09-11T09:43:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -410,6 +454,7 @@
       "summary": "Formula 2 unveiled its fifth different model since the championship launched in 2017",
       "link": "https://www.crash.net/f2/news/1103606/1/first-look-f2-launch-next-generation-car-monza",
       "published": "2026-09-05T10:10:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -419,6 +464,7 @@
       "summary": "Full results from round nine of the 2026 Formula 2 season",
       "link": "https://www.crash.net/f2/news/1101959/1/2026-hungary-f2-full-results",
       "published": "2026-07-27T13:56:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -428,6 +474,7 @@
       "summary": "Mass confusion in the Formula 3 feature race saw 26 drivers reprimanded by the stewards.",
       "link": "https://www.crash.net/f3/news/1101953/1/twenty-six-formula-3-drivers-sanction-bizarre-mix",
       "published": "2026-07-27T11:02:00Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -437,6 +484,7 @@
       "summary": "Full results from round seven of the 2026 Formula 3 season",
       "link": "https://www.crash.net/f3/results/1101951/1/2026-hungary-f3-full-results",
       "published": "2026-07-27T10:37:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -446,6 +494,7 @@
       "summary": "Former F3 driver Zdeněk Chovanec has died aged 21.",
       "link": "https://www.crash.net/f3/news/1101554/1/former-formula-3-driver-dies-aged-21",
       "published": "2026-07-23T09:24:40Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -455,6 +504,7 @@
       "summary": "Noel Leon was disqualified post-race despite having nothing to do with the Formula 2 garage goings on",
       "link": "https://www.crash.net/f2/news/1101515/1/f2-driver-disqualified-after-teams-bizarre-mishap-guest-during-garage-visit",
       "published": "2026-07-20T12:16:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -464,6 +514,7 @@
       "summary": "Full results from round eight of the 2026 Formula 2 season",
       "link": "https://www.crash.net/f2/news/1101398/1/2026-belgium-f2-full-results",
       "published": "2026-07-19T10:40:00Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -473,6 +524,7 @@
       "summary": "Full results from round six of the 2026 Formula 3 season",
       "link": "https://www.crash.net/f3/results/1101397/1/2026-belgium-f3-full-results",
       "published": "2026-07-19T09:58:48Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -482,6 +534,7 @@
       "summary": "11 F3 drivers were penalised following a chaotic qualifying session at Spa.",
       "link": "https://www.crash.net/f3/news/1101226/1/11-f3-drivers-handed-penalties-after-spa-qualifying-chaos",
       "published": "2026-07-18T08:53:02Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -491,6 +544,7 @@
       "summary": "Formula 3 will run to a revised three-race format in Madrid in order to make up some of the lost track time from the cancelled Bahrain event",
       "link": "https://www.crash.net/f3/news/1100543/1/f3-aid-madrid-f1-preparations-revised-weekend-format-announced",
       "published": "2026-07-10T10:10:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -500,6 +554,7 @@
       "summary": "Full results from round five of the 2026 Formula 3 season",
       "link": "https://www.crash.net/f3/results/1100371/1/2026-silverstone-f3-full-results",
       "published": "2026-07-05T20:07:33Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -509,6 +564,7 @@
       "summary": "Full results from round seven of the 2026 Formula 2 season",
       "link": "https://www.crash.net/f2/results/1100368/1/2026-silverstone-f2-full-results",
       "published": "2026-07-05T20:00:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -518,6 +574,7 @@
       "summary": "Full results from round four of the 2026 Formula 3 season",
       "link": "https://www.crash.net/f3/results/1099746/1/2026-austria-f3-full-results",
       "published": "2026-06-28T12:20:00Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -527,6 +584,7 @@
       "summary": "Full results from round six of the 2026 Formula 2 season",
       "link": "https://www.crash.net/f2/results/1099751/1/2026-austria-f2-full-results",
       "published": "2026-06-28T09:26:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -536,6 +594,7 @@
       "summary": "Colton Herta didn't entertain the idea of back-to-back competing in F2 and the Indianapolis 500.",
       "link": "https://www.crash.net/f2/news/1093109/1/why-colton-hertas-ambitious-indy-500-f2-crossover-wasnt-legitimate",
       "published": "2026-04-25T15:00:00Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -545,6 +604,7 @@
       "summary": "F2 will make its debut in North America at the Miami Grand Prix.",
       "link": "https://www.crash.net/f2/news/1092941/1/f2-announces-replacements-cancelled-middle-east-races",
       "published": "2026-04-09T12:55:15Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -554,6 +614,7 @@
       "summary": "The F1 support bill has been forced to shuffle its calendar following cancellations of rounds in Bahrain and Saudi Arabia.",
       "link": "https://www.crash.net/f1/news/1092833/1/f1-support-series-set-canada-debut-after-middle-east-race-cancellations",
       "published": "2026-04-02T09:00:53Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -563,6 +624,7 @@
       "summary": "Full race results from Australia, Round 1 of the 2026 F2 season.",
       "link": "https://www.crash.net/f2/results/1090863/1/2026-f2-australia-race-results",
       "published": "2026-03-08T04:00:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -572,6 +634,7 @@
       "summary": "Full race results from Australia, Round 1 of the 2026 F3 season.",
       "link": "https://www.crash.net/f3/news/1090833/1/2026-f3-australia-race-results",
       "published": "2026-03-08T02:45:00Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -581,6 +644,7 @@
       "summary": "Former IndyCar star Colton Herta is all too aware of what is at stake with his Formula 2 move.",
       "link": "https://www.crash.net/f2/news/1090699/1/colton-herta-cautious-ahead-last-shot-formula-1",
       "published": "2026-03-05T08:27:57Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -590,6 +654,7 @@
       "summary": "Why three Formula 2 teams have been penalised even before season has started",
       "link": "https://www.crash.net/f2/news/1064892/1/three-formula-2-teams-caught-testing-scandal-hit-penalties",
       "published": "2025-03-14T09:43:55Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -599,6 +664,7 @@
       "summary": "Alpine F1 junior Nikola Tsolov was involved in a controversial incident in FIA Formula 3 practice.",
       "link": "https://www.crash.net/f3/news/1045817/1/alpine-f1-junior-nikola-tsolov-denies-putting-f3-rival-wall-purpose",
       "published": "2024-03-22T03:19:57Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -608,6 +674,7 @@
       "summary": "We look at five drivers currently outside of the F1 grid that could look to be in a seat in the near future.",
       "link": "https://www.crash.net/f1/news/1033351/1/five-nonf1-drivers-desperate-claim-spot-f1-grid",
       "published": "2023-08-16T12:36:03Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -617,6 +684,7 @@
       "summary": "The five teams to take part in F1’s new all-female racing series - F1 Academy - have been announced.",
       "link": "https://www.crash.net/f1/news/1018376/1/five-teams-f1-s-allfemale-feeder-series-revealed",
       "published": "2022-12-16T10:00:40Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -626,6 +694,7 @@
       "summary": "F2 driver Amaury Cordeel has lost his driver’s licence for six months after committing a 179km/h (111mph) speeding offence.",
       "link": "https://www.crash.net/f1/news/1018161/1/f2-driver-loses-licence-after-179kmh-speeding-offence-caught-tiktok",
       "published": "2022-12-07T10:49:22Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -635,6 +704,7 @@
       "summary": "Full sprint race results for the seventh round of the 2022 FIA F3 Championship in Belgium.",
       "link": "https://www.crash.net/f3/results/1010631/1/fia-formula-3-2022-belgium-full-sprint-race-results",
       "published": "2022-08-27T10:04:50Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -644,6 +714,7 @@
       "summary": "Full feature race results for the 10th round of the 2022 FIA F2 Championship in France.",
       "link": "https://www.crash.net/f2/results/1009082/1/fia-formula-2-2022-hungary-feature-race-results",
       "published": "2022-07-31T10:45:05Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -653,6 +724,7 @@
       "summary": "Full sprint race results for the sixth round of the 2022 FIA F3 Championship in Hungary.",
       "link": "https://www.crash.net/f3/results/1008792/1/fia-formula-3-2022-hungary-full-sprint-race-results",
       "published": "2022-07-30T10:02:06Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -662,6 +734,7 @@
       "summary": "Full qualifying results for the 10th round of the 2022 FIA F2 Championship in France.",
       "link": "https://www.crash.net/f2/results/1008772/1/fia-formula-2-2022-hungary-full-qualifying-results",
       "published": "2022-07-29T17:05:24Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -671,6 +744,7 @@
       "summary": "Full feature race results for the ninth round of the 2022 FIA F2 Championship in Austria.",
       "link": "https://www.crash.net/f2/results/1008393/1/fia-formula-2-2022-france-full-feature-race-results",
       "published": "2022-07-24T09:14:06Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -680,6 +754,7 @@
       "summary": "Full qualifying results for the ninth round of the 2022 FIA F2 Championship in France.",
       "link": "https://www.crash.net/f2/results/1008259/1/fia-formula-2-2022-france-full-qualifying-results",
       "published": "2022-07-22T17:23:11Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -689,6 +764,7 @@
       "summary": "Full feature race results for the fifth round of the 2022 FIA F3 Championship in Austria.",
       "link": "https://www.crash.net/f3/results/1007712/1/fia-formula-3-2022-austria-full-feature-race-results",
       "published": "2022-07-10T08:49:08Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -698,6 +774,7 @@
       "summary": "Full sprint race results for the fifth round of the 2022 FIA F3 Championship in Austria.",
       "link": "https://www.crash.net/f3/results/1007593/1/fia-formula-3-2022-austria-full-sprint-race-results",
       "published": "2022-07-09T09:57:05Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -707,6 +784,7 @@
       "summary": "Full qualifying results for the fifth round of the 2022 FIA F3 Championship in Austria.",
       "link": "https://www.crash.net/f3/results/1007495/1/fia-formula-3-2022-austria-full-qualifying-results",
       "published": "2022-07-08T14:19:39Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -716,6 +794,7 @@
       "summary": "Juri Vips remains part of the Red Bull junior team despite having his contract as the team’s F1 test and reserve driver terminated over his use of a racial slur.",
       "link": "https://www.crash.net/f1/news/1007359/1/vips-remain-part-red-bull-junior-team-despite-losing-f1-test-role",
       "published": "2022-07-06T15:07:44Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -725,6 +804,7 @@
       "summary": "Juri Vips has been kept on by his team, Hitech Grand Prix, for the rest of the 2022 season after making a racist remark but F2 have said that decision “is not one we would have taken”.",
       "link": "https://www.crash.net/f1/news/1006790/1/juri-vips-allowed-continue-season-f2-call-decision-surprising",
       "published": "2022-06-29T15:31:55Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -734,6 +814,7 @@
       "summary": "Theo Pourchaire has won the first Formula 2 feature race of the 2022 season after a slow pit stop for Jüri Vips.",
       "link": "https://www.crash.net/f2/race-report/999094/1/pourchaire-wins-bahrain-f2-feature-race-after-slow-pit-stop-vips",
       "published": "2022-03-20T12:15:56Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -743,6 +824,7 @@
       "summary": "Victor Martins has won the first Formula 3 feature race of the 2022 season ahead of Arthur Leclerc.",
       "link": "https://www.crash.net/f3/race-report/999082/1/martins-wins-f3-bahrain-feature-race-ahead-leclerc",
       "published": "2022-03-20T10:04:46Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -752,6 +834,7 @@
       "summary": "Red Bull Formula 1 junior Isack Hadjar has won the opening Formula 3 sprint race of the season after Prema's Oliver Bearman was hit with a post-race time penalty for exceeding track limits.",
       "link": "https://www.crash.net/f3/news/998842/1/hadjar-inherits-bahrain-f3-victory-after-bearman-penalty",
       "published": "2022-03-19T10:55:43Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -761,6 +844,7 @@
       "summary": "2021 Formula 2 champion Oscar Piastri beat Formula 1-bound Guanyu Zhou to the feature race victory at the season finale in Abu Dhabi.",
       "link": "https://www.crash.net/f2/race-report/994600/1/champion-piastri-beats-f1bound-zhou-f2-abu-dhabi-finale",
       "published": "2021-12-12T10:21:54Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -770,6 +854,7 @@
       "summary": "2022 Alfa Romeo Formula 1 driver Guanyu Zhou returned to winning ways as he won the second sprint race at the Yas Marina Circuit in Abu Dhabi.",
       "link": "https://www.crash.net/f2/race-report/994578/1/zhou-takes-fourth-f2-victory-season-abu-dhabi",
       "published": "2021-12-11T16:01:56Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -779,6 +864,7 @@
       "summary": "Alpine Formula 1 junior Oscar Piastri has secured an astonishing fifth consecutive pole position to move within touching distance of the Formula 2 title.",
       "link": "https://www.crash.net/f2/news/994479/1/piastri-secures-fifth-f2-pole-row-move-within-touching-distance-title",
       "published": "2021-12-10T15:20:57Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -788,6 +874,7 @@
       "summary": "Theo Pourchaire has taken to social media to confirm that he’s “fine” after being involved in a scary incident on the opening lap of the Formula 2 feature race in Saudi Arabia.",
       "link": "https://www.crash.net/f2/news/994257/1/pourchaire-fine-after-f2-start-crash-fittipaldi-jeddah",
       "published": "2021-12-05T21:54:38Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -797,6 +884,7 @@
       "summary": "Formula 2 and Formula 3 have announced several changes to how both championships will award points for 2022.",
       "link": "https://www.crash.net/f2/news/989841/1/f2-f3-make-further-changes-2022-reduced-points-sprint-races",
       "published": "2021-10-21T11:30:38Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     },
     {
@@ -806,6 +894,7 @@
       "summary": "Juan Manuel Correa will make an incredible comeback to racing this year with ART Grand Prix for the upcoming FIA F3 Championship season.",
       "link": "https://www.crash.net/f3/news/950714/1/juan-manuel-correa-return-racing-year-f3-art",
       "published": "2021-02-01T13:50:19Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -815,6 +904,7 @@
       "summary": "Williams F1 test driver Roy Nissany has completed DAMS’ driver line-up for the 2021 Formula 2 season.",
       "link": "https://www.crash.net/f2/news/950689/1/williams-f1-test-driver-roy-nissany-signs-dams-f2",
       "published": "2021-01-29T08:25:11Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -824,6 +914,7 @@
       "summary": "Adrian Campos, the founder and owner of single-seater outfit Campos Racing and former Formula 1 driver, has died aged 60.",
       "link": "https://www.crash.net/f1/news/950677/1/f2-and-f3-team-owner-and-exf1-driver-adrian-campos-dies-aged-60",
       "published": "2021-01-28T07:44:41Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -833,6 +924,7 @@
       "summary": "Williams F1 young driver Dan Ticktum will complete Carlin’s 2021 Formula 2 line-up for his second season in the series.",
       "link": "https://www.crash.net/f2/news/950671/1/williams-f1-junior-dan-ticktum-completes-carlin-s-2021-f2-lineup",
       "published": "2021-01-27T14:15:21Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -842,6 +934,7 @@
       "summary": "ART GP have promoted F3 runner-up Theo Pourchaire to F2 on a full-time basis for the upcoming 2021 season.",
       "link": "https://www.crash.net/f2/news/950653/1/f3-runnerup-pourchaire-steps-f2-art-gp-2021",
       "published": "2021-01-25T08:25:04Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -851,6 +944,7 @@
       "summary": "Ferrari F1 junior Marcus Armstrong will make the switch to FIA F2 champions DAMS for the upcoming 2021 season.",
       "link": "https://www.crash.net/f2/news/950639/1/ferrari-f1-junior-armstrong-switches-dams-2021-f2-season",
       "published": "2021-01-22T10:48:47Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -860,6 +954,7 @@
       "summary": "Matteo Nannini, the nephew of F1 winner Alessandro Nannini, will compete in both F2 and F3 this season with HWA Racelab.",
       "link": "https://www.crash.net/f2/news/950638/1/nannini-contest-45-races-dual-f2-and-f3-2021-season-hwa",
       "published": "2021-01-22T10:29:01Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -869,6 +964,7 @@
       "summary": "Roy Nissany will drive for Williams during F1 pre-season testing, with the team announcing he will continue his role as official test driver in 2021.",
       "link": "https://www.crash.net/f1/news/950614/1/nissany-get-preseason-running-continued-williams-f1-test-role-2021",
       "published": "2021-01-19T10:39:14Z",
+      "category": "General",
       "source": "Crash.net"
     },
     {
@@ -878,6 +974,7 @@
       "summary": "Olli Caldwell secures drive to race for reigning FIA F3 champions Prema Racing during the upcoming 2021 season.",
       "link": "https://www.crash.net/f3/news/950588/1/caldwell-completes-f3-champions-prema-s-lineup-2021-season",
       "published": "2021-01-15T09:26:37Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -887,6 +984,7 @@
       "summary": "Red Bull F1 juniors Liam Lawson and Juri Vips have been signed by Hitech Grand Prix to contest the upcoming 2021 F2 season.",
       "link": "https://www.crash.net/f2/news/950587/1/red-bull-f1-juniors-lawson-and-vips-race-hitech-f2",
       "published": "2021-01-15T08:41:12Z",
+      "category": "Driver moves",
       "source": "Crash.net"
     },
     {
@@ -896,6 +994,7 @@
       "summary": "Nicholas Latifi extended his lead at the top of the FIA Formula 2 drivers' championship after winning Sunday's Sprint Race at the Baku City Circuit.Williams Formula 1 test driver Latifi was able to battle through to the lead in another tru…",
       "link": "https://www.crash.net/f2/race-report/918622/1/latifi-extends-f2-points-lead-baku-sprint-race-win",
       "published": "2019-04-28T10:13:05Z",
+      "category": "Governance & calendar",
       "source": "Crash.net"
     },
     {
@@ -905,6 +1004,7 @@
       "summary": "Nikita Mazepin pulled off a last-lap overtake on Juan Manuel Correa to win the final GP3 race of the 2018 season in Abu Dhabi.The Russian, who missed out on the GP3 title to ART Grand Prix teammate Anthoine Hubert in the opening race of th…",
       "link": "https://www.crash.net/open-wheel/news/911179/1/art-gp-s-mazepin-wins-final-gp3-race-abu-dhabi",
       "published": "2018-11-25T09:05:52Z",
+      "category": "Race weekend",
       "source": "Crash.net"
     }
   ]

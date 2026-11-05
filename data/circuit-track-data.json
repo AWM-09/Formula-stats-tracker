@@ -1,5 +1,2654 @@
 {
-  "updatedAt": null,
-  "source": {},
-  "circuits": []
+  "updatedAt": "2026-11-05T19:51:48Z",
+  "source": {
+    "specifications": "F1DB",
+    "layouts": "MisterSix2295/f1-circuits-svg"
+  },
+  "circuits": [
+    {
+      "id": "adelaide",
+      "name": "Adelaide Street Circuit",
+      "countryId": "australia",
+      "latitude": -34.927222,
+      "longitude": 138.617222,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.78,
+      "turns": 16,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "adelaide-1",
+          "seasons": "1985-1995",
+          "lengthKm": 3.78,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/adelaide-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "aida",
+      "name": "Okayama International Circuit",
+      "countryId": "japan",
+      "latitude": 34.915,
+      "longitude": 134.221111,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.703,
+      "turns": 13,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "aida-1",
+          "seasons": "1994-1995",
+          "lengthKm": 3.703,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/aida-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "ain-diab",
+      "name": "Ain-Diab Circuit",
+      "countryId": "morocco",
+      "latitude": 33.578611,
+      "longitude": -7.6875,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 7.618,
+      "turns": 18,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "ain-diab-1",
+          "seasons": "1958",
+          "lengthKm": 7.618,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/ain-diab-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "aintree",
+      "name": "Aintree Motor Racing Circuit",
+      "countryId": "united-kingdom",
+      "latitude": 53.476944,
+      "longitude": -2.940556,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.828,
+      "turns": 8,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "aintree-1",
+          "seasons": "1995,1957,1959,1961-1962",
+          "lengthKm": 4.828,
+          "turns": 8,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/aintree-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "anderstorp",
+      "name": "Anderstorp Raceway",
+      "countryId": "sweden",
+      "latitude": 57.264167,
+      "longitude": 13.601389,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.031,
+      "turns": 8,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "anderstorp-1",
+          "seasons": "1973-1978",
+          "lengthKm": 4.031,
+          "turns": 8,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/anderstorp-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "austin",
+      "name": "Circuit of the Americas",
+      "countryId": "united-states-of-america",
+      "latitude": 30.132778,
+      "longitude": -97.641111,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 5.513,
+      "turns": 20,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "austin-1",
+          "seasons": "2012-2019,2021-2025",
+          "lengthKm": 5.513,
+          "turns": 20,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/austin-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "avus",
+      "name": "AVUS",
+      "countryId": "germany",
+      "latitude": 52.480556,
+      "longitude": 13.251389,
+      "type": "ROAD",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 8.3,
+      "turns": 4,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "avus-1",
+          "seasons": "1959",
+          "lengthKm": 8.3,
+          "turns": 4,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/avus-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "bahrain",
+      "name": "Bahrain International Circuit",
+      "countryId": "bahrain",
+      "latitude": 26.0325,
+      "longitude": 50.510556,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.412,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "bahrain-1",
+          "seasons": "2004-2009,2011-2025",
+          "lengthKm": 5.412,
+          "turns": 15,
+          "effective": true,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/bahrain-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "bahrain-2",
+          "seasons": "2010",
+          "lengthKm": 6.299,
+          "turns": 23,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/bahrain-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "bahrain-3",
+          "seasons": "2020",
+          "lengthKm": 3.543,
+          "turns": 11,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/bahrain-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "baku",
+      "name": "Baku City Circuit",
+      "countryId": "azerbaijan",
+      "latitude": 40.3725,
+      "longitude": 49.853333,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 6.003,
+      "turns": 20,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "baku-1",
+          "seasons": "2016-2019,2021-2025",
+          "lengthKm": 6.003,
+          "turns": 20,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/baku-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "brands-hatch",
+      "name": "Brands Hatch",
+      "countryId": "united-kingdom",
+      "latitude": 51.356667,
+      "longitude": 0.2625,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.207,
+      "turns": 9,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "brands-hatch-1",
+          "seasons": "1964,1966,1968,1970,1972,1974",
+          "lengthKm": 4.265,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/brands-hatch-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "brands-hatch-2",
+          "seasons": "1976,1978,1980,1982-1986",
+          "lengthKm": 4.207,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/brands-hatch-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "bremgarten",
+      "name": "Circuit Bremgarten",
+      "countryId": "switzerland",
+      "latitude": 46.95,
+      "longitude": 7.410833,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 7.28,
+      "turns": 13,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "bremgarten-1",
+          "seasons": "1950-1954",
+          "lengthKm": 7.28,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/bremgarten-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "buddh",
+      "name": "Buddh International Circuit",
+      "countryId": "india",
+      "latitude": 28.350556,
+      "longitude": 77.535,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.125,
+      "turns": 16,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "buddh-1",
+          "seasons": "2011-2013",
+          "lengthKm": 5.125,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/buddh-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "buenos-aires",
+      "name": "Autódromo Juan y Oscar Gálvez",
+      "countryId": "argentina",
+      "latitude": -34.694272,
+      "longitude": -58.459347,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.259,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "buenos-aires-1",
+          "seasons": "1953-1958,1960",
+          "lengthKm": 3.912,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/buenos-aires-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "buenos-aires-2",
+          "seasons": "1972-1973",
+          "lengthKm": 3.353,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/buenos-aires-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "buenos-aires-3",
+          "seasons": "1974-1975,1977-1981",
+          "lengthKm": 5.968,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/buenos-aires-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "buenos-aires-4",
+          "seasons": "1995-1998",
+          "lengthKm": 4.259,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/buenos-aires-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "bugatti",
+      "name": "Bugatti Circuit",
+      "countryId": "france",
+      "latitude": 47.937694,
+      "longitude": 0.225611,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.185,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "bugatti-1",
+          "seasons": "1967",
+          "lengthKm": 4.185,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/bugatti-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "caesars-palace",
+      "name": "Caesars Palace",
+      "countryId": "united-states-of-america",
+      "latitude": 36.116944,
+      "longitude": -115.175,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 3.65,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "caesars-palace-1",
+          "seasons": "1981-1982",
+          "lengthKm": 3.65,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/caesars-palace-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "catalunya",
+      "name": "Circuit de Barcelona-Catalunya",
+      "countryId": "spain",
+      "latitude": 41.57,
+      "longitude": 2.261111,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.657,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "catalunya-1",
+          "seasons": "1991-1994",
+          "lengthKm": 4.747,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/catalunya-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "catalunya-2",
+          "seasons": "1995-2003",
+          "lengthKm": 4.73,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/catalunya-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "catalunya-3",
+          "seasons": "2004-2006",
+          "lengthKm": 4.627,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/catalunya-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "catalunya-4",
+          "seasons": "2007-2020",
+          "lengthKm": 4.655,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/catalunya-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "catalunya-5",
+          "seasons": "2021-2022",
+          "lengthKm": 4.675,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/catalunya-5.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "catalunya-6",
+          "seasons": "2023-2025",
+          "lengthKm": 4.657,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/catalunya-6.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "clermont-ferrand",
+      "name": "Charade Circuit",
+      "countryId": "france",
+      "latitude": 45.747222,
+      "longitude": 3.038889,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 8.055,
+      "turns": 48,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "clermont-ferrand-1",
+          "seasons": "1965,1969-1970,1972",
+          "lengthKm": 8.055,
+          "turns": 48,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/clermont-ferrand-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "dallas",
+      "name": "Fair Park",
+      "countryId": "united-states-of-america",
+      "latitude": 32.781944,
+      "longitude": -96.765556,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 3.901,
+      "turns": 23,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "dallas-1",
+          "seasons": "1984",
+          "lengthKm": 3.901,
+          "turns": 23,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/dallas-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "detroit",
+      "name": "Detroit Street Circuit",
+      "countryId": "united-states-of-america",
+      "latitude": 42.32975,
+      "longitude": -83.040111,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 4.023,
+      "turns": 22,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "detroit-1",
+          "seasons": "1982",
+          "lengthKm": 4.168,
+          "turns": 24,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/detroit-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "detroit-2",
+          "seasons": "1983-1988",
+          "lengthKm": 4.023,
+          "turns": 22,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/detroit-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "dijon",
+      "name": "Dijon-Prenois",
+      "countryId": "france",
+      "latitude": 47.3625,
+      "longitude": 4.899167,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.801,
+      "turns": 12,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "dijon-1",
+          "seasons": "1974",
+          "lengthKm": 3.289,
+          "turns": 8,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/dijon-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "dijon-2",
+          "seasons": "1977,1979,1981-1982,1984",
+          "lengthKm": 3.801,
+          "turns": 12,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/dijon-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "donington",
+      "name": "Donington Park",
+      "countryId": "united-kingdom",
+      "latitude": 52.829806,
+      "longitude": -1.379556,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.023,
+      "turns": 12,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "donington-1",
+          "seasons": "1993",
+          "lengthKm": 4.023,
+          "turns": 12,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/donington-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "east-london",
+      "name": "Prince George Circuit",
+      "countryId": "south-africa",
+      "latitude": -33.048611,
+      "longitude": 27.873611,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.92,
+      "turns": 9,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "east-london-1",
+          "seasons": "1962-1963,1965",
+          "lengthKm": 3.92,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/east-london-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "estoril",
+      "name": "Autódromo do Estoril",
+      "countryId": "portugal",
+      "latitude": 38.750833,
+      "longitude": -9.394167,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.36,
+      "turns": 13,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "estoril-1",
+          "seasons": "1984-1993",
+          "lengthKm": 4.349,
+          "turns": 11,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/estoril-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "estoril-2",
+          "seasons": "1994-1996",
+          "lengthKm": 4.36,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/estoril-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "fuji",
+      "name": "Fuji Speedway",
+      "countryId": "japan",
+      "latitude": 35.371667,
+      "longitude": 138.926667,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.563,
+      "turns": 16,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "fuji-1",
+          "seasons": "1976-1977",
+          "lengthKm": 4.359,
+          "turns": 8,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/fuji-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "fuji-2",
+          "seasons": "2007-2008",
+          "lengthKm": 4.563,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/fuji-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "hockenheimring",
+      "name": "Hockenheimring",
+      "countryId": "germany",
+      "latitude": 49.327778,
+      "longitude": 8.565833,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.574,
+      "turns": 17,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "hockenheimring-1",
+          "seasons": "1970,1977-1981",
+          "lengthKm": 6.79,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hockenheimring-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "hockenheimring-2",
+          "seasons": "1982-1984,1986-1991",
+          "lengthKm": 6.802,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hockenheimring-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "hockenheimring-3",
+          "seasons": "1992-2001",
+          "lengthKm": 6.815,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hockenheimring-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "hockenheimring-4",
+          "seasons": "2002-2006,2008,2010,2012,2014,2016,2018-2019",
+          "lengthKm": 4.574,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hockenheimring-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "hungaroring",
+      "name": "Hungaroring",
+      "countryId": "hungary",
+      "latitude": 47.582222,
+      "longitude": 19.251111,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.381,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "hungaroring-1",
+          "seasons": "1986-1988",
+          "lengthKm": 4.014,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hungaroring-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "hungaroring-2",
+          "seasons": "1989-2002",
+          "lengthKm": 3.975,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hungaroring-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "hungaroring-3",
+          "seasons": "2003-2025",
+          "lengthKm": 4.381,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/hungaroring-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "imola",
+      "name": "Autodromo Internazionale Enzo e Dino Ferrari",
+      "countryId": "italy",
+      "latitude": 44.341111,
+      "longitude": 11.713333,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 4.909,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "imola-1",
+          "seasons": "1980-1994",
+          "lengthKm": 5.04,
+          "turns": 22,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/imola-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "imola-2",
+          "seasons": "1995-2006",
+          "lengthKm": 4.959,
+          "turns": 22,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/imola-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "imola-3",
+          "seasons": "2020-2025",
+          "lengthKm": 4.909,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/imola-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "indianapolis",
+      "name": "Indianapolis Motor Speedway",
+      "countryId": "united-states-of-america",
+      "latitude": 39.798333,
+      "longitude": -86.232778,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.192,
+      "turns": 13,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "indianapolis-1",
+          "seasons": "1950-1960",
+          "lengthKm": 4.023,
+          "turns": 4,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/indianapolis-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "indianapolis-2",
+          "seasons": "2000-2007",
+          "lengthKm": 4.192,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/indianapolis-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "interlagos",
+      "name": "Autódromo José Carlos Pace",
+      "countryId": "brazil",
+      "latitude": -23.701111,
+      "longitude": -46.697222,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 4.309,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "interlagos-1",
+          "seasons": "1973-1977,1979-1980",
+          "lengthKm": 7.873,
+          "turns": 26,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/interlagos-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "interlagos-2",
+          "seasons": "1990-2025",
+          "lengthKm": 4.309,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/interlagos-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "istanbul",
+      "name": "Istanbul Park",
+      "countryId": "turkey",
+      "latitude": 40.951667,
+      "longitude": 29.405,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 5.338,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "istanbul-1",
+          "seasons": "2005-2011,2020-2021",
+          "lengthKm": 5.338,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/istanbul-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "jacarepagua",
+      "name": "Autódromo Internacional Nelson Piquet",
+      "countryId": "brazil",
+      "latitude": -22.975556,
+      "longitude": -43.395,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 5.031,
+      "turns": 11,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "jacarepagua-1",
+          "seasons": "1978,1981-1989",
+          "lengthKm": 5.031,
+          "turns": 11,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/jacarepagua-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "jarama",
+      "name": "Circuito del Jarama",
+      "countryId": "spain",
+      "latitude": 40.617111,
+      "longitude": -3.585583,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.314,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "jarama-1",
+          "seasons": "1968,1970,1972,1974,1976-1979",
+          "lengthKm": 3.404,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/jarama-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "jarama-2",
+          "seasons": "1981",
+          "lengthKm": 3.314,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/jarama-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "jeddah",
+      "name": "Jeddah Corniche Circuit",
+      "countryId": "saudi-arabia",
+      "latitude": 21.543333,
+      "longitude": 39.172778,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 6.174,
+      "turns": 27,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "jeddah-1",
+          "seasons": "2021-2025",
+          "lengthKm": 6.174,
+          "turns": 27,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/jeddah-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "jerez",
+      "name": "Circuito de Jerez",
+      "countryId": "spain",
+      "latitude": 36.708333,
+      "longitude": -6.034167,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.428,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "jerez-1",
+          "seasons": "1986-1990",
+          "lengthKm": 4.218,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/jerez-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "jerez-2",
+          "seasons": "1994,1997",
+          "lengthKm": 4.428,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/jerez-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "kyalami",
+      "name": "Kyalami Racing Circuit",
+      "countryId": "south-africa",
+      "latitude": -25.998611,
+      "longitude": 28.068889,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 4.261,
+      "turns": 13,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "kyalami-1",
+          "seasons": "1967-1980,1982-1985",
+          "lengthKm": 4.094,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/kyalami-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "kyalami-2",
+          "seasons": "1992-1993",
+          "lengthKm": 4.261,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/kyalami-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "las-vegas",
+      "name": "Las Vegas Street Circuit",
+      "countryId": "united-states-of-america",
+      "latitude": 36.175,
+      "longitude": -115.136389,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 6.201,
+      "turns": 17,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "las-vegas-1",
+          "seasons": "2023-2025",
+          "lengthKm": 6.201,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/las-vegas-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "long-beach",
+      "name": "Long Beach",
+      "countryId": "united-states-of-america",
+      "latitude": 33.766389,
+      "longitude": -118.192778,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.275,
+      "turns": 18,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "long-beach-1",
+          "seasons": "1976-1981",
+          "lengthKm": 3.251,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/long-beach-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "long-beach-2",
+          "seasons": "1982",
+          "lengthKm": 3.428,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/long-beach-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "long-beach-3",
+          "seasons": "1983",
+          "lengthKm": 3.275,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/long-beach-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "lusail",
+      "name": "Lusail International Circuit",
+      "countryId": "qatar",
+      "latitude": 25.49,
+      "longitude": 51.454167,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.419,
+      "turns": 16,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "lusail-1",
+          "seasons": "2021,2023-2025",
+          "lengthKm": 5.419,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/lusail-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "magny-cours",
+      "name": "Circuit de Nevers Magny-Cours",
+      "countryId": "france",
+      "latitude": 46.863242,
+      "longitude": 3.164228,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.411,
+      "turns": 17,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "magny-cours-1",
+          "seasons": "1991",
+          "lengthKm": 4.271,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/magny-cours-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "magny-cours-2",
+          "seasons": "1992-2002",
+          "lengthKm": 4.25,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/magny-cours-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "magny-cours-3",
+          "seasons": "2003-2008",
+          "lengthKm": 4.411,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/magny-cours-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "marina-bay",
+      "name": "Marina Bay Street Circuit",
+      "countryId": "singapore",
+      "latitude": 1.291531,
+      "longitude": 103.86385,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 4.927,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "marina-bay-1",
+          "seasons": "2008-2012",
+          "lengthKm": 5.073,
+          "turns": 23,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/marina-bay-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "marina-bay-2",
+          "seasons": "2013-2014",
+          "lengthKm": 5.065,
+          "turns": 23,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/marina-bay-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "marina-bay-3",
+          "seasons": "2015-2019,2022",
+          "lengthKm": 5.065,
+          "turns": 23,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/marina-bay-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "marina-bay-4",
+          "seasons": "2023-2025",
+          "lengthKm": 4.927,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/marina-bay-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "melbourne",
+      "name": "Melbourne Grand Prix Circuit",
+      "countryId": "australia",
+      "latitude": -37.849722,
+      "longitude": 144.968333,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.278,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "melbourne-1",
+          "seasons": "1996-2019",
+          "lengthKm": 5.303,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/melbourne-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "melbourne-2",
+          "seasons": "2022-2025",
+          "lengthKm": 5.278,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/melbourne-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "mexico-city",
+      "name": "Autódromo Hermanos Rodríguez",
+      "countryId": "mexico",
+      "latitude": 19.404197,
+      "longitude": -99.088747,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.304,
+      "turns": 17,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "mexico-city-1",
+          "seasons": "1963-1970",
+          "lengthKm": 5.0,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/mexico-city-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "mexico-city-2",
+          "seasons": "1986-1992",
+          "lengthKm": 4.421,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/mexico-city-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "mexico-city-3",
+          "seasons": "2015-2019,2021-2025",
+          "lengthKm": 4.304,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/mexico-city-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "miami",
+      "name": "Miami International Autodrome",
+      "countryId": "united-states-of-america",
+      "latitude": 25.958056,
+      "longitude": -80.238889,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 5.412,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "miami-1",
+          "seasons": "2022-2025",
+          "lengthKm": 5.412,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/miami-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "monaco",
+      "name": "Circuit de Monaco",
+      "countryId": "monaco",
+      "latitude": 43.734722,
+      "longitude": 7.420556,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.337,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "monaco-1",
+          "seasons": "1950,1955-1972",
+          "lengthKm": 3.18,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monaco-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monaco-2",
+          "seasons": "1973-1975",
+          "lengthKm": 3.145,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monaco-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monaco-3",
+          "seasons": "1976-1985",
+          "lengthKm": 3.278,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monaco-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monaco-4",
+          "seasons": "1986-2002",
+          "lengthKm": 3.312,
+          "turns": 20,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monaco-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monaco-5",
+          "seasons": "2003-2019,2021-2025",
+          "lengthKm": 3.328,
+          "turns": 20,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monaco-5.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "monsanto",
+      "name": "Circuito de Monsanto",
+      "countryId": "portugal",
+      "latitude": 38.719722,
+      "longitude": -9.203056,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.44,
+      "turns": 9,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "monsanto-1",
+          "seasons": "1959",
+          "lengthKm": 5.44,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monsanto-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "montjuic",
+      "name": "Circuito de Montjuïc",
+      "countryId": "spain",
+      "latitude": 41.366389,
+      "longitude": 2.151667,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 3.791,
+      "turns": 12,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "montjuic-1",
+          "seasons": "1969,1971,1973,1975",
+          "lengthKm": 3.791,
+          "turns": 12,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montjuic-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "montreal",
+      "name": "Circuit Gilles Villeneuve",
+      "countryId": "canada",
+      "latitude": 45.500578,
+      "longitude": -73.522461,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.361,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "montreal-1",
+          "seasons": "1978",
+          "lengthKm": 4.41,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montreal-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "montreal-2",
+          "seasons": "1979-1986,1988-1990",
+          "lengthKm": 4.41,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montreal-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "montreal-3",
+          "seasons": "1991-1993",
+          "lengthKm": 4.39,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montreal-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "montreal-4",
+          "seasons": "1994-1995",
+          "lengthKm": 4.45,
+          "turns": 20,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montreal-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "montreal-5",
+          "seasons": "1996-2001",
+          "lengthKm": 4.421,
+          "turns": 13,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montreal-5.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "montreal-6",
+          "seasons": "2002-2019,2022-2025",
+          "lengthKm": 4.361,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/montreal-6.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "mont-tremblant",
+      "name": "Circuit Mont-Tremblant",
+      "countryId": "canada",
+      "latitude": 46.187707,
+      "longitude": -74.609936,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.265,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "mont-tremblant-1",
+          "seasons": "1968,1970",
+          "lengthKm": 4.265,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/mont-tremblant-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "monza",
+      "name": "Autodromo Nazionale Monza",
+      "countryId": "italy",
+      "latitude": 45.620556,
+      "longitude": 9.289444,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.793,
+      "turns": 11,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "monza-1",
+          "seasons": "1950-1954",
+          "lengthKm": 6.3,
+          "turns": 5,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monza-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monza-2",
+          "seasons": "1955-1956,1960-1961",
+          "lengthKm": 10.0,
+          "turns": 7,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monza-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monza-3",
+          "seasons": "1957-1959,1962-1971",
+          "lengthKm": 5.75,
+          "turns": 5,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monza-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monza-4",
+          "seasons": "1972-1975",
+          "lengthKm": 5.775,
+          "turns": 7,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monza-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monza-5",
+          "seasons": "1976-1979,1981-1999",
+          "lengthKm": 5.78,
+          "turns": 10,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monza-5.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "monza-6",
+          "seasons": "2000-2025",
+          "lengthKm": 5.8,
+          "turns": 10,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/monza-6.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "mosport",
+      "name": "Canadian Tire Motorsport Park",
+      "countryId": "canada",
+      "latitude": 44.05,
+      "longitude": -78.677778,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.957,
+      "turns": 10,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "mosport-1",
+          "seasons": "1967,1969,1971-1974,1976-1977",
+          "lengthKm": 3.957,
+          "turns": 10,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/mosport-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "mugello",
+      "name": "Autodromo Internazionale del Mugello",
+      "countryId": "italy",
+      "latitude": 43.9975,
+      "longitude": 11.371944,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.245,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "mugello-1",
+          "seasons": "2020",
+          "lengthKm": 5.245,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/mugello-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "nivelles",
+      "name": "Nivelles-Baulers",
+      "countryId": "belgium",
+      "latitude": 50.621111,
+      "longitude": 4.326944,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.724,
+      "turns": 7,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "nivelles-1",
+          "seasons": "1972,1974",
+          "lengthKm": 3.724,
+          "turns": 7,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/nivelles-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "nurburgring",
+      "name": "Nürburgring",
+      "countryId": "germany",
+      "latitude": 50.335556,
+      "longitude": 6.9475,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.148,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "nurburgring-1",
+          "seasons": "1951-1958,1961-1969,1971-1976",
+          "lengthKm": 22.81,
+          "turns": 160,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/nurburgring-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "nurburgring-2",
+          "seasons": "1984-1985",
+          "lengthKm": 4.542,
+          "turns": 12,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/nurburgring-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "nurburgring-3",
+          "seasons": "1995-2001",
+          "lengthKm": 4.556,
+          "turns": 12,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/nurburgring-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "nurburgring-4",
+          "seasons": "2002-2007,2009,2011,2013,2020",
+          "lengthKm": 5.148,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/nurburgring-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "paul-ricard",
+      "name": "Circuit Paul Ricard",
+      "countryId": "france",
+      "latitude": 43.250556,
+      "longitude": 5.791667,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.842,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "paul-ricard-1",
+          "seasons": "1971,1973,1975-1976,1978,1980,1982-1983,1985",
+          "lengthKm": 5.809,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/paul-ricard-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "paul-ricard-2",
+          "seasons": "1986-1990",
+          "lengthKm": 3.813,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/paul-ricard-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "paul-ricard-3",
+          "seasons": "2018-2019,2021-2022",
+          "lengthKm": 5.842,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/paul-ricard-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "pedralbes",
+      "name": "Pedralbes Circuit",
+      "countryId": "spain",
+      "latitude": 41.390278,
+      "longitude": 2.116667,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 6.316,
+      "turns": 6,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "pedralbes-1",
+          "seasons": "1951,1954",
+          "lengthKm": 6.316,
+          "turns": 6,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/pedralbes-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "pescara",
+      "name": "Pescara Circuit",
+      "countryId": "italy",
+      "latitude": 42.475,
+      "longitude": 14.150833,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 25.579,
+      "turns": 24,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "pescara-1",
+          "seasons": "1957",
+          "lengthKm": 25.579,
+          "turns": 24,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/pescara-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix Street Circuit",
+      "countryId": "united-states-of-america",
+      "latitude": 33.447917,
+      "longitude": -112.074583,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 3.721,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "phoenix-1",
+          "seasons": "1989-1990",
+          "lengthKm": 3.8,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/phoenix-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "phoenix-2",
+          "seasons": "1991",
+          "lengthKm": 3.721,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/phoenix-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "portimao",
+      "name": "Algarve International Circuit",
+      "countryId": "portugal",
+      "latitude": 37.221944,
+      "longitude": -8.629444,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.653,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "portimao-1",
+          "seasons": "2020-2021",
+          "lengthKm": 4.653,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/portimao-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "porto",
+      "name": "Circuito da Boavista",
+      "countryId": "portugal",
+      "latitude": 41.170472,
+      "longitude": -8.67325,
+      "type": "STREET",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 7.406,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "porto-1",
+          "seasons": "1958,1960",
+          "lengthKm": 7.406,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/porto-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "reims",
+      "name": "Reims-Gueux",
+      "countryId": "france",
+      "latitude": 49.254075,
+      "longitude": 3.930561,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 8.302,
+      "turns": 7,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "reims-1",
+          "seasons": "1950-1951",
+          "lengthKm": 7.815,
+          "turns": 5,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/reims-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "reims-2",
+          "seasons": "1953-1954,1956,1958-1961,1963,1966",
+          "lengthKm": 8.302,
+          "turns": 7,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/reims-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "riverside",
+      "name": "Riverside International Raceway",
+      "countryId": "united-states-of-america",
+      "latitude": 33.937,
+      "longitude": -117.272556,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.271,
+      "turns": 9,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "riverside-1",
+          "seasons": "1960",
+          "lengthKm": 5.271,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/riverside-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "rouen",
+      "name": "Rouen-Les-Essarts",
+      "countryId": "france",
+      "latitude": 49.330639,
+      "longitude": 1.004583,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 6.542,
+      "turns": 12,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "rouen-1",
+          "seasons": "1952",
+          "lengthKm": 5.1,
+          "turns": 10,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/rouen-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "rouen-2",
+          "seasons": "1957,1962,1964,1968",
+          "lengthKm": 6.542,
+          "turns": 12,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/rouen-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "sebring",
+      "name": "Sebring International Raceway",
+      "countryId": "united-states-of-america",
+      "latitude": 27.454741,
+      "longitude": -81.348267,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 8.36,
+      "turns": 17,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "sebring-1",
+          "seasons": "1959",
+          "lengthKm": 8.36,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/sebring-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "sepang",
+      "name": "Sepang International Circuit",
+      "countryId": "malaysia",
+      "latitude": 2.760556,
+      "longitude": 101.7375,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.543,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "sepang-1",
+          "seasons": "1999-2017",
+          "lengthKm": 5.543,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/sepang-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "shanghai",
+      "name": "Shanghai International Circuit",
+      "countryId": "china",
+      "latitude": 31.338889,
+      "longitude": 121.219722,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.451,
+      "turns": 16,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "shanghai-1",
+          "seasons": "2004-2019,2025",
+          "lengthKm": 5.451,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/shanghai-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "silverstone",
+      "name": "Silverstone Circuit",
+      "countryId": "united-kingdom",
+      "latitude": 52.078611,
+      "longitude": -1.016944,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.891,
+      "turns": 18,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "silverstone-1",
+          "seasons": "1950-1954,1956,1958,1960,1963,1965,1967,1969,1971,1973",
+          "lengthKm": 4.649,
+          "turns": 8,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-2",
+          "seasons": "1975,1977,1979,1981,1983,1985",
+          "lengthKm": 4.719,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-3",
+          "seasons": "1987-1990",
+          "lengthKm": 4.778,
+          "turns": 9,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-4",
+          "seasons": "1991-1993",
+          "lengthKm": 5.226,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-5",
+          "seasons": "1994-1995",
+          "lengthKm": 5.057,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-5.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-6",
+          "seasons": "1996",
+          "lengthKm": 5.072,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-6.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-7",
+          "seasons": "1997-2009",
+          "lengthKm": 5.141,
+          "turns": 17,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-7.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "silverstone-8",
+          "seasons": "2010-2025",
+          "lengthKm": 5.891,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/silverstone-8.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "sochi",
+      "name": "Sochi Autodrom",
+      "countryId": "russia",
+      "latitude": 43.410278,
+      "longitude": 39.968271,
+      "type": null,
+      "direction": null,
+      "lengthKm": null,
+      "turns": null,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "sochi-1",
+          "seasons": "2014-2021",
+          "lengthKm": null,
+          "turns": null,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/sochi-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "spa-francorchamps",
+      "name": "Circuit de Spa-Francorchamps",
+      "countryId": "belgium",
+      "latitude": 50.437222,
+      "longitude": 5.971389,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 7.004,
+      "turns": 19,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "spa-francorchamps-1",
+          "seasons": "1950-1956,1958-1968,1970",
+          "lengthKm": 14.12,
+          "turns": 21,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spa-francorchamps-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "spa-francorchamps-2",
+          "seasons": "1983,1985-2002",
+          "lengthKm": 6.94,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spa-francorchamps-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "spa-francorchamps-3",
+          "seasons": "2004-2005",
+          "lengthKm": 6.976,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spa-francorchamps-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "spa-francorchamps-4",
+          "seasons": "2007-2025",
+          "lengthKm": 7.004,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spa-francorchamps-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "spielberg",
+      "name": "Red Bull Ring",
+      "countryId": "austria",
+      "latitude": 47.219722,
+      "longitude": 14.764722,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.326,
+      "turns": 10,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "spielberg-1",
+          "seasons": "1970-1976",
+          "lengthKm": 5.911,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spielberg-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "spielberg-2",
+          "seasons": "1977-1987",
+          "lengthKm": 5.942,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spielberg-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "spielberg-3",
+          "seasons": "1997-2003,2014-2025",
+          "lengthKm": 4.326,
+          "turns": 10,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/spielberg-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "suzuka",
+      "name": "Suzuka Circuit",
+      "countryId": "japan",
+      "latitude": 34.843056,
+      "longitude": 136.540556,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.807,
+      "turns": 18,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "suzuka-1",
+          "seasons": "1987-2002",
+          "lengthKm": 5.86,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/suzuka-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "suzuka-2",
+          "seasons": "2003-2006,2009-2019,2022-2025",
+          "lengthKm": 5.807,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/suzuka-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "valencia",
+      "name": "Valencia Street Circuit",
+      "countryId": "spain",
+      "latitude": 39.458778,
+      "longitude": -0.325556,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.419,
+      "turns": 25,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "valencia-1",
+          "seasons": "2008-2012",
+          "lengthKm": 5.419,
+          "turns": 25,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/valencia-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "watkins-glen",
+      "name": "Watkins Glen International",
+      "countryId": "united-states-of-america",
+      "latitude": 42.336944,
+      "longitude": -76.927222,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.435,
+      "turns": 11,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "watkins-glen-1",
+          "seasons": "1961-1970",
+          "lengthKm": 3.78,
+          "turns": 8,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/watkins-glen-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "watkins-glen-2",
+          "seasons": "1971-1974",
+          "lengthKm": 5.435,
+          "turns": 11,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/watkins-glen-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "watkins-glen-3",
+          "seasons": "1975-1980",
+          "lengthKm": 5.435,
+          "turns": 11,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/watkins-glen-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "yas-marina",
+      "name": "Yas Marina Circuit",
+      "countryId": "united-arab-emirates",
+      "latitude": 24.467222,
+      "longitude": 54.603056,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 5.281,
+      "turns": 16,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "yas-marina-1",
+          "seasons": "2009-2020",
+          "lengthKm": 5.554,
+          "turns": 21,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/yas-marina-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "yas-marina-2",
+          "seasons": "2021-2025",
+          "lengthKm": 5.281,
+          "turns": 16,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/yas-marina-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "yeongam",
+      "name": "Korea International Circuit",
+      "countryId": "south-korea",
+      "latitude": 34.733333,
+      "longitude": 126.416667,
+      "type": "RACE",
+      "direction": "ANTI_CLOCKWISE",
+      "lengthKm": 5.615,
+      "turns": 18,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "yeongam-1",
+          "seasons": "2010-2013",
+          "lengthKm": 5.615,
+          "turns": 18,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/yeongam-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "zandvoort",
+      "name": "Circuit Park Zandvoort",
+      "countryId": "netherlands",
+      "latitude": 52.388819,
+      "longitude": 4.540922,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.259,
+      "turns": 14,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "zandvoort-1",
+          "seasons": "1952-1953,1955,1958-1971",
+          "lengthKm": 4.193,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zandvoort-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "zandvoort-2",
+          "seasons": "1973-1978",
+          "lengthKm": 4.226,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zandvoort-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "zandvoort-3",
+          "seasons": "1979",
+          "lengthKm": 4.226,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zandvoort-3.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "zandvoort-4",
+          "seasons": "1980-1985",
+          "lengthKm": 4.252,
+          "turns": 19,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zandvoort-4.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "zandvoort",
+          "seasons": "2021-2025",
+          "lengthKm": null,
+          "turns": null,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zandvoort.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "zeltweg",
+      "name": "Zeltweg",
+      "countryId": "austria",
+      "latitude": 47.202222,
+      "longitude": 14.742222,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 3.186,
+      "turns": 4,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "zeltweg-1",
+          "seasons": "1964",
+          "lengthKm": 3.186,
+          "turns": 4,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zeltweg-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "zolder",
+      "name": "Circuit Zolder",
+      "countryId": "belgium",
+      "latitude": 50.988889,
+      "longitude": 5.255556,
+      "type": "RACE",
+      "direction": "CLOCKWISE",
+      "lengthKm": 4.262,
+      "turns": 15,
+      "totalRacesHeld": null,
+      "layouts": [
+        {
+          "id": "zolder-1",
+          "seasons": "1973",
+          "lengthKm": 4.22,
+          "turns": 14,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zolder-1.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        },
+        {
+          "id": "zolder-2",
+          "seasons": "1975-1982,1984",
+          "lengthKm": 4.262,
+          "turns": 15,
+          "effective": false,
+          "svgUrl": "https://raw.githubusercontent.com/MisterSix2295/f1-circuits-svg/main/circuits/white-outline/zolder-2.svg",
+          "layoutSource": "MisterSix2295/f1-circuits-svg"
+        }
+      ],
+      "specSource": "f1db/f1db",
+      "layoutSource": "MisterSix2295/f1-circuits-svg"
+    }
+  ]
 }
