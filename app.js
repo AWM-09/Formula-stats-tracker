@@ -148,6 +148,19 @@ async function renderRoute(force=false){
     }catch(error){console.error(error);pageError(error);}
     return;
   }
+  if(route==="upgrades"){
+    status("good","F1 TEAM UPGRADE WATCH");
+    notice("Sourced reports only. Media reports and FIA-confirmed technical declarations are labelled separately.");
+    $("updatedLabel").textContent="UPGRADE WATCH";
+    $("viewRoot").innerHTML="<div class='page-loading'><span class='spinner'></span><p>Loading team upgrade reports…</p></div>";
+    try{
+      const snapshot=await fetchJson("data/f1-upgrade-watch.json",state.dataCache,force);
+      $("updatedLabel").textContent=snapshot.updatedAt?"UPGRADE DATA UPDATED "+formatNewsDate(snapshot.updatedAt).toUpperCase():"UPGRADE SNAPSHOT NOT DATED";
+      $("viewRoot").innerHTML=renderF1UpgradeWatch(snapshot);
+      bindDynamicEvents();
+    }catch(error){console.error(error);pageError(error);}
+    return;
+  }
   if(route==="news"){
     status("good","NEWS SNAPSHOT LOADED");
     notice("Publisher headlines from F1, F2 and F3. Open a story to read the full article on Crash.net.");
@@ -590,6 +603,7 @@ function renderDashboard(){
     ["🏁","RACE SCHEDULE","Race Calendar","Browse the Formula 1, Formula 2 and Formula 3 calendars, upcoming rounds and completed events.","calendar"],
     ["📰","MOTORSPORT NEWS","Latest News","Follow F1, F2 and F3 headlines in one searchable feed, with every story linked to its publisher.","news"],
     ["⚑","OFFICIAL DOCUMENTS","Grid Penalties","See confirmed and pending Formula One grid penalties sourced from FIA decisions and official grid documents.","grid-penalties"],
+    ["🛠️","TECHNICAL DEVELOPMENT","F1 Upgrade Watch","See each team’s next publicly reported upgrade, expected race weekend and components, with source links.","upgrades"],
     ["🏎️","DRIVER DATABASE","Driver Profiles","Search driver profiles, explore career progression, season statistics, teams and race histories.","drivers"],
     ["🏆","TEAM DATABASE","Constructor Database","Explore constructor histories, championship performance, line-ups and team statistics across seasons.","teams"],
     ["🏎","CIRCUIT DATABASE","Circuit Explorer","Discover circuits, locations, race histories and the statistics behind each venue.","circuits"],
@@ -642,6 +656,80 @@ function gridStatusLabel(status){
     "no-action":"No action"
   })[status]||"Recorded";
 }
+function renderF1UpgradeWatch(snapshot){
+  if(state.series!=="f1"){
+    return pageHead("TECHNICAL DEVELOPMENT","F1 upgrade watch","This section follows Formula One teams. Switch the championship selector to Formula 1 to view team upgrade reports.")+
+      "<div class='notice'>F1 upgrade packages are not applicable to "+esc(seriesLabel(state.series))+". Select Formula 1 in the championship selector.</div>";
+  }
+  const teams=Array.isArray(snapshot.teams)?snapshot.teams:[];
+  const nextRace=snapshot.nextRace||null;
+  const updates=teams.filter(team=>team.nextUpgrade);
+  const unknown=teams.filter(team=>!team.nextUpgrade);
+  const today=new Date().toISOString().slice(0,10);
+  const cards=teams.map(team=>{
+    const update=team.nextUpgrade;
+    if(!update){
+      return "<article class='upgrade-team-card' data-upgrade-team='"+esc(team.team.toLowerCase())+"' data-upgrade-status='not-announced'>"+
+        "<div class='upgrade-team-heading'><div><span class='eyebrow'>TEAM</span><h3>"+esc(team.team)+"</h3></div>"+badge("No public update found","neutral")+"</div>"+
+        "<p class='upgrade-empty-detail'>No next upgrade package has been identified in the connected sources. This does not mean the team has no parts in development.</p>"+
+        "<div class='upgrade-next-line'><span>NEXT REPORTED PACKAGE</span><strong>Not publicly announced</strong></div>"+
+      "</article>";
+    }
+    const eventDate=String(update.eventDate||"");
+    const eventPassed=eventDate&&eventDate<today;
+    const status=update.status||"reported";
+    const statusLabel=status==="confirmed"?"FIA document confirmed":status==="speculation"?"Speculation / rumour":eventPassed?"Previously reported":"Media report";
+    const statusColor=status==="confirmed"?"green":status==="speculation"?"gold":"blue";
+    const componentMarkup=(update.components||[]).length
+      ? (update.components||[]).map(part=>"<span class='upgrade-component'>"+esc(part)+"</span>").join("")
+      : "<span class='secondary'>Specific parts not named in the source</span>";
+    const dateText=eventDate?niceDate(eventDate):"Event date not supplied";
+    const source=update.sourceUrl&&/^https?:\/\//i.test(update.sourceUrl)
+      ? "<a class='text-link' href='"+esc(update.sourceUrl)+"' target='_blank' rel='noopener noreferrer'>"+esc(update.sourceTitle||"Read source")+" ↗</a>"
+      : "";
+    return "<article class='upgrade-team-card has-upgrade' data-upgrade-team='"+esc(team.team.toLowerCase())+"' data-upgrade-status='"+esc(status)+"'>"+
+      "<div class='upgrade-team-heading'><div><span class='eyebrow'>TEAM DEVELOPMENT</span><h3>"+esc(team.team)+"</h3></div>"+badge(statusLabel,statusColor)+"</div>"+
+      "<div class='upgrade-next-line'><span>"+(eventPassed?"REPORTED FOR":"EXPECTED AT")+"</span><strong>"+esc(update.event||"Event not confirmed")+"</strong><small>"+esc(dateText)+"</small></div>"+
+      "<div class='upgrade-components'><span class='upgrade-label'>REPORTED COMPONENTS</span><div class='upgrade-component-list'>"+componentMarkup+"</div></div>"+
+      (update.detail?"<p class='upgrade-detail'>"+esc(update.detail)+"</p>":"")+
+      "<div class='upgrade-source-row'><span class='secondary'>"+esc(update.sourceDate?niceDate(update.sourceDate):"Source date not supplied")+" · "+esc(update.sourceType==="official-fia"?"Official FIA document":"Media report")+"</span>"+source+"</div>"+
+      "</article>";
+  }).join("");
+  const currentEventText=nextRace
+    ? esc(nextRace.name)+" · "+esc(niceDate(nextRace.date))
+    : "No upcoming race found in the current calendar";
+  const aiText=snapshot.aiEnrichment==="openai-structured"
+    ? "Structured AI tags available in the news snapshot"
+    : "Local structured news tags; optional AI enrichment is not active";
+  return pageHead("TECHNICAL DEVELOPMENT","F1 upgrade watch","See what each team is publicly expected to bring next, the race weekend it is linked to, and the components named by the source.")+
+    "<section class='panel upgrade-next-race'><div><span class='eyebrow'>NEXT SCHEDULED GRAND PRIX</span><h2>"+currentEventText+"</h2><p class='secondary'>Upgrade reports are linked to a race only when the source identifies an event or timing.</p></div>"+badge("F1 ONLY","blue")+"</section>"+
+    "<div class='kpi-grid'>"+kpi("Teams monitored",teams.length,"2026 F1 constructor field")+kpi("Teams with a report",updates.length,"A sourced package or update is listed")+kpi("No next package announced",unknown.length,"No report found in connected sources")+kpi("Last news refresh",snapshot.sourceNewsUpdatedAt?niceDate(String(snapshot.sourceNewsUpdatedAt).slice(0,10)):"Not supplied",aiText)+"</div>"+
+    "<section class='panel upgrade-watch-panel'><div class='panel-header'><div><span class='eyebrow'>TEAM-BY-TEAM DEVELOPMENT</span><h2>What is each team bringing?</h2><p>Media reports and FIA technical declarations are deliberately labelled separately.</p></div></div>"+
+    "<div class='upgrade-watch-filters'><label class='field'><span>SEARCH TEAM / PART</span><input id='upgradeWatchSearch' class='search-input' type='search' placeholder='McLaren, front wing, floor…'></label><label class='field'><span>STATUS</span><select id='upgradeWatchStatus' class='field-select'><option value='all'>All teams</option><option value='reported'>Reported upgrades</option><option value='confirmed'>FIA confirmed</option><option value='speculation'>Speculation</option><option value='not-announced'>No public update</option></select></label></div>"+
+    "<div class='upgrade-team-grid'>"+cards+"</div><div class='empty-state hidden' id='upgradeWatchEmpty'>No teams match these filters.</div></section>"+
+    "<div class='grid-2'><section class='panel'><span class='eyebrow'>HOW THIS WORKS</span><h2>Reported is not confirmed</h2><p class='secondary'>A team may discuss a planned package in an interview or a media outlet may report expected parts. Those are shown as reports. The site only labels an update FIA-confirmed when a relevant FIA car-presentation or technical document supports it.</p></section><section class='panel'><span class='eyebrow'>DATA COVERAGE</span><h2>Unknown means unknown</h2><p class='secondary'>Teams without a listed next package have no sufficiently specific announcement in the connected sources. The page does not guess future dates or invent components. News tags are used to surface new reports as the feed refreshes.</p></section></div>";
+}
+function applyUpgradeWatchFilters(){
+  const query=String($("upgradeWatchSearch")?.value||"").toLowerCase().trim();
+  const statusFilter=$("upgradeWatchStatus")?.value||"all";
+  let visible=0;
+  document.querySelectorAll(".upgrade-team-card").forEach(card=>{
+    const text=card.textContent.toLowerCase();
+    const queryOk=!query||text.includes(query);
+    const status=card.dataset.upgradeStatus||"not-announced";
+    const statusOk=statusFilter==="all"||
+      (statusFilter==="reported"&&status==="reported")||
+      (statusFilter==="confirmed"&&status==="confirmed")||
+      (statusFilter==="speculation"&&status==="speculation")||
+      (statusFilter==="not-announced"&&status==="not-announced");
+    const show=queryOk&&statusOk;
+    card.classList.toggle("hidden",!show);
+    if(show)visible++;
+  });
+  const empty=$("upgradeWatchEmpty");
+  if(empty)empty.classList.toggle("hidden",visible>0);
+}
+
 function renderGridPenalties(snapshot){
   const series=state.series||"f1";
   const seriesInfo=SERIES[series]||SERIES.f1;
@@ -1505,6 +1593,8 @@ function bindDynamicEvents(){
     renderRoute();
   });
   $("gridPenaltySearch")?.addEventListener("input",applyGridPenaltyFilters);
+  $("upgradeWatchSearch")?.addEventListener("input",applyUpgradeWatchFilters);
+  $("upgradeWatchStatus")?.addEventListener("change",applyUpgradeWatchFilters);
   $("gridPenaltyType")?.addEventListener("change",applyGridPenaltyFilters);
   $("gridPenaltyEvent")?.addEventListener("change",applyGridPenaltyFilters);
   $("gridPenaltyStatus")?.addEventListener("change",applyGridPenaltyFilters);
@@ -1579,7 +1669,7 @@ $("seriesSelect").addEventListener("change",e=>{
   state.predictionEvent="";
   if(activeRoute==="grid-penalties")state.gridPenaltyYear="selected";
   fillSeasonOptions();
-  if(activeRoute==="grid-penalties")renderRoute();
+  if(activeRoute==="grid-penalties"||activeRoute==="upgrades")renderRoute();
   else navigate(["dashboard"]);
 });
 $("seasonSelect").addEventListener("change",e=>{
