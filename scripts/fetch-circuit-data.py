@@ -134,6 +134,31 @@ def main() -> int:
             }
         )
 
+    # Keep F1DB circuits that are newer than, or absent from, the layout-artwork catalogue.
+    # They can still supply verified track dimensions even when no SVG exists yet.
+    layout_source_ids = {str(item.get("id", "")) for item in layout_data}
+    for circuit_id, spec in specs.items():
+        if circuit_id in layout_source_ids:
+            continue
+        records.append(
+            {
+                "id": circuit_id,
+                "name": spec.get("fullName") or spec.get("name") or circuit_id,
+                "countryId": spec.get("countryId"),
+                "latitude": spec.get("latitude"),
+                "longitude": spec.get("longitude"),
+                "type": spec.get("type"),
+                "direction": spec.get("direction"),
+                "lengthKm": spec.get("length"),
+                "turns": spec.get("turns"),
+                "totalRacesHeld": spec.get("totalRacesHeld"),
+                "layouts": [],
+                "specSource": "f1db/f1db",
+                "layoutSource": None,
+            }
+        )
+        print(f"Added specifications without a layout SVG: {circuit_id}")
+
     snapshot = {
         "updatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "source": {
