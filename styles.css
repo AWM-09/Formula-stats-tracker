@@ -245,3 +245,65 @@ body{background:radial-gradient(ellipse at 82% -12%,#123044 0,transparent 38%),v
 .news-link:hover{text-decoration:underline}
 @media(max-width:1050px){.news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.news-grid{grid-template-columns:1fr}.news-card{min-height:175px}.news-search{width:100%}.news-search input{min-width:0}.news-card-meta time{margin-left:0}}
+
+
+/* Circuit layouts and source-backed track specifications */
+.circuit-layout-panel{margin:14px 0;background:linear-gradient(145deg,#142a38,#101b28)}
+.circuit-layout-panel .panel-header{align-items:end;flex-wrap:wrap}
+.circuit-layout-select{display:grid;gap:5px;min-width:min(100%,260px)}
+.circuit-layout-select>span{font-size:9px;color:var(--muted);font-weight:900;letter-spacing:.13em}
+.circuit-map-stage{position:relative;display:grid;place-items:center;min-height:290px;padding:22px;border:1px solid #2d485c;border-radius:10px;background:radial-gradient(ellipse at center,#1a3441 0%,#0d1b27 72%);overflow:hidden}
+.circuit-map-stage img{display:block;width:min(100%,690px);height:280px;object-fit:contain;filter:drop-shadow(0 0 10px #68d7b830)}
+.circuit-map-tag{position:absolute;right:12px;bottom:10px;color:#8299a8;font-size:8px;font-weight:950;letter-spacing:.16em}
+.circuit-layout-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.circuit-layout-stats>div{min-width:0;padding:12px;border:1px solid var(--line);border-radius:8px;background:#101e2b}
+.circuit-layout-stats span{display:block;color:var(--muted);font-size:8px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}
+.circuit-layout-stats strong{display:block;margin-top:4px;font-size:15px;overflow-wrap:anywhere}
+.circuit-stat-grid{margin:12px 0}
+.session-summary-grid{grid-template-columns:repeat(5,minmax(0,1fr));margin:10px 0 14px}
+.session-summary-grid .fact strong{font-size:15px;overflow-wrap:anywhere}
+
+/* Watchlist and exports */
+.watch-toggle,.watch-remove{border:1px solid #3a7069;border-radius:7px;background:#102b2d;color:#82dfc5;padding:8px 11px;font-size:10px;font-weight:950;cursor:pointer}
+.watch-toggle:hover,.watch-remove:hover{background:#173d3b;border-color:#67bfa5;color:#fff}
+.watch-grid{display:grid;gap:9px}
+.watch-card{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#111f2c}
+.watch-card>a{min-width:0;flex:1}
+.watch-card h3{font-size:14px;margin:4px 0}
+.watch-card p{font-size:10px;color:var(--muted);margin:3px 0}
+.export-list{display:grid;gap:8px}
+.export-item{display:flex;justify-content:space-between;align-items:center;gap:14px;width:100%;padding:12px;border:1px solid var(--line);border-radius:8px;background:#111f2c;color:var(--text);text-align:left;cursor:pointer}
+.export-item:hover{border-color:#4a8887;background:#153044}
+.export-item strong{display:block;font-size:12px}
+.export-item small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+.export-item>b{color:#78ddc1;font-size:20px}
+.race-battle-panel{margin-top:14px}
+
+/* Season progression chart */
+.progression-chart-wrap{width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:#0e1b27}
+.progression-chart{display:block;width:100%;min-width:520px;height:auto}
+.progression-legend{display:flex;flex-wrap:wrap;gap:9px 15px;margin-top:12px}
+.progression-legend-item{display:inline-flex;align-items:center;gap:6px;color:var(--soft);font-size:10px}
+.progression-legend-item i{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+/* Categorised news filters */
+.news-category-filters{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 12px}
+.news-category-filter{border:1px solid var(--line);border-radius:7px;padding:7px 9px;background:#101e2b;color:var(--muted);font-size:9px;font-weight:850}
+.news-category-filter:hover,.news-category-filter.active{border-color:#3f8278;background:#153b3b;color:#effff9}
+.news-category-pill{display:inline-flex;align-items:center;border:1px solid #38566a;border-radius:5px;padding:3px 6px;color:#a9c8d8;font-size:8px;font-weight:850}
+
+@media(max-width:900px){
+  .session-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .circuit-map-stage{min-height:235px}
+  .circuit-map-stage img{height:220px}
+}
+@media(max-width:600px){
+  .circuit-layout-stats{grid-template-columns:1fr}
+  .circuit-layout-panel .panel-header{align-items:stretch}
+  .circuit-layout-select{width:100%;min-width:0}
+  .circuit-map-stage{min-height:190px;padding:10px}
+  .circuit-map-stage img{height:175px}
+  .session-summary-grid{grid-template-columns:1fr 1fr}
+  .watch-card{align-items:flex-start;flex-direction:column}
+  .watch-remove{align-self:flex-end}
+}
