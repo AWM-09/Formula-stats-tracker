@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-05T19:52:25Z",
+  "updatedAt": "2026-11-05T19:54:31Z",
   "source": {
     "specifications": "F1DB",
     "layouts": "MisterSix2295/f1-circuits-svg"
@@ -2649,6 +2649,36 @@
       ],
       "specSource": "f1db/f1db",
       "layoutSource": "MisterSix2295/f1-circuits-svg"
+    },
+    {
+      "id": "madring",
+      "name": "Circuito de Madring",
+      "countryId": "spain",
+      "latitude": 40.465278,
+      "longitude": -3.615278,
+      "type": "STREET",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.416,
+      "turns": 22,
+      "totalRacesHeld": null,
+      "layouts": [],
+      "specSource": "f1db/f1db",
+      "layoutSource": null
+    },
+    {
+      "id": "sirius",
+      "name": "Sirius Autodrom",
+      "countryId": "russia",
+      "latitude": 43.410278,
+      "longitude": 39.968271,
+      "type": "ROAD",
+      "direction": "CLOCKWISE",
+      "lengthKm": 5.848,
+      "turns": 18,
+      "totalRacesHeld": null,
+      "layouts": [],
+      "specSource": "f1db/f1db",
+      "layoutSource": null
     }
   ]
 }
