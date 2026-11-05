@@ -678,7 +678,7 @@ function renderF1UpgradeWatch(snapshot){
     const eventDate=String(update.eventDate||"");
     const eventPassed=eventDate&&eventDate<today;
     const status=update.status||"reported";
-    const statusLabel=status==="confirmed"?"FIA document confirmed":status==="speculation"?"Speculation / rumour":eventPassed?"Previously reported":"Media report";
+    const statusLabel=status==="confirmed"?"FIA document confirmed":status==="speculation"?"Speculation / rumour":update.sourceType==="team-statement"?"Team statement":eventPassed?"Previously reported":"Media report";
     const statusColor=status==="confirmed"?"green":status==="speculation"?"gold":"blue";
     const componentMarkup=(update.components||[]).length
       ? (update.components||[]).map(part=>"<span class='upgrade-component'>"+esc(part)+"</span>").join("")
@@ -695,7 +695,7 @@ function renderF1UpgradeWatch(snapshot){
       "<div class='upgrade-next-line'><span>"+(eventPassed?"REPORTED FOR":"EXPECTED AT")+"</span><strong>"+esc(update.event||"Event not confirmed")+"</strong><small>"+esc(dateText)+"</small></div>"+
       "<div class='upgrade-components'><span class='upgrade-label'>REPORTED COMPONENTS</span><div class='upgrade-component-list'>"+componentMarkup+"</div></div>"+
       (update.detail?"<p class='upgrade-detail'>"+esc(update.detail)+"</p>":"")+
-      "<div class='upgrade-source-row'><span class='secondary'>"+esc(update.sourceDate?niceDate(update.sourceDate):"Source date not supplied")+" · "+esc(update.sourceType==="official-fia"?"Official FIA document":"Reported by team / media")+"</span>"+source+"</div>"+(additionalSources?"<div class='upgrade-additional-sources'>"+additionalSources+"</div>":"")+
+      "<div class='upgrade-source-row'><span class='secondary'>"+esc(update.sourceDate?niceDate(update.sourceDate):"Source date not supplied")+" · "+esc(update.sourceType==="official-fia"?"Official FIA document":update.sourceType==="team-statement"?"Team's own preview":"Media report")+"</span>"+source+"</div>"+(additionalSources?"<div class='upgrade-additional-sources'>"+additionalSources+"</div>":"")+
       "</article>";
   }).join("");
   const currentEventText=nextRace
