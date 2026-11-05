@@ -389,10 +389,24 @@ def main() -> int:
         }
     document_map.update(historical_docs)
 
+    existing_coverage = previous.get("seriesCoverage", {}) or {}
+    existing_coverage["f1"] = {
+        "label": "Formula 1",
+        "firstSeason": 1950,
+        "historicalPenaltyDataFrom": 2020,
+        "lastSeasonChecked": datetime.now(timezone.utc).year,
+        "accessibleArchiveYears": sorted(coverage.keys(), key=int),
+        "coverageNote": (
+            "The connected compiled F1 grid-sanction dataset begins in 2020. "
+            "F1 race results and starting grids are available from 1950, but this project does not yet have a verified structured grid-penalty dataset for 1950–2019."
+        ),
+    }
+
     snapshot = {
         **previous,
         "updatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "source": "Official FIA documents + MIT-licensed historical F1 penalty compilation",
+        "seriesCoverage": existing_coverage,
         "historicalDataset": {
             "name": "F1 Penalties Dashboard",
             "url": DATASET_URL,
