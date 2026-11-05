@@ -732,11 +732,13 @@ async function renderComparisons(){
   const idx=await getIndex(state.series,"drivers");
   state.compareDriverDirectory=new Map(idx.drivers.map(d=>[norm(d.name),d]));
   const driverOptions=idx.drivers.map(d=>"<option value='"+esc(d.name)+"'></option>").join("");
-  const years=idx.seasons.map(s=>s.year).sort((a,b)=>b-a);
+  const years=idx.seasons.map(y=>y.year).sort((a,b)=>b-a);
   const seasonOptions=years.map(y=>"<option value='"+y+"'>"+y+"</option>").join("");
-  return pageHead("COMPARISON LAB","Compare careers & seasons","Type driver names and choose the matching suggestion, or compare championship seasons.")+
-  "<div class='grid-2'><section class='panel'><div class='panel-header'><div><span class='eyebrow'>DRIVER HEAD-TO-HEAD</span><h2>Career comparison</h2></div></div><div class='toolbar'><label class='field'><span>DRIVER ONE</span><input id='compareDriverOne' class='field-select' type='search' list='compareDriverNames' placeholder='Start typing a driver name…' autocomplete='off'></label><label class='field'><span>DRIVER TWO</span><input id='compareDriverTwo' class='field-select' type='search' list='compareDriverNames' placeholder='Start typing a driver name…' autocomplete='off'></label></div><datalist id='compareDriverNames'>"+driverOptions+"</datalist><p class='secondary'>You can type the driver's name instead of scrolling through a long dropdown. Select a matching suggestion to compare.</p><div id='driverCompareOutput' class='comparison-output'></div></section>"+
-  "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>CHAMPIONSHIP HISTORY</span><h2>Season comparison</h2></div></div><div class='toolbar'><label class='field'><span>SEASON ONE</span><select id='compareSeasonOne' class='field-select'>"+seasonOptions+"</select></label><label class='field'><span>SEASON TWO</span><select id='compareSeasonTwo' class='field-select'>"+seasonOptions+"</select></label></div><div id='seasonCompareOutput' class='comparison-output'></div></section></div>";
+  return pageHead("COMPARISON LAB","Compare careers & seasons","Compare career totals, individual race battles and complete championship seasons.")+
+  "<div class='grid-2'><section class='panel'><div class='panel-header'><div><span class='eyebrow'>DRIVER HEAD-TO-HEAD</span><h2>Career comparison</h2></div></div><div class='toolbar'><label class='field'><span>DRIVER ONE</span><input id='compareDriverOne' class='field-select' type='search' list='compareDriverNames' placeholder='Start typing a driver name…' autocomplete='off'></label><label class='field'><span>DRIVER TWO</span><input id='compareDriverTwo' class='field-select' type='search' list='compareDriverNames' placeholder='Start typing a driver name…' autocomplete='off'></label></div><datalist id='compareDriverNames'>"+driverOptions+"</datalist><p class='secondary'>Type both names and choose an exact match from the suggestions.</p><div id='driverCompareOutput' class='comparison-output'></div></section>"+
+  "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>CHAMPIONSHIP HISTORY</span><h2>Season comparison</h2></div></div><div class='toolbar'><label class='field'><span>SEASON ONE</span><select id='compareSeasonOne' class='field-select'>"+seasonOptions+"</select></label><label class='field'><span>SEASON TWO</span><select id='compareSeasonTwo' class='field-select'>"+seasonOptions+"</select></label></div><div id='seasonCompareOutput' class='comparison-output'></div></section></div>"+
+  "<section class='panel race-battle-panel'><div class='panel-header'><div><span class='eyebrow'>RACE-BY-RACE</span><h2>Head-to-head race battles</h2></div><span class='secondary'>Only rounds where both drivers have a stored classification are compared</span></div>"+
+  "<div class='toolbar'><label class='field'><span>SEASON</span><select id='battleSeason' class='field-select'>"+seasonOptions+"</select></label><p class='secondary'>Uses the two drivers selected above.</p></div><div id='raceBattleOutput' class='comparison-output'><div class='empty-state'>Choose two drivers above to compare their race and qualifying head-to-head.</div></div></section>";
 }
 async function runDriverCompare(){
   const aChoice=norm($("compareDriverOne").value),bChoice=norm($("compareDriverTwo").value);
@@ -756,6 +758,55 @@ async function runDriverCompare(){
     const rows=fields.map(([label,key])=>"<tr><td>"+label+"</td><td class='num'>"+number(a.career[key])+(a.career[key+"Complete"]===false?"*":"")+"</td><td class='num'>"+number(b.career[key])+(b.career[key+"Complete"]===false?"*":"")+"</td></tr>");
     out.innerHTML="<div class='compare-grid'><div class='compare-card'><h3>"+esc(a.name)+"</h3><p class='secondary'>"+esc(a.nationality||"")+"</p></div><div class='compare-card'><h3>"+esc(b.name)+"</h3><p class='secondary'>"+esc(b.nationality||"")+"</p></div></div>"+table(["CAREER METRIC",a.name,b.name],rows)+"<p class='secondary'>* Available-source total. Points systems have changed over time, so raw career points are not adjusted for era.</p>";
   }catch(e){out.innerHTML="<div class='notice red'>"+esc(e.message)+"</div>";}
+}
+
+async function runRaceBattle(){
+  const aChoice=norm($("compareDriverOne")?.value||""),bChoice=norm($("compareDriverTwo")?.value||"");
+  const aEntry=state.compareDriverDirectory.get(aChoice),bEntry=state.compareDriverDirectory.get(bChoice);
+  const year=Number($("battleSeason")?.value),out=$("raceBattleOutput");
+  if(!out)return;
+  if(!aEntry||!bEntry||!year){
+    out.innerHTML="<div class='empty-state'>Choose two exact driver matches and a season.</div>";
+    return;
+  }
+  if(aEntry.id===bEntry.id){
+    out.innerHTML="<div class='empty-state'>Choose two different drivers.</div>";
+    return;
+  }
+  try{
+    const [a,b]=await Promise.all([
+      getProfile(state.series,"drivers",aEntry.id),
+      getProfile(state.series,"drivers",bEntry.id)
+    ]);
+    const compare=(rowsA,rowsB)=>{
+      const makeMap=rows=>new Map(rows.filter(r=>Number(r.season)===year&&r.position!=null&&Number.isFinite(Number(r.position))).map(r=>[String(r.round)+":"+String(r.session||"Race"),r]));
+      const mapA=makeMap(rowsA),mapB=makeMap(rowsB),keys=[...mapA.keys()].filter(k=>mapB.has(k));
+      let winsA=0,winsB=0,ties=0,totalA=0,totalB=0;
+      const records=[];
+      for(const key of keys){
+        const x=mapA.get(key),y=mapB.get(key),px=Number(x.position),py=Number(y.position);
+        totalA+=px;totalB+=py;
+        if(px<py)winsA++;else if(py<px)winsB++;else ties++;
+        records.push({event:x.raceName||y.raceName,session:x.session||y.session||"Race",a:px,b:py});
+      }
+      return {winsA,winsB,ties,count:keys.length,averageA:keys.length?totalA/keys.length:null,averageB:keys.length?totalB/keys.length:null,records};
+    };
+    const race=compare(a.results||[],b.results||[]);
+    const qualA=(a.sessionResults||[]).filter(r=>/qualifying/i.test(r.session||""));
+    const qualB=(b.sessionResults||[]).filter(r=>/qualifying/i.test(r.session||""));
+    const quali=compare(qualA,qualB);
+    const rows=[
+      "<tr><td>Race/session classifications beaten</td><td class='num'>"+race.winsA+"</td><td class='num'>"+race.winsB+"</td><td class='num'>"+race.ties+" ties</td></tr>",
+      "<tr><td>Average classified finish</td><td class='num'>"+number(race.averageA)+"</td><td class='num'>"+number(race.averageB)+"</td><td class='num'>"+race.count+" shared starts</td></tr>",
+      "<tr><td>Qualifying sessions beaten</td><td class='num'>"+quali.winsA+"</td><td class='num'>"+quali.winsB+"</td><td class='num'>"+quali.ties+" ties</td></tr>",
+      "<tr><td>Qualifying average position</td><td class='num'>"+number(quali.averageA)+"</td><td class='num'>"+number(quali.averageB)+"</td><td class='num'>"+quali.count+" shared sessions</td></tr>"
+    ];
+    const detailRows=race.records.map(r=>"<tr><td>"+esc(r.event)+"</td><td>"+esc(r.session)+"</td><td class='num'>"+r.a+"</td><td class='num'>"+r.b+"</td><td>"+(r.a<r.b?esc(a.name):r.b<r.a?esc(b.name):"Tie")+"</td></tr>");
+    out.innerHTML="<div class='compare-grid'><div class='compare-card'><h3>"+esc(a.name)+"</h3><p class='secondary'>"+race.winsA+" race classifications ahead</p></div><div class='compare-card'><h3>"+esc(b.name)+"</h3><p class='secondary'>"+race.winsB+" race classifications ahead</p></div></div>"+
+      table(["MEASURE",a.name,b.name,"TIES / SAMPLE"],rows)+
+      panel("SHARED EVENTS","Round-by-round classified results",table(["EVENT","SESSION","POS · "+a.name.toUpperCase(),"POS · "+b.name.toUpperCase(),"HEAD-TO-HEAD"],detailRows))+
+      "<p class='secondary'>Only events with a stored numeric position for both drivers are compared. Qualifying is separate from race results; a missing session is not counted as a loss.</p>";
+  }catch(error){out.innerHTML="<div class='notice red'>"+esc(error.message)+"</div>";}
 }
 
 async function runSeasonCompare(){
@@ -834,6 +885,9 @@ function bindDynamicEvents(){
   document.querySelectorAll("[data-export]").forEach(button=>button.addEventListener("click",()=>{
     runDataExport(button.dataset.export).catch(error=>{status("bad","EXPORT FAILED");notice(error.message,"red");});
   }));
+  $("battleSeason")?.addEventListener("change",runRaceBattle);
+  $("compareDriverOne")?.addEventListener("input",runRaceBattle);
+  $("compareDriverTwo")?.addEventListener("input",runRaceBattle);
   $("compareDriverOne")?.addEventListener("input",runDriverCompare);
   $("compareDriverTwo")?.addEventListener("input",runDriverCompare);
   $("compareDriverOne")?.addEventListener("change",runDriverCompare);
