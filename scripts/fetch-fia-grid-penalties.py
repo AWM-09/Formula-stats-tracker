@@ -34,13 +34,15 @@ RELEVANT_TITLE = re.compile(
     r"power unit elements|gearbox elements|final grid|provisional grid)\b",
     re.IGNORECASE,
 )
+PENALTY_NUMBER = r"(?:\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)"
+NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10}
 PENALTY_PATTERNS = [
-    re.compile(r"\b(\d{1,2})\s*[- ]place\s+grid\s+penalt(?:y|ies)\b", re.I),
-    re.compile(r"\b(?:grid|starting grid)\s+penalt(?:y|ies)\s+(?:of\s+)?(\d{1,2})\s+(?:place|position)", re.I),
-    re.compile(r"\b(?:drop|dropped|demoted|relegated)\s+(?:by\s+)?(\d{1,2})\s+(?:grid\s+)?(?:places?|positions?)\b", re.I),
-    re.compile(r"\b(\d{1,2})\s+(?:grid\s+)?(?:places?|positions?)\s+penalt(?:y|ies)\b", re.I),
-    re.compile(r"\bwill\s+be\s+dropped\s+(\d{1,2})\s+places?\s+on\s+the\s+grid\b", re.I),
-    re.compile(r"\b(\d{1,2})\s+positions?\s+on\s+the\s+grid\b", re.I),
+    re.compile(r"\\b(" + PENALTY_NUMBER + r")\\s*[- ]place\\s+grid\\s+penalt(?:y|ies)\\b", re.I),
+    re.compile(r"\\b(?:grid|starting grid)\\s+penalt(?:y|ies)\\s+(?:of\\s+)?(" + PENALTY_NUMBER + r")\\s+(?:place|position)", re.I),
+    re.compile(r"\\b(?:drop|dropped|demoted|relegated)\\s+(?:by\\s+)?(" + PENALTY_NUMBER + r")\\s+(?:grid\\s+)?(?:places?|positions?)\\b", re.I),
+    re.compile(r"\\b(" + PENALTY_NUMBER + r")\\s+(?:grid\\s+)?(?:places?|positions?)\\s+penalt(?:y|ies)\\b", re.I),
+    re.compile(r"\\bwill\\s+be\\s+dropped\\s+(" + PENALTY_NUMBER + r")\\s+places?\\s+on\\s+the\\s+grid\\b", re.I),
+    re.compile(r"\\b(" + PENALTY_NUMBER + r")\\s+positions?\\s+on\\s+the\\s+grid\\b", re.I),
 ]
 BACK_OF_GRID = re.compile(
     r"(?:penalt\w*|demot\w*|relegat\w*).{0,120}back\s+of\s+the\s+grid|"
@@ -215,7 +217,8 @@ def extract_penalty(document: dict, text: str, driver_maps: dict[str, dict]) -> 
     for pattern in PENALTY_PATTERNS:
         match = pattern.search(source_text)
         if match:
-            place_count = int(match.group(1))
+            raw_count = match.group(1).lower()
+            place_count = NUMBER_WORDS.get(raw_count) if raw_count in NUMBER_WORDS else int(raw_count)
             break
 
     back_of_grid = bool(BACK_OF_GRID.search(source_text))
