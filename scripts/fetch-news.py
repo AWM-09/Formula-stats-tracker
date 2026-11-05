@@ -52,7 +52,7 @@ TEAM_PATTERNS = {
 UPGRADE_RE = re.compile(
     r"\b(upgrade|upgrades|upgrade package|new floor|new front wing|"
     r"new rear wing|diffuser|aero package|aerodynamic package|"
-    r"development package|technical package|car update)\b",
+    r"development package|technical package|car update|major update|updates)\b",
     re.I,
 )
 GRID_RE = re.compile(
@@ -241,7 +241,7 @@ def ai_enrich(articles: list[dict]) -> bool:
                     "properties": {
                         "id": {"type": "string"},
                         "category": {"type": "string", "enum": ["Race weekend", "Driver moves", "Technical & rules", "Team news", "Governance & calendar", "General"]},
-                        "topicTags": {"type": "array", "items": {"type": "string"}},
+                        "topicTags": {"type": "array", "items": {"type": "string", "enum": ["technical-upgrade", "grid-penalty", "driver-moves", "regulations", "team-news", "race-weekend", "general"]}},
                         "teams": {"type": "array", "items": {"type": "string"}},
                         "drivers": {"type": "array", "items": {"type": "string"}},
                         "event": {"type": "string"},
