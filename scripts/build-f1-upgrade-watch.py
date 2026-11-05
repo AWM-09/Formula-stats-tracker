@@ -61,26 +61,35 @@ COMPONENTS = [
 # the parts. This record is not a prediction or an FIA technical declaration.
 SOURCED_REPORTS = [
     {
-        "id": "mclaren-sao-paulo-2026-skysports",
+        "id": "mclaren-sao-paulo-2026-autosport",
         "team": "McLaren",
         "season": 2026,
-        "event": "São Paulo Grand Prix",
+        "event": "Brazilian Grand Prix",
         "eventDate": "2026-11-08",
         "components": ["Front wing", "Rear wing", "Floor"],
         "status": "reported",
-        "statusLabel": "Reported for upcoming weekend",
+        "statusLabel": "Team development report",
         "detail": (
-            "Sky Sports reported that McLaren was bringing a new front wing, "
-            "rear wing and floor components to São Paulo. This is a media report, "
-            "not an FIA car-presentation confirmation."
+            "McLaren's Chief Technical Officer for Aerodynamics, Peter Prodromou, said "
+            "the Brazil package includes updates across the front wing, rear wing and "
+            "floor. The front-wing concept is also intended to inform the 2027 launch "
+            "specification. This is a team development report carried by Autosport, "
+            "not an FIA car-presentation declaration."
         ),
-        "sourceTitle": "Sky Sports — McLaren upgrades for São Paulo",
-        "sourceUrl": (
-            "https://www.skysports.com/f1/news/13607894/"
-            "lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car"
-        ),
-        "sourceDate": "2026-11-05",
-        "sourceType": "media-report",
+        "sourceTitle": "Autosport — McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
+        "sourceUrl": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/",
+        "sourceDate": "2026-11-03",
+        "sourceType": "team-statement-reported",
+        "additionalSources": [
+            {
+                "title": "Sky Sports — Norris wary of new McLaren upgrades in São Paulo",
+                "url": "https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car",
+            },
+            {
+                "title": "Formula1.com — Norris wary of new McLaren upgrades in São Paulo",
+                "url": "https://www.formula1.com/en/latest/article/want-to-believe-that-we-can-still-make-improvements-norris-wary-of-new-mclaren-upgrades-in-sao-paulo.6NvdXqDIqBz1Mw1xveJv0k",
+            },
+        ],
     }
 ]
 
@@ -211,14 +220,38 @@ def main() -> int:
                 }
             )
 
-    # Curated report is a known source-backed update; de-duplicate if the same
-    # Sky Sports story was also present in the RSS snapshot.
+    # Merge detailed team-statement reports over shorter RSS summaries.
+    # The seed carries the named components and primary source; RSS records
+    # remain available as additional context rather than replacing detail.
     for seed in SOURCED_REPORTS:
-        if not any(
-            item.get("team") == seed["team"]
-            and normalise(item.get("event")) == normalise(seed["event"])
-            for item in updates
-        ):
+        match = next(
+            (
+                item for item in updates
+                if item.get("team") == seed["team"]
+                and (
+                    normalise(item.get("event")) == normalise(seed["event"])
+                    or (
+                        item.get("eventDate") == seed.get("eventDate")
+                        and item.get("team") == seed["team"]
+                    )
+                )
+            ),
+            None,
+        )
+        if match:
+            merged = dict(match)
+            merged.update(seed)
+            merged["components"] = list(dict.fromkeys(
+                (seed.get("components") or []) + (match.get("components") or [])
+            ))
+            merged["additionalSources"] = list(seed.get("additionalSources") or [])
+            if match.get("sourceUrl") and match.get("sourceUrl") != merged.get("sourceUrl"):
+                merged["additionalSources"].append({
+                    "title": match.get("sourceTitle") or "Related report",
+                    "url": match["sourceUrl"],
+                })
+            updates[updates.index(match)] = merged
+        else:
             updates.append(seed)
 
     # Prefer the closest future reported event, then the freshest source date.
