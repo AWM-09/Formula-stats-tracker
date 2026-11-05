@@ -539,22 +539,125 @@ async function renderCircuits(){
   return pageHead("CIRCUIT DATABASE","Circuits & venues","Browse tracks from the historical archive. Track facts are calculated from stored events; unavailable physical specifications are not guessed.")+
     "<div class='panel'><div class='search-row'><input class='search-input' id='entitySearch' type='search' placeholder='Search circuit, city or country…'><span class='result-count'>"+idx.circuits.length+" CIRCUITS</span></div><div class='card-grid' id='entityList'>"+cards+"</div></div>";
 }
+function circuitLayoutForSeason(layouts,year){
+  const target=Number(year);
+  return (layouts||[]).find(layout=>{
+    const ranges=String(layout.seasons||"").match(/\d{4}(?:\s*-\s*\d{4})?/g)||[];
+    return ranges.some(range=>{
+      const parts=range.split(/\s*-\s*/).map(Number);
+      const first=parts[0],last=parts[1]||first;
+      return target>=first&&target<=last;
+    });
+  })||null;
+}
+function findCircuitTrackRecord(trackData,profile){
+  const circuits=trackData&&Array.isArray(trackData.circuits)?trackData.circuits:[];
+  const exact=circuits.find(c=>c.id===profile.id);
+  if(exact)return exact;
+  const nameMatch=circuits.find(c=>norm(c.name)===norm(profile.name));
+  if(nameMatch)return nameMatch;
+  const lat=Number(profile.location&&profile.location.lat);
+  const lon=Number(profile.location&&(profile.location.long||profile.location.lon));
+  if(!Number.isFinite(lat)||!Number.isFinite(lon))return null;
+  let closest=null,distance=Infinity;
+  for(const circuit of circuits){
+    const cLat=Number(circuit.latitude),cLon=Number(circuit.longitude);
+    if(!Number.isFinite(cLat)||!Number.isFinite(cLon))continue;
+    const candidate=Math.hypot(lat-cLat,lon-cLon);
+    if(candidate<distance){distance=candidate;closest=circuit;}
+  }
+  return distance<=0.5?closest:null;
+}
+function timeToSeconds(value){
+  if(!value)return null;
+  const parts=String(value).trim().split(":").map(Number);
+  if(parts.some(part=>!Number.isFinite(part)))return null;
+  if(parts.length===3)return parts[0]*3600+parts[1]*60+parts[2];
+  if(parts.length===2)return parts[0]*60+parts[1];
+  return parts[0];
+}
+function renderCircuitLayoutPanel(track,selectedLayout){
+  const layouts=track&&Array.isArray(track.layouts)?track.layouts:[];
+  if(!selectedLayout||!selectedLayout.svgUrl){
+    return "<section class='panel circuit-layout-panel'><div class='panel-header'><div><span class='eyebrow'>TRACK CONFIGURATION</span><h2>Track layout</h2></div></div><div class='empty-state'>A verified circuit outline is not currently available for this venue. The archive will not substitute a different track map.</div></section>";
+  }
+  const options=layouts.map(layout=>
+    "<option value='"+esc(layout.id)+"' data-svg='"+esc(layout.svgUrl)+"' data-length='"+esc(layout.lengthKm==null?"":layout.lengthKm)+"' data-turns='"+esc(layout.turns==null?"":layout.turns)+"' data-seasons='"+esc(layout.seasons||"")+"' "+(layout.id===selectedLayout.id?"selected":"")+">"+esc((layout.seasons||"Era not supplied")+" · "+layout.id)+"</option>"
+  ).join("");
+  return "<section class='panel circuit-layout-panel'><div class='panel-header'><div><span class='eyebrow'>TRACK CONFIGURATION</span><h2>Track layout</h2><p>Choose a historic configuration to match the era being researched.</p></div><label class='circuit-layout-select'><span>LAYOUT / ERA</span><select id='circuitLayoutSelect' class='field-select'>"+options+"</select></label></div>"+
+    "<div class='circuit-map-stage'><img id='circuitLayoutImage' src='"+esc(selectedLayout.svgUrl)+"' alt='"+esc(track.name)+" circuit layout, "+esc(selectedLayout.seasons||"season range not supplied")+"' loading='lazy'><div class='circuit-map-tag'>HISTORICAL TRACK OUTLINE</div></div>"+
+    "<div class='circuit-layout-stats'><div><span>CONFIGURATION LENGTH</span><strong id='circuitLayoutLength'>"+esc(selectedLayout.lengthKm==null?"Not supplied":number(selectedLayout.lengthKm)+" km")+"</strong></div><div><span>NUMBER OF TURNS</span><strong id='circuitLayoutTurns'>"+esc(selectedLayout.turns==null?"Not supplied":number(selectedLayout.turns))+"</strong></div><div><span>SEASONS USED</span><strong id='circuitLayoutSeasons'>"+esc(selectedLayout.seasons||"Not supplied")+"</strong></div></div>"+
+    "<p class='secondary'>Layout artwork: MisterSix2295/f1-circuits-svg (MIT). Track specifications: F1DB (CC BY 4.0). Layout variants describe the circuit outline; pit-lane and resurfacing changes may not be represented.</p></section>";
+}
 async function renderCircuitProfile(id){
-  const p=await getProfile(state.series,"circuits",id),events=p.events||[];
-  const wins=p.mostWins||[];
+  const [p,trackData]=await Promise.all([
+    getProfile(state.series,"circuits",id),
+    fetchJson("data/circuit-track-data.json",state.dataCache).catch(()=>({circuits:[]}))
+  ]);
+  const events=p.events||[],wins=p.mostWins||[];
+  const track=findCircuitTrackRecord(trackData,p);
+  const layouts=track&&Array.isArray(track.layouts)?track.layouts:[];
+  const historicalLayout=circuitLayoutForSeason(layouts,p.lastSeason);
+  const selectedLayout=historicalLayout||layouts.find(x=>x.effective)||layouts[layouts.length-1]||null;
+  const length=selectedLayout&&selectedLayout.lengthKm!=null?selectedLayout.lengthKm:track&&track.lengthKm;
+  const turns=selectedLayout&&selectedLayout.turns!=null?selectedLayout.turns:track&&track.turns;
   const sessions=events.reduce((sum,e)=>sum+(e.sessions||[]).length,0);
+  const raceLaps=[],fastestLaps=[];
+  let totalDistance=0,distanceEvents=0;
+  for(const event of events){
+    const winningRows=(event.results||[]).filter(r=>isRaceClassification(event.series,r.session)&&Number(r.position)===1);
+    const layout=circuitLayoutForSeason(layouts,event.season);
+    for(const winner of winningRows){
+      const laps=Number(winner.laps);
+      if(Number.isFinite(laps)&&laps>0){
+        raceLaps.push(laps);
+        if(layout&&Number(layout.lengthKm)>0){
+          totalDistance+=laps*Number(layout.lengthKm);
+          distanceEvents++;
+        }
+      }
+    }
+    for(const result of event.results||[]){
+      if(result.isFastestLap&&result.fastestLap){
+        const seconds=timeToSeconds(result.fastestLap);
+        if(seconds!=null)fastestLaps.push({seconds,time:result.fastestLap,driver:result.driverName,season:event.season,event:event.raceName});
+      }
+    }
+  }
+  const averageLaps=raceLaps.length?raceLaps.reduce((a,b)=>a+b,0)/raceLaps.length:null;
+  const bestArchiveLap=fastestLaps.sort((a,b)=>a.seconds-b.seconds)[0]||null;
   const winnerRows=wins.map((w,i)=>"<tr><td class='rank'>"+(i+1)+"</td><td>"+driverLink(state.series,w.driverId,w.driverName)+"</td><td class='num'>"+esc(w.wins)+"</td></tr>");
   const eventRows=events.slice().reverse().slice(0,30).map(e=>"<tr><td>"+esc(e.series.toUpperCase())+"</td><td>"+esc(e.season)+"</td><td>"+esc(e.round||"—")+"</td><td><a class='person-link' href='"+raceHref(e.series,e.season,e.round)+"'>"+esc(e.raceName)+"</a></td><td>"+esc(niceDate(e.date))+"</td><td>"+esc(e.sessions.join(" / ")||"Result not in source")+"</td></tr>");
   const location=p.location||{};
+  const type=track&&track.type?String(track.type).replace(/_/g," ").toLowerCase():"Not supplied";
+  const direction=track&&track.direction?String(track.direction).replace(/_/g," ").toLowerCase():"Not supplied";
+  const trackFacts=track?
+    "<div class='notice'>Physical specifications are tied to the selected configuration where the source publishes them. Historic layout figures can differ substantially from the current circuit.</div>"+
+    "<div class='fact-grid'><div class='fact'><span>Track type</span><strong>"+esc(type)+"</strong></div><div class='fact'><span>Direction</span><strong>"+esc(direction)+"</strong></div><div class='fact'><span>F1DB races held</span><strong>"+esc(number(track.totalRacesHeld))+"</strong></div><div class='fact'><span>Layout variants indexed</span><strong>"+esc(layouts.length)+"</strong></div></div>":
+    "<div class='notice'>No matched specification record was found for this circuit. Event history and archive-derived statistics remain available, but track dimensions are left blank.</div>";
+  const selectedLength=length==null?"Not supplied":number(length)+" km";
+  const selectedTurns=turns==null?"Not supplied":number(turns);
+  const stats=[
+    ["Layout distance",selectedLength],
+    ["Turns on selected layout",selectedTurns],
+    ["Events in this archive",p.eventCount],
+    ["Years represented",(p.firstSeason||"—")+"–"+(p.lastSeason||"—")],
+    ["Archived race laps",raceLaps.length?number(raceLaps.reduce((a,b)=>a+b,0)):"—"],
+    ["Average winner's laps",averageLaps==null?"—":number(averageLaps)],
+    ["Recorded race distance",distanceEvents?number(totalDistance)+" km":"—"],
+    ["Most recorded wins",wins[0]?wins[0].driverName:"—"]
+  ];
+  const fastestText=bestArchiveLap?bestArchiveLap.time+" · "+bestArchiveLap.driver+" ("+bestArchiveLap.season+")":"Not supplied in archive";
+  const layoutPanel=track?renderCircuitLayoutPanel(track,selectedLayout):renderCircuitLayoutPanel(null,null);
   return pageHead("CIRCUIT PROFILE",p.name,[location.locality,location.country].filter(Boolean).join(", ")||"Location not supplied in imported data","<a class='text-link' href='#/circuits'>← All circuits</a>")+
     "<div class='profile-hero'><div><span class='eyebrow'>TRACK ARCHIVE</span><h1>"+esc(p.name)+"</h1><p>"+esc([location.locality,location.country].filter(Boolean).join(" · ")||"Track location not in archive")+" · "+esc((p.series||[]).join(" / ").toUpperCase())+"</p>"+(p.url?"<a class='text-link' href='"+esc(p.url)+"' target='_blank' rel='noopener'>Circuit reference ↗</a>":"")+"</div><div class='profile-number'>"+esc(p.eventCount)+"<small class='secondary'> EVENTS</small></div></div>"+
-    "<div class='fact-grid'>"+[
-      ["Events in archive",p.eventCount],["Years represented",(p.firstSeason||"—")+"–"+(p.lastSeason||"—")],["Session classifications",sessions],["Most recorded wins",wins[0]?wins[0].driverName:"—"],["Recorded wins by leader",wins[0]?wins[0].wins:"—"],["Series represented",(p.series||[]).join(", ").toUpperCase()]
-    ].map(x=>"<div class='fact'><span>"+esc(x[0])+"</span><strong>"+esc(x[1])+"</strong></div>").join("")+"</div>"+
-    "<div class='grid-2'>"+panel("CIRCUIT RECORDS","Most recorded winners",table(["RANK","DRIVER","WINS IN ARCHIVE"],winnerRows))+panel("TRACK FACTS","What the archive can verify","<div class='notice'>These facts are calculated from this project's imported race archive. Track length, corner count, official lap record and opening date are not currently in the connected datasets, so they are not displayed as facts.</div><p class='secondary'>First indexed season: "+esc(p.firstSeason)+"</p><p class='secondary'>Most recent indexed season: "+esc(p.lastSeason)+"</p><p class='secondary'>Series represented: "+esc((p.series||[]).join(", ").toUpperCase())+"</p>")+"</div>"+
+    layoutPanel+
+    "<div class='fact-grid circuit-stat-grid'>"+stats.map(x=>"<div class='fact'><span>"+esc(x[0])+"</span><strong>"+esc(x[1])+"</strong></div>").join("")+"</div>"+
+    "<div class='grid-2'>"+panel("TRACK SPECIFICATIONS","Physical track facts",trackFacts+ "<p class='secondary'>First F1 event in project archive: "+esc(p.firstSeason)+"</p><p class='secondary'>Most recent indexed F1 event: "+esc(p.lastSeason)+"</p><p class='secondary'>Fastest race lap captured in this archive: "+esc(fastestText)+"</p><p class='secondary'>Recorded race distance sums winner's completed laps multiplied by the matching historic layout length, only where both are available.</p>")+
+    panel("CIRCUIT RECORDS","Most recorded winners",table(["RANK","DRIVER","WINS IN ARCHIVE"],winnerRows))+"</div>"+
     panel("EVENT HISTORY","Races at this circuit",table(["SERIES","SEASON","ROUND","EVENT","DATE","SESSIONS"],eventRows));
 }
-function sessionNames(event,series=state.series){
+function sessionNames(function sessionNames(event,series=state.series){
   const actual=[...new Set((event.Results||[]).filter(r=>!r.isRecordOnly).map(r=>r.session||"Race"))];
   if(series==="f1"){
     const options=[];
