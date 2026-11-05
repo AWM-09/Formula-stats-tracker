@@ -71,3 +71,19 @@ The scheduled GitHub Actions pipeline builds cross-season driver, constructor an
 - Full article text and publisher images are not copied into this project. Each news card links directly to the original Crash.net story.
 - The browser reads the cached snapshot, so the news page does not depend on a third-party RSS proxy or direct cross-origin feed access.
 - If one feed is unavailable, its previous snapshot is retained; if all feeds fail, the existing news file is left unchanged.
+
+
+## Circuit layouts and track specifications
+- Circuit layout metadata and historical layout-era mappings are imported from [MisterSix2295/f1-circuits-svg](https://github.com/MisterSix2295/f1-circuits-svg). The upstream project lists the layouts of 77 venues that have hosted a Formula 1 World Championship Grand Prix. Its SVG artwork is released under the MIT licence; the project licence notice is retained in this repository's circuit profile interface.
+- Track type, direction, current dimensions and layout-specific length/turn counts are imported from [F1DB](https://github.com/f1db/f1db), using its `src/data/circuits` records. F1DB is licensed under CC BY 4.0. Its circuit and layout records are versioned by the upstream project.
+- The importer joins circuit and layout identifiers, then uses names and close geographic coordinates only as a fallback when the two sources use different IDs. Layout selection is by the season range in the layout source. A circuit with no defensible match displays an unavailable message rather than a substitute map.
+- Circuit profile lap totals, average winner laps and recorded classified distance are calculated from this project's imported event classifications. Distance is computed only when the event's winning-lap count and matching historical layout length are both present. These are project-derived archive statistics, not official lap records.
+- The fastest race lap shown on a circuit profile is the fastest lap value present in this project's imported classifications. It is not presented as an official all-time circuit lap record.
+- F1 layout coverage is not the same as universal F2/F3 layout coverage. Where an F2/F3 venue does not match a verified F1DB circuit/layout record, the profile explains that physical specifications or artwork are unavailable.
+
+## Added platform tools
+- Browser-local driver and constructor watchlists use local storage and do not sync across devices.
+- Race-by-race driver comparisons use shared rounds and stored numeric classifications; missing classifications do not count as a loss.
+- Season points progression is calculated from race-session points present in the selected season archive. Sprint points are only included where the data is represented in the stored session rows.
+- The Export Centre downloads CSV standings, calendars and session results, plus the stored season snapshot as JSON.
+- News categories are heuristic labels based on publisher feed headlines and summaries. They are filters, not an editorially verified classification.
