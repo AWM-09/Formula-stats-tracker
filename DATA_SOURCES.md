@@ -6,7 +6,7 @@
 - Documentation: https://github.com/jolpica/jolpica-f1
 - This project uses the API from a Node.js GitHub Actions workflow. The workflow sends the custom User-Agent required by the provider, then stores season snapshots in data/f1/.
 - First release metrics: race results, season driver standings, constructor standings, race wins, podiums, fastest laps and race points.
-- Qualifying, pole positions, sprint results, pit stops, lap charts and telemetry are not yet included.
+- F1 qualifying and Sprint classifications are imported from Jolpica where the source publishes them. Current-season F1 practice classifications are imported through FastF1 after a session is complete; this is not a complete historical practice archive. Official pole records are kept distinct from grid-position-one starts. Pit stops, full lap charts and telemetry are not yet imported as a comprehensive historical dataset.
 
 ## Modern FIA Formula 2 — 2017 onwards
 The FIA Formula 2 Championship was inaugurated in 2017. GP2 (2005–2016) is its predecessor series and will be stored as a separate competition unless an explicitly labelled combined-history view is added.
@@ -26,9 +26,9 @@ Official history: https://www.fiaformula3.com/en/information/the-championship-f3
 ## Planned work
 1. Connect verified race-by-race historical sources for F2 and GP2.
 2. Connect verified race-by-race historical sources for F3 and GP3.
-3. Add qualifying, sprint and pole-position datasets with source-specific coverage.
-4. Build driver and team profiles, career comparisons, season comparisons, advanced analytics and data-health reports.
-5. Add cached indexes and reliable scheduled refreshes.
+3. Extend verified qualifying, Sprint, practice and pole-position coverage across F1, F2 and F3, clearly labelling series-specific gaps.
+4. Expand historical lap timing, pit-stop, tyre and telemetry datasets where redistribution and source coverage permit.
+5. Improve back-testing, data-health reports and source-specific completeness checks.
 
 Independent project; not affiliated with Formula One, FIA, Formula 2, Formula 3 or any team. Check the license and attribution terms of each upstream dataset before redistributing its data.
 
