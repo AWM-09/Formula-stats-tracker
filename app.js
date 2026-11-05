@@ -778,9 +778,9 @@ function renderSessionSummary(event,series,session){
     return "<div class='fact-grid session-summary-grid'>"+facts.map(x=>"<div class='fact'><span>"+esc(x[0])+"</span><strong>"+esc(x[1])+"</strong></div>").join("")+"</div>";
   }
   const bestTime=positioned.map(r=>{
-    const times=[r.Q3,r.Q2,r.Q1,r.bestLap,r.fastestLap,r.Time&&r.Time.time].filter(Boolean);
-    return {driver:driverName(r.Driver),time:times[times.length-1]||null,position:Number(r.position)};
-  }).filter(r=>r.time).sort((a,b)=>timeToSeconds(a.time)-timeToSeconds(b.time))[0]||null;
+    const time=r.Q3||r.Q2||r.Q1||r.bestLap||r.fastestLap||(r.Time&&r.Time.time)||null;
+    return {driver:driverName(r.Driver),time,position:Number(r.position)};
+  }).filter(r=>r.time).sort((a,b)=>(timeToSeconds(a.time)||0)-(timeToSeconds(b.time)||0))[0]||null;
   return "<div class='fact-grid session-summary-grid'>"+
     "<div class='fact'><span>Classified entries</span><strong>"+esc(positioned.length)+"</strong></div>"+
     "<div class='fact'><span>Session leader</span><strong>"+esc(winner?driverName(winner.Driver):"Not supplied")+"</strong></div>"+
