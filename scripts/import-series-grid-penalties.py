@@ -43,7 +43,7 @@ SERIES_CONFIG = {
 }
 RELEVANT_TITLE = re.compile(
     r"\b(decision|summons|starting grid|final grid|provisional grid|"
-    r"grid penalty|penalty|power unit|gearbox|back of the grid)\b",
+    r"grid penalty|penalty|power unit|gearbox|back of the grid|offence|infringement)\b",
     re.I,
 )
 PENALTY_WORD = r"(?:\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)"
@@ -92,13 +92,36 @@ def load_previous() -> dict:
 
 def season_urls(series: str, year: int) -> list[str]:
     cfg = SERIES_CONFIG[series]
-    # FIA's public season identifiers have used year + 46 for the recent archive.
-    season_id = year + 46
     slug = cfg["slug"]
-    return [
-        f"https://www.fia.com/documents/season/season-{year}-{season_id}/championships/{slug}",
-        f"https://www.fia.com/documents/championships/{slug}/season/season-{year}-{season_id}",
-    ]
+
+    # FIA Drupal document-season IDs are not a simple year offset. Use only
+    # verified season IDs and the championship collection page for 2026.
+    season_ids = {
+        2019: 1106,
+        2020: 1107,
+        2021: 1108,
+        2022: 2005,
+        2023: 2042,
+        2024: 2043,
+        2025: 2071,
+        2026: 2072,
+    }
+    candidates: list[str] = []
+
+    if year == 2026:
+        candidates.extend([
+            f"https://www.fia.com/documents/championship/championships/{slug}",
+            f"https://www.fia.com/documents/championships/{slug}/season/season-2026-2072",
+            f"https://www.fia.com/documents/season/season-2026-2072/championships/{slug}",
+        ])
+    elif year in season_ids:
+        season_id = season_ids[year]
+        candidates.extend([
+            f"https://www.fia.com/documents/championships/{slug}/season/season-{year}-{season_id}",
+            f"https://www.fia.com/documents/season/season-{year}-{season_id}/championships/{slug}",
+            f"https://www.fia.com/documents/championship/season/season-{year}-{season_id}/championships/{slug}",
+        ])
+    return candidates
 
 
 def collect_page_documents(series: str, year: int) -> tuple[list[dict], str | None]:
