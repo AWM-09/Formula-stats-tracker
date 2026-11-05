@@ -374,3 +374,28 @@ body{background:radial-gradient(ellipse at 82% -12%,#123044 0,transparent 38%),v
   .grid-penalty-controls{grid-template-columns:1fr}
   .grid-penalty-controls .field{min-width:100%}
 }
+
+
+/* F1 Upgrade Watch */
+.upgrade-next-race{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px;background:linear-gradient(120deg,#132d3d,#101c29)}
+.upgrade-next-race h2{margin:5px 0;font-size:23px}
+.upgrade-watch-filters{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(180px,1fr);gap:12px;margin:12px 0 16px}
+.upgrade-team-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.upgrade-team-card{min-width:0;padding:15px;border:1px solid var(--line);border-radius:10px;background:#111f2c;display:flex;flex-direction:column;gap:12px}
+.upgrade-team-card.has-upgrade{border-color:#386b72;background:linear-gradient(145deg,#142b39,#101d29)}
+.upgrade-team-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.upgrade-team-heading h3{margin:3px 0 0;font-size:18px}
+.upgrade-next-line{display:grid;gap:4px;padding:11px 12px;border:1px solid #2b4355;border-radius:8px;background:#0d1a26}
+.upgrade-next-line>span,.upgrade-label{font-size:8px;font-weight:950;letter-spacing:.14em;color:var(--muted)}
+.upgrade-next-line strong{font-size:15px}
+.upgrade-next-line small{font-size:10px;color:var(--muted)}
+.upgrade-components{display:grid;gap:8px}
+.upgrade-component-list{display:flex;gap:6px;flex-wrap:wrap}
+.upgrade-component{display:inline-flex;padding:6px 8px;border:1px solid #386e68;border-radius:6px;background:#143635;color:#a4f0d7;font-size:10px;font-weight:850}
+.upgrade-detail,.upgrade-empty-detail{color:var(--soft);font-size:11px;line-height:1.55;margin:0}
+.upgrade-empty-detail{min-height:42px}
+.upgrade-source-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:auto;padding-top:8px;border-top:1px solid var(--line)}
+.upgrade-additional-sources{display:flex;flex-wrap:wrap;gap:6px 14px}
+.upgrade-additional-source{font-size:9px}
+@media(max-width:850px){.upgrade-team-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.upgrade-next-race{align-items:flex-start;flex-direction:column}.upgrade-watch-filters{grid-template-columns:1fr}.upgrade-source-row{align-items:flex-start;flex-direction:column}}
