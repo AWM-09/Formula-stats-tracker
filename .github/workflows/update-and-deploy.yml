@@ -32,6 +32,7 @@ jobs:
       - name: Validate JavaScript
         run: node --check app.js && node --check scripts/fetch-f1-data.js && node --check scripts/build-indexes.js
       - name: Fetch F1 historical data
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         id: fetch_data
         continue-on-error: true
         run: node scripts/fetch-f1-data.js
@@ -44,10 +45,12 @@ jobs:
           python -m pip install --disable-pip-version-check beautifulsoup4 fastf1 pyyaml
           python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py scripts/fetch-news.py scripts/fetch-circuit-data.py
       - name: Import completed current-season F1 practice classifications
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         id: fetch_practice
         continue-on-error: true
         run: python scripts/fetch-f1-practice.py
       - name: Fetch historical F2 and F3 data
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         id: fetch_series
         continue-on-error: true
         run: python scripts/fetch-f2-f3-data.py
