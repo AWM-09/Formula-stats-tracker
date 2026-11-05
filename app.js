@@ -668,7 +668,7 @@ function renderGridPenalties(snapshot){
   });
   const events=[...new Set(penalties.map(item=>item.event).filter(Boolean))].sort();
   const yearOptions=availableYears.map(year=>
-    "<option value='"+year+"' "+(yearMode!=="all"&&selectedYear===year?"selected":"")+">"+year+"</option>"
+    "<option value='"+year+"' "+(yearMode!=="selected"&&yearMode!=="all"&&selectedYear===year?"selected":"")+">"+year+"</option>"
   ).join("");
   const yearLabel=selectedYear===null?"All seasons":String(selectedYear);
   const selectedYearValue=yearMode==="all"?"all":yearMode==="selected"?"selected":String(selectedYear);
@@ -740,14 +740,14 @@ function renderGridPenalties(snapshot){
   return pageHead("OFFICIAL FIA + HISTORICAL REGISTER","Grid penalties","Choose a season to inspect recorded Formula One grid drops, back-of-grid sanctions and pit-lane starts. Every row identifies whether it comes from an official FIA PDF or the historical compilation.")+
     nextEventPanel+
     "<div class='kpi-grid'>"+
-      kpi("Confirmed grid drops",confirmedGridDrops.length,yearLabel+" · grid and back-of-grid sanctions")+
+      kpi("Confirmed grid sanctions",confirmedGridDrops.length,yearLabel+" · grid drops and back-of-grid")+
       kpi("Pit-lane starts",confirmedPitLaneStarts.length,yearLabel+" · shown separately")+
       kpi("Pending decisions",pending.length,yearLabel+" · not final")+
       kpi("Records in view",penalties.length,sourceCount+" from historical compilation")+
     "</div>"+
     "<section class='panel grid-penalties-panel'><div class='panel-header'><div><span class='eyebrow'>SEASON ARCHIVE · "+esc(yearLabel.toUpperCase())+"</span><h2>"+esc(yearLabel==="All seasons"?"All recorded driver sanctions":"Driver sanctions · "+yearLabel)+"</h2><p>Use the season selector, then narrow the records by event, sanction type or status.</p></div><span class='secondary'>Updated "+esc(snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"not yet imported")+"</span></div>"+
     "<div class='search-row grid-penalty-controls'>"+
-      "<label class='field'><span>SEASON</span><select id='gridPenaltyYearSelect' class='field-select'><option value='selected' "+(selectedYear===null?"":"selected")+">Use header season ("+esc(state.season)+")</option><option value='all' "+(selectedYear===null?"selected":"")+">All seasons</option>"+yearOptions+"</select></label>"+
+      "<label class='field'><span>SEASON</span><select id='gridPenaltyYearSelect' class='field-select'><option value='selected' "+(yearMode==="selected"?"selected":"")+">Use header season ("+esc(state.season)+")</option><option value='all' "+(selectedYear===null?"selected":"")+">All seasons</option>"+yearOptions+"</select></label>"+
       "<label class='field'><span>EVENT</span><select id='gridPenaltyEvent' class='field-select'><option value='all'>All events</option>"+events.map(event=>"<option value='"+esc(event)+"'>"+esc(event)+"</option>").join("")+"</select></label>"+
       "<label class='field'><span>SANCTION TYPE</span><select id='gridPenaltyType' class='field-select'><option value='all'>All sanctions</option><option value='grid-drop'>Grid-place drop</option><option value='back-of-grid'>Back of the grid</option><option value='pit-lane-start'>Pit-lane start</option></select></label>"+
       "<label class='field'><span>STATUS</span><select id='gridPenaltyStatus' class='field-select'><option value='all'>All statuses</option><option value='confirmed'>Confirmed</option><option value='pending'>Pending</option><option value='overturned'>Overturned</option><option value='no-action'>No action</option></select></label>"+
