@@ -252,9 +252,7 @@ def extract_penalties(document: dict, text: str, driver_maps: dict[int, dict[str
             continue
 
         title = str(document.get("title") or "")
-        status = "pending" if re.search(r"\b(summons|alleged|pending)\b", title, re.I) else "confirmed"
-        if status == "pending" and "decision" in title.lower():
-            status = "confirmed"
+        status = "pending" if re.search(r"\b(summons|alleged|pending|provisional)\b", title, re.I) else "confirmed"
 
         reason_match = next((p.search(segment) for p in PENALTY_PATTERNS if p.search(segment)), None)
         if reason_match:
