@@ -222,3 +222,26 @@ body{background:radial-gradient(ellipse at 82% -12%,#123044 0,transparent 38%),v
 .platform-card p{font-size:12px;line-height:1.55;color:#a8bac8;margin:0;max-width:95%}
 @media(max-width:980px){.platform-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.platform-grid{grid-template-columns:1fr}.platform-card{min-height:158px}.platform-heading{margin-top:24px}.platform-heading h1{font-size:24px}}
+
+
+/* Motorsport news feed */
+.news-toolbar{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:14px 0}
+.news-filters{display:flex;gap:7px;flex-wrap:wrap}
+.news-filter{border:1px solid var(--line);border-radius:8px;background:#10202d;color:var(--muted);padding:9px 15px;font-size:10px;font-weight:950;letter-spacing:.1em}
+.news-filter:hover,.news-filter.active{border-color:#3f8278;background:#153b3b;color:#effff9}
+.news-search{display:grid;gap:5px;min-width:min(100%,270px)}
+.news-search>span{font-size:9px;color:var(--muted);font-weight:900;letter-spacing:.13em}
+.news-search input{width:100%;min-width:230px}
+.news-feed-info{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0 13px;color:var(--muted);font-size:10px}
+.news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.news-card{min-width:0;min-height:205px;display:flex;flex-direction:column;align-items:flex-start;border:1px solid #2d485c;border-radius:12px;background:linear-gradient(145deg,#162737,#101c29);padding:16px;transition:border-color .15s ease,transform .15s ease}
+.news-card:hover{border-color:#4a8887;transform:translateY(-1px)}
+.news-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;color:var(--muted);font-size:9px}
+.news-card-meta time{margin-left:auto;text-align:right}
+.news-series-pill{display:inline-flex;align-items:center;justify-content:center;min-width:31px;border:1px solid #3e726f;border-radius:5px;background:#133331;color:#8ce2cc;padding:3px 7px;font-size:9px;font-weight:950;letter-spacing:.08em}
+.news-card h2{font-size:16px;line-height:1.3;letter-spacing:-.025em;margin:13px 0 7px;color:#f0f5fa}
+.news-card p{font-size:11px;line-height:1.55;color:#a8bac8;margin:0 0 12px}
+.news-link{margin-top:auto;padding-top:10px;color:#78ddc1;font-size:10px;font-weight:950}
+.news-link:hover{text-decoration:underline}
+@media(max-width:1050px){.news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.news-grid{grid-template-columns:1fr}.news-card{min-height:175px}.news-search{width:100%}.news-search input{min-width:0}.news-card-meta time{margin-left:0}}
