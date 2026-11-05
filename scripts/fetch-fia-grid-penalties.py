@@ -319,7 +319,7 @@ def main() -> int:
         "source": "FIA official Formula One documents",
         "sourcePages": successful_pages,
         "documentsScanned": len(scanned),
-        "documents": scanned[-80:],
+        "documents": scanned[:80],
         "penalties": ordered_penalties[:80],
         "coverageNote": (
             "Only explicit grid-drop wording found in FIA PDFs is listed. "
