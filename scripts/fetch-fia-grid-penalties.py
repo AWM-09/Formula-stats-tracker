@@ -154,7 +154,7 @@ def collect_documents() -> tuple[list[dict], list[str]]:
     if not collected:
         print("WARNING: FIA archive pages loaded but no PDF anchors were exposed; adding one verified official final-grid PDF as a bootstrap record.", file=sys.stderr)
         for document in KNOWN_FALLBACK_DOCUMENTS:
-            collected[document["url"]] = document
+            collected[document["url"]] = {**document, "bootstrapFallback": True}
     documents = list(collected.values())
     documents.sort(key=lambda x: x.get("published") or "", reverse=True)
     return documents[:MAX_DOCUMENTS], successful_pages
@@ -216,10 +216,12 @@ def pdf_text(payload: bytes) -> str:
 
 
 def event_name(title: str, context: str, text: str) -> str:
-    combined = f"{title} {context} {text[:3500]}"
-    match = EVENT_PATTERN.search(combined)
-    if match:
-        return re.sub(r"\s+", " ", match.group(1)).strip()
+    # The PDF normally begins with "2026 HUNGARIAN GRAND PRIX"; searching the
+    # title first can incorrectly produce "Final Starting Grid - Hungarian GP".
+    for candidate in (text[:1800], context, title):
+        match = EVENT_PATTERN.search(candidate or "")
+        if match:
+            return re.sub(r"\s+", " ", match.group(1)).strip().title()
     known = [
         "Australian Grand Prix", "Chinese Grand Prix", "Japanese Grand Prix",
         "Bahrain Grand Prix", "Saudi Arabian Grand Prix", "Miami Grand Prix",
@@ -230,8 +232,46 @@ def event_name(title: str, context: str, text: str) -> str:
         "Mexico City Grand Prix", "São Paulo Grand Prix", "Brazilian Grand Prix",
         "Las Vegas Grand Prix", "Qatar Grand Prix", "Abu Dhabi Grand Prix",
     ]
-    lower = combined.lower()
+    lower = f"{title} {context} {text[:3500]}".lower()
     return next((name for name in known if name.lower() in lower), "Event not identified")
+
+
+def load_next_event() -> dict | None:
+    """Read the next scheduled F1 event from the existing season snapshot."""
+    path = ROOT / "data" / "f1" / f"{CURRENT_YEAR}.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+    entries = data.get("calendar") or data.get("races") or []
+    today = datetime.now(timezone.utc).date()
+    candidates = []
+    for event in entries:
+        raw_date = event.get("date")
+        try:
+            event_date = datetime.strptime(str(raw_date)[:10], "%Y-%m-%d").date()
+        except (TypeError, ValueError):
+            continue
+        if event_date < today:
+            continue
+        circuit = event.get("Circuit") or {}
+        candidates.append(
+            {
+                "name": event.get("raceName") or circuit.get("circuitName") or "Next Grand Prix",
+                "date": event_date.isoformat(),
+                "round": event.get("round"),
+            }
+        )
+    candidates.sort(key=lambda item: item["date"])
+    return candidates[0] if candidates else None
+
+
+def normalise_event_name(value: str) -> str:
+    import unicodedata
+    value = unicodedata.normalize("NFKD", str(value or ""))
+    value = "".join(ch for ch in value if not unicodedata.combining(ch))
+    return re.sub(r"[^a-z0-9]+", "", value.lower())
 
 
 def extract_penalties(document: dict, text: str, driver_maps: dict[int, dict[str, dict]]) -> list[dict]:
@@ -322,6 +362,8 @@ def main() -> int:
         print("ERROR: no official FIA document page could be read; keeping the previous snapshot.", file=sys.stderr)
         return 1
 
+    live_documents = [doc for doc in documents if not doc.get("bootstrapFallback")]
+    next_event = load_next_event()
     current_maps: dict[int, dict[str, dict]] = {}
     for year in range(CURRENT_YEAR - 1, CURRENT_YEAR + 1):
         current_maps[year] = load_driver_maps(year)[0]
@@ -337,6 +379,7 @@ def main() -> int:
                 "url": document["url"],
                 "published": document.get("published"),
                 "event": event_name(document["title"], document.get("context", ""), text),
+                "bootstrapFallback": bool(document.get("bootstrapFallback")),
             })
             extracted = extract_penalties(document, text, current_maps)
             for penalty in extracted:
@@ -362,9 +405,39 @@ def main() -> int:
         key=lambda x: (x.get("published") or "", x.get("event") or ""),
         reverse=True,
     )
+    next_event_penalties = []
+    next_event_final_grid_found = False
+    if next_event:
+        target_event = normalise_event_name(next_event["name"])
+        next_event_penalties = [
+            item for item in ordered_penalties
+            if normalise_event_name(item.get("event", "")) == target_event
+        ]
+        next_event_final_grid_found = any(
+            normalise_event_name(doc.get("event", "")) == target_event
+            and "final starting grid" in str(doc.get("title", "")).lower()
+            and not doc.get("bootstrapFallback")
+            for doc in scanned
+        )
+    if not live_documents:
+        next_event_status = "unknown"
+    elif next_event_final_grid_found and next_event_penalties:
+        next_event_status = "confirmed"
+    elif next_event_final_grid_found:
+        next_event_status = "no-sanction-listed"
+    else:
+        next_event_status = "pending-final-grid"
+
     snapshot = {
         "updatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "source": "FIA official Formula One documents",
+        "liveDocumentCount": len(live_documents),
+        "liveDocumentsFound": bool(live_documents),
+        "bootstrapDocumentsUsed": sum(1 for doc in scanned if doc.get("bootstrapFallback")),
+        "nextEvent": next_event,
+        "nextEventPenalties": next_event_penalties,
+        "nextEventFinalGridFound": next_event_final_grid_found,
+        "nextEventStatus": next_event_status,
         "sourcePages": successful_pages,
         "documentsScanned": len(scanned),
         "documents": scanned[:80],
