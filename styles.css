@@ -348,3 +348,29 @@ body{background:radial-gradient(ellipse at 82% -12%,#123044 0,transparent 38%),v
   .grid-penalties-panel .search-row{align-items:stretch}
   .grid-penalties-panel .field{min-width:100%}
 }
+
+
+/* Historical grid penalty season and sanction filters */
+.grid-penalty-controls{
+  display:grid;
+  grid-template-columns:minmax(145px,1fr) minmax(155px,1fr) minmax(155px,1fr) minmax(145px,1fr) minmax(220px,1.4fr);
+  gap:10px;
+  align-items:end;
+}
+.grid-penalty-controls .field{min-width:0;width:100%}
+.grid-penalty-search{min-width:0!important}
+#gridPenaltyTable{min-width:1160px}
+#gridPenaltyTable td{vertical-align:top;white-space:normal}
+#gridPenaltyTable td:nth-child(6){min-width:230px;max-width:440px;line-height:1.5;color:var(--soft);font-size:10px}
+#gridPenaltyTable td:nth-child(4){min-width:150px}
+#gridPenaltyTable td:nth-child(5){min-width:155px}
+.grid-penalties-panel .panel-header{align-items:center}
+.grid-penalties-panel .search-row{margin:12px 0}
+.grid-penalties-panel .field-select{width:100%}
+@media(max-width:1100px){
+  .grid-penalty-controls{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .grid-penalty-controls{grid-template-columns:1fr}
+  .grid-penalty-controls .field{min-width:100%}
+}
