@@ -113,3 +113,16 @@ The scheduled GitHub Actions pipeline builds cross-season driver, constructor an
 - Importer: `scripts/import-historical-grid-penalties.py`. It downloads the upstream workbook during the scheduled build, imports season sheets from 2020 onward, and merges the result with the live FIA PDF snapshot. Where a direct FIA document URL is present in the workbook it is retained on the record; otherwise the record links to the historical dataset.
 - Sanction types are kept separate: numeric grid drops, back-of-grid starts and pit-lane starts. Pit-lane starts are not counted as grid-place drops. Overturned/no-action records are not counted as confirmed sanctions.
 - The historical workbook is a compiled secondary dataset, not a live FIA API. Each record shows its source type and links to a direct FIA document when the source provides one.
+
+
+## Grid-penalty archive coverage by championship
+- The Grid Penalties page offers the full championship season range: F1 1950 onward, FIA F2 2017 onward, and FIA F3 2019 onward. A selectable season does not imply that a complete penalty dataset exists for it.
+- F1 historical sanction rows are compiled from the MIT-licensed [F1 Penalties Dashboard](https://github.com/j5t3313/F1_Penalties_Dashboard) workbook from 2020 onward, merged with explicit FIA decision-document records. The current project does not yet have a verified structured penalty archive for F1 1950–2019.
+- F2/F3 penalty records are imported separately from the FIA decision-document archives using `scripts/import-series-grid-penalties.py`. The importer checks year-specific FIA season pages where a verified route exists, downloads decision/summons/final-grid PDFs, and only records explicit grid-drop, back-of-grid or pit-lane-start wording. FIA archive coverage varies by season; the UI labels unchecked seasons as unavailable rather than reporting zero penalties.
+- F2/F3 sources: [FIA Formula 2 decision documents](https://www.fia.com/documents/championship/championships/formula-2-championship-44) and [FIA Formula 3 decision documents](https://www.fia.com/documents/championship/championships/fia-formula-3-championship-1012).
+- Grid-place drops, back-of-grid sanctions and pit-lane starts remain separate sanction types. News headlines are not used as proof of a penalty.
+
+## F1 team upgrade watch
+- `scripts/build-f1-upgrade-watch.py` turns the structured F1 news snapshot into a team-by-team upgrade watch and retains source links.
+- A team statement carried by a publisher is labelled as a report; only a directly sourced FIA technical/car-presentation document should be labelled FIA-confirmed.
+- The current São Paulo/Brazil report for McLaren names front wing, rear wing and floor components, based on the technical team's statement reported by [Autosport](https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/), with [Sky Sports](https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car) and [Formula1.com](https://www.formula1.com/en/latest/article/want-to-believe-that-we-can-still-make-improvements-norris-wary-of-new-mclaren-upgrades-in-sao-paulo.6NvdXqDIqBz1Mw1xveJv0k) as additional reporting. Other teams remain unannounced in the connected sources until a specific report is found.
