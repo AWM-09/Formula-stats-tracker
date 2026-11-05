@@ -48,7 +48,8 @@ PENALTY_PATTERNS = [
 ]
 BACK_OF_GRID = re.compile(
     r"(?:penalt\w*|demot\w*|relegat\w*).{0,120}back\s+of\s+the\s+grid|"
-    r"back\s+of\s+the\s+grid.{0,120}(?:penalt\w*|demot\w*|relegat\w*)",
+    r"back\s+of\s+the\s+grid.{0,120}(?:penalt\w*|demot\w*|relegat\w*)|"
+    r"required\s+to\s+start\s+from\s+the\s+back\s+of\s+the\s+grid",
     re.I | re.S,
 )
 PIT_LANE_START = re.compile(
@@ -218,70 +219,87 @@ def event_name(title: str, context: str, text: str) -> str:
     return next((name for name in known if name.lower() in lower), "Event not identified")
 
 
-def extract_penalty(document: dict, text: str, driver_maps: dict[str, dict]) -> dict | None:
+def extract_penalties(document: dict, text: str, driver_maps: dict[int, dict[str, dict]]) -> list[dict]:
+    """Return every explicit sanction line in a PDF, not just the first car."""
     source_text = f"{document.get('title', '')} {text}"
-    place_count = None
-    for pattern in PENALTY_PATTERNS:
-        match = pattern.search(source_text)
-        if match:
-            raw_count = match.group(1).lower()
-            place_count = NUMBER_WORDS.get(raw_count) if raw_count in NUMBER_WORDS else int(raw_count)
-            break
-
-    back_of_grid = bool(BACK_OF_GRID.search(source_text))
-    pit_lane_start = bool(PIT_LANE_START.search(source_text))
-    if place_count is None and not back_of_grid and not pit_lane_start:
-        return None
-
-    title = str(document.get("title") or "")
-    status = "pending" if re.search(r"\b(summons|alleged|pending)\b", title, re.I) else "confirmed"
-    if status == "pending" and "decision" in title.lower():
-        status = "confirmed"
-
-    car_match = CAR_NUMBER.search(title) or CAR_NUMBER.search(text[:2500])
-    car_number = car_match.group(1) if car_match else ""
     published = document.get("published") or ""
     year = int(published[:4]) if published[:4].isdigit() else CURRENT_YEAR
     year_driver_map = driver_maps.get(year, {})
-    driver_info = year_driver_map.get(car_number, {}) if car_number else {}
+    event = event_name(document.get("title", ""), document.get("context", ""), text)
 
-    # Extract the sentence or short passage containing the explicit grid sanction.
-    match = next((p.search(source_text) for p in PENALTY_PATTERNS if p.search(source_text)), None)
-    reason = ""
-    if match:
-        start = max(0, match.start() - 190)
-        end = min(len(source_text), match.end() + 260)
-        reason = " ".join(source_text[start:end].split())
-    elif back_of_grid:
-        match = BACK_OF_GRID.search(source_text)
-        reason = " ".join(source_text[max(0, match.start() - 190):min(len(source_text), match.end() + 260)].split())
+    car_markers = list(CAR_NUMBER.finditer(source_text))
+    segments: list[tuple[str, str]] = []
+    if car_markers:
+        for index, marker in enumerate(car_markers):
+            segment_end = car_markers[index + 1].start() if index + 1 < len(car_markers) else len(source_text)
+            segments.append((marker.group(1), source_text[marker.start():segment_end]))
+    else:
+        segments.append(("", source_text))
 
-    penalty = (
-        "Pit-lane start" if pit_lane_start and place_count is None and not back_of_grid
-        else "Back of the grid" if back_of_grid
-        else f"{place_count}-place grid drop"
-    )
-    event = event_name(title, document.get("context", ""), text)
-    key = f"{year}|{event}|{car_number}|{penalty}|{document['url']}"
-    return {
-        "id": key,
-        "series": "f1",
-        "season": year,
-        "event": event,
-        "published": published,
-        "driver": driver_info.get("name", ""),
-        "team": driver_info.get("team", ""),
-        "carNumber": car_number,
-        "penalty": penalty,
-        "gridPlaces": place_count,
-        "sanctionType": "pit-lane-start" if pit_lane_start else "grid-drop",
-        "status": status,
-        "reason": reason[:520],
-        "documentTitle": title or "FIA steward document",
-        "sourceUrl": document["url"],
-        "sourceTitle": "Official FIA document",
-        "sourcePage": document.get("page", FIA_PAGES[0]),
-    }
+    results = []
+    for car_number, segment in segments:
+        place_count = None
+        for pattern in PENALTY_PATTERNS:
+            match = pattern.search(segment)
+            if match:
+                raw_count = match.group(1).lower()
+                place_count = NUMBER_WORDS.get(raw_count) if raw_count in NUMBER_WORDS else int(raw_count)
+                break
+
+        back_of_grid = bool(BACK_OF_GRID.search(segment))
+        pit_lane_start = bool(PIT_LANE_START.search(segment))
+        if place_count is None and not back_of_grid and not pit_lane_start:
+            continue
+
+        title = str(document.get("title") or "")
+        status = "pending" if re.search(r"\b(summons|alleged|pending)\b", title, re.I) else "confirmed"
+        if status == "pending" and "decision" in title.lower():
+            status = "confirmed"
+
+        reason_match = next((p.search(segment) for p in PENALTY_PATTERNS if p.search(segment)), None)
+        if reason_match:
+            reason = " ".join(segment[max(0, reason_match.start() - 180):min(len(segment), reason_match.end() + 260)].split())
+        elif back_of_grid:
+            back_match = BACK_OF_GRID.search(segment)
+            reason = " ".join(segment[max(0, back_match.start() - 180):min(len(segment), back_match.end() + 260)].split())
+        else:
+            pit_match = PIT_LANE_START.search(segment)
+            reason = " ".join(segment[max(0, pit_match.start() - 180):min(len(segment), pit_match.end() + 260)].split())
+
+        if pit_lane_start and place_count is None and not back_of_grid:
+            penalty = "Pit-lane start"
+            sanction_type = "pit-lane-start"
+        elif back_of_grid:
+            penalty = "Back of the grid"
+            sanction_type = "back-of-grid"
+        else:
+            penalty = f"{place_count}-place grid drop"
+            sanction_type = "grid-drop"
+
+        driver_info = year_driver_map.get(car_number, {}) if car_number else {}
+        key = f"{year}|{event}|{car_number}|{penalty}|{document['url']}"
+        results.append(
+            {
+                "id": key,
+                "series": "f1",
+                "season": year,
+                "event": event,
+                "published": published,
+                "driver": driver_info.get("name", ""),
+                "team": driver_info.get("team", ""),
+                "carNumber": car_number,
+                "penalty": penalty,
+                "gridPlaces": place_count,
+                "sanctionType": sanction_type,
+                "status": status,
+                "reason": reason[:520],
+                "documentTitle": title or "FIA steward document",
+                "sourceUrl": document["url"],
+                "sourceTitle": "Official FIA document",
+                "sourcePage": document.get("page", FIA_PAGES[0]),
+            }
+        )
+    return results
 
 
 def main() -> int:
@@ -307,10 +325,10 @@ def main() -> int:
                 "published": document.get("published"),
                 "event": event_name(document["title"], document.get("context", ""), text),
             })
-            penalty = extract_penalty(document, text, current_maps)
-            if penalty:
+            extracted = extract_penalties(document, text, current_maps)
+            for penalty in extracted:
                 penalties[penalty["id"]] = penalty
-                print(f"Grid penalty evidence: {penalty['event']} · {penalty['penalty']} · {penalty['documentTitle']}")
+                print(f"Grid penalty evidence: {penalty['event']} · Car {penalty['carNumber'] or 'unknown'} · {penalty['penalty']} · {penalty['documentTitle']}")
         except Exception as error:
             print(f"WARNING: could not parse FIA PDF {document['url']}: {error}", file=sys.stderr)
 
