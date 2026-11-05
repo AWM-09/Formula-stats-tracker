@@ -2,12 +2,33 @@
 "use strict";
 const SERIES = { f1:{label:"Formula 1",first:1950}, f2:{label:"Formula 2",first:2017}, f3:{label:"Formula 3",first:2019} };
 const CURRENT_YEAR = new Date().getUTCFullYear();
+function loadWatchlist(){
+  try {
+    const parsed=JSON.parse(localStorage.getItem("formulaStatsWatchlist")||"{}");
+    return {
+      drivers:Array.isArray(parsed.drivers)?parsed.drivers:[],
+      teams:Array.isArray(parsed.teams)?parsed.teams:[]
+    };
+  } catch {
+    return {drivers:[],teams:[]};
+  }
+}
+function watchlistKey(series,id){return String(series)+":"+String(id);}
+function isWatchlisted(type,series,id){
+  return !!(state.watchlist[type]||[]).includes(watchlistKey(series,id));
+}
+function toggleWatchlist(type,series,id){
+  const key=watchlistKey(series,id),items=state.watchlist[type]||[];
+  state.watchlist[type]=items.includes(key)?items.filter(x=>x!==key):[...items,key];
+  try{localStorage.setItem("formulaStatsWatchlist",JSON.stringify(state.watchlist));}
+  catch(error){console.warn("Watchlist could not be saved in this browser.",error);}
+}
 const state = {
   series:"f1", season:CURRENT_YEAR, data:null, route:["dashboard"],
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
   compareDriverDirectory:new Map(),
   sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null,
-  newsSeriesFilter:"all", newsSearch:""
+  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", watchlist:loadWatchlist()
 };
 const $ = id => document.getElementById(id);
 const esc = value => String(value==null?"":value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -152,6 +173,8 @@ async function renderRoute(force=false){
       case "records": content=await renderRecords();break;
       case "analytics": content=await renderAnalytics();break;
       case "data-centre": content=await renderDataCentre();break;
+      case "watchlist": content=await renderWatchlist();break;
+      case "exports": content=renderExportCentre();break;
       default: content=await renderDashboard();
     }
     $("viewRoot").innerHTML=content;
@@ -368,7 +391,9 @@ function renderDashboard(){
     ["⇄","COMPARISON TOOLS","Comparisons","Compare drivers and constructors across seasons with head-to-head statistics and performance trends.","comparisons"],
     ["🏅","HISTORICAL RESEARCH","Records & Milestones","Find championship milestones, career records, race records and all-time statistical leaders.","records"],
     ["📈","DEEP ANALYTICS","Advanced Analytics","Investigate progression, performance metrics, historical trends and configurable statistical analyses.","analytics"],
-    ["🗂️","RELIABILITY","Data Centre","Review archive coverage, update timestamps, source information and incomplete or missing session data.","data-centre"]
+    ["🗂️","RELIABILITY","Data Centre","Review archive coverage, update timestamps, source information and incomplete or missing session data.","data-centre"],
+    ["⭐","PERSONAL TRACKING","Watchlist","Save favourite drivers and teams and return to their latest career and season statistics.","watchlist"],
+    ["⬇","DATA OUTPUT","Export Centre","Download season standings, complete race-session results, calendars and career statistic tables.","exports"]
   ];
   return "<section class='platform-heading'><div><h1>Explore the platform</h1><p>Choose a tool based on what you want to investigate.</p></div></section>"+
     "<div class='platform-grid'>"+cards.map(card=>
