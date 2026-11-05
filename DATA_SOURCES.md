@@ -90,8 +90,8 @@ The scheduled GitHub Actions pipeline builds cross-season driver, constructor an
 
 
 ## Grid penalties — official FIA documents
-- Source: [FIA Formula One World Championship document register](https://www.fia.com/documents/championships/fia-formula-one-world-championship-) and the [FIA decision-document register](https://www.fia.com/documents/decision-documents).
-- Importer: `scripts/fetch-fia-grid-penalties.py`. It scans recent linked FIA PDFs with relevant document titles, extracts the text of the first five pages, and records only explicit grid-drop wording such as a numbered grid-place penalty or a decision to start at the back of the grid.
+- Source: [FIA Formula One World Championship document register](https://www.fia.com/documents/championships/fia-formula-one-world-championship-14) and the [FIA decision-document register](https://www.fia.com/documents/decision-documents).
+- Importer: `scripts/fetch-fia-grid-penalties.py`. It scans the live [FIA Formula One document archive](https://www.fia.com/documents/championships/fia-formula-one-world-championship-14), including Final Starting Grid PDFs, extracts up to five pages per document, and records each explicit grid-drop, back-of-grid or pit-lane-start sanction. Each car entry is split separately so one Final Starting Grid PDF can produce several driver records.
 - A summons or allegation is labelled **pending**. A steward decision with explicit grid-drop wording is labelled **confirmed**. Starting-grid, engine-element and gearbox documents can be shown in the document monitor but do not create a penalty record unless the document itself contains explicit sanction wording.
 - Driver names and teams are resolved from the matching season archive when a car number is present. If the mapping is unavailable, the car number is shown and the driver/team fields remain blank.
 - This is a document scan, not a live FIA API. It can lag the FIA document publication, and a missing result does not prove that no penalty exists. Every listed record links to its original FIA PDF.
