@@ -1,6 +1,17 @@
 {
-  "updatedAt": "2026-11-05T21:45:20Z",
+  "updatedAt": "2026-11-05T21:47:27Z",
   "source": "FIA official Formula One documents",
+  "liveDocumentCount": 0,
+  "liveDocumentsFound": false,
+  "bootstrapDocumentsUsed": 1,
+  "nextEvent": {
+    "name": "Brazilian Grand Prix",
+    "date": "2026-11-08",
+    "round": "20"
+  },
+  "nextEventPenalties": [],
+  "nextEventFinalGridFound": false,
+  "nextEventStatus": "unknown",
   "sourcePages": [
     "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14",
     "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
@@ -11,15 +22,16 @@
       "title": "Doc 52 - Final Starting Grid - Hungarian Grand Prix",
       "url": "https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
       "published": "2026-07-26T12:00:00Z",
-      "event": "Final Starting Grid - Hungarian Grand Prix"
+      "event": "Hungarian Grand Prix",
+      "bootstrapFallback": true
     }
   ],
   "penalties": [
     {
-      "id": "2026|Final Starting Grid - Hungarian Grand Prix|44|3-place grid drop|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "id": "2026|Hungarian Grand Prix|44|3-place grid drop|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
       "series": "f1",
       "season": 2026,
-      "event": "Final Starting Grid - Hungarian Grand Prix",
+      "event": "Hungarian Grand Prix",
       "published": "2026-07-26T12:00:00Z",
       "driver": "Lewis Hamilton",
       "team": "Ferrari",
@@ -35,10 +47,10 @@
       "sourcePage": "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
     },
     {
-      "id": "2026|Final Starting Grid - Hungarian Grand Prix|12|3-place grid drop|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "id": "2026|Hungarian Grand Prix|12|3-place grid drop|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
       "series": "f1",
       "season": 2026,
-      "event": "Final Starting Grid - Hungarian Grand Prix",
+      "event": "Hungarian Grand Prix",
       "published": "2026-07-26T12:00:00Z",
       "driver": "Andrea Kimi Antonelli",
       "team": "Mercedes",
@@ -54,10 +66,10 @@
       "sourcePage": "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14/season/season-2026-2072"
     },
     {
-      "id": "2026|Final Starting Grid - Hungarian Grand Prix|11|Pit-lane start|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
+      "id": "2026|Hungarian Grand Prix|11|Pit-lane start|https://www.fia.com/system/files/decision-document/2026_hungarian_grand_prix_-_final_starting_grid.pdf",
       "series": "f1",
       "season": 2026,
-      "event": "Final Starting Grid - Hungarian Grand Prix",
+      "event": "Hungarian Grand Prix",
       "published": "2026-07-26T12:00:00Z",
       "driver": "Sergio Pérez",
       "team": "Cadillac F1 Team",
