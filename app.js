@@ -332,22 +332,27 @@ function applyNewsFilters(){
   let visible=0;
   cards.forEach(card=>{
     const seriesOk=state.newsSeriesFilter==="all"||card.dataset.series===state.newsSeriesFilter;
+    const categoryOk=state.newsCategoryFilter==="all"||card.dataset.category===state.newsCategoryFilter;
     const searchOk=!query||(card.dataset.search||"").includes(query);
-    const show=seriesOk&&searchOk;
+    const show=seriesOk&&categoryOk&&searchOk;
     card.classList.toggle("hidden",!show);
     if(show)visible++;
   });
   const empty=$("newsEmpty");
   if(empty){
     empty.classList.toggle("hidden",visible>0);
-    empty.textContent=cards.length?"No stories match the selected championship or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.";
+    empty.textContent=cards.length?"No stories match the selected filters or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.";
   }
 }
 function renderNews(snapshot){
   const articles=Array.isArray(snapshot.articles)?snapshot.articles:[];
   const filters=[["all","ALL"],["f1","F1"],["f2","F2"],["f3","F3"]];
+  const categories=["all","Race weekend","Driver moves","Technical & rules","Team news","Governance & calendar","General"];
   const filterMarkup=filters.map(([value,label])=>
     "<button class='news-filter "+(state.newsSeriesFilter===value?"active":"")+"' type='button' data-news-series='"+value+"'>"+label+"</button>"
+  ).join("");
+  const categoryMarkup=categories.map(value=>
+    "<button class='news-category-filter "+(state.newsCategoryFilter===value?"active":"")+"' type='button' data-news-category='"+esc(value)+"'>"+(value==="all"?"ALL CATEGORIES":esc(value))+"</button>"
   ).join("");
   const cards=articles.map(article=>{
     const series=String(article.series||"").toLowerCase();
@@ -356,12 +361,13 @@ function renderNews(snapshot){
     const title=String(article.title||"Untitled story");
     const summary=String(article.summary||"");
     const source=String(article.source||"Crash.net");
+    const category=String(article.category||"General");
     const link=String(article.link||"");
     const safeLink=/^https?:\/\//i.test(link)?link:"";
-    const searchable=[title,summary,seriesLabel,source].join(" ").toLowerCase();
+    const searchable=[title,summary,seriesLabel,source,category].join(" ").toLowerCase();
     const date=article.published?formatNewsDate(article.published):"Date not supplied";
-    return "<article class='news-card' data-series='"+esc(series)+"' data-search='"+esc(searchable)+"'>"+
-      "<div class='news-card-meta'><span class='news-series-pill'>"+esc(shortSeries)+"</span><span>"+esc(source)+"</span><time datetime='"+esc(article.published||"")+"'>"+esc(date)+"</time></div>"+
+    return "<article class='news-card' data-series='"+esc(series)+"' data-category='"+esc(category)+"' data-search='"+esc(searchable)+"'>"+
+      "<div class='news-card-meta'><span class='news-series-pill'>"+esc(shortSeries)+"</span><span class='news-category-pill'>"+esc(category)+"</span><span>"+esc(source)+"</span><time datetime='"+esc(article.published||"")+"'>"+esc(date)+"</time></div>"+
       "<h2>"+esc(title)+"</h2>"+
       (summary?"<p>"+esc(summary)+"</p>":"")+
       (safeLink?"<a class='news-link' href='"+esc(safeLink)+"' target='_blank' rel='noopener noreferrer'>Read on "+esc(source)+" ↗</a>":"")+
@@ -370,13 +376,14 @@ function renderNews(snapshot){
   const stale=Object.entries(snapshot.feedStatus||{}).filter(([,value])=>value!=="ok").map(([key])=>key.toUpperCase());
   const warning=stale.length?" Some feeds were unavailable during the last update; their previous headlines have been retained ("+esc(stale.join(", "))+").":"";
   const updated=snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"Awaiting first import";
-  return pageHead("MOTORSPORT NEWS","Latest news","Search stories and filter the feed by championship. Headlines and short feed summaries are credited to the publisher.")+
+  return pageHead("MOTORSPORT NEWS","Latest news","Search stories and filter by championship or category. Headlines and short feed summaries are credited to the publisher.")+
     "<div class='news-toolbar'><div class='news-filters' aria-label='Filter news by championship'>"+filterMarkup+"</div>"+
     "<label class='news-search'><span>SEARCH STORIES</span><input class='search-input' id='newsSearch' type='search' value='"+esc(state.newsSearch)+"' placeholder='Driver, team, topic…'></label></div>"+
+    "<div class='news-category-filters' aria-label='Filter news by category'>"+categoryMarkup+"</div>"+
     "<div class='news-feed-info'><span>"+articles.length+" stories in the latest snapshot</span><span>Updated: "+esc(updated)+" · Source: Crash.net RSS</span></div>"+
     (warning?"<div class='notice'>"+warning+"</div>":"")+
     "<div class='news-grid'>"+cards+"</div>"+
-    "<div class='empty-state "+(articles.length?"hidden":"")+"' id='newsEmpty'>"+(articles.length?"No stories match the selected championship or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.")+"</div>";
+    "<div class='empty-state "+(articles.length?"hidden":"")+"' id='newsEmpty'>"+(articles.length?"No stories match the selected filters or search.":"No headlines are available in the cached feed yet. The scheduled importer will retry.")+"</div>";
 }
 function renderDashboard(){
   const cards=[
@@ -926,16 +933,68 @@ async function runSeasonCompare(){
 }
 async function renderRecords(){
   const [drivers,teams]=await Promise.all([getIndex(state.series,"drivers"),getIndex(state.series,"teams")]);
-  const top=(items,key)=>items.filter(x=>x[key]!==null&&x[key]!==undefined).sort((a,b)=>(b[key]||0)-(a[key]||0)).slice(0,10);
-  const recordCard=(title,key,items,kind)=>"<section class='panel'><div class='panel-header'><div><span class='eyebrow'>CAREER RECORDS</span><h2>"+title+"</h2></div></div>"+table(["RANK",kind==="drivers"?"DRIVER":"CONSTRUCTOR","VALUE"],top(items,key).map((x,i)=>"<tr><td class='rank'>"+(i+1)+"</td><td><a class='person-link' href='"+(kind==="drivers"?driverHref(state.series,x.id):teamHref(state.series,x.id))+"'>"+esc(x.name)+"</a></td><td class='num'>"+esc(x[key])+(x[key+"Complete"]===false?"*":"")+"</td></tr>"))+"</section>";
-  return pageHead("RECORD BOOK","Career & historical records","Rankings are calculated from the stored season archive. Partial totals are marked, and raw points are not normalized across eras.")+
+  const top=(items,key,filter=()=>true)=>items.filter(x=>x[key]!==null&&x[key]!==undefined&&filter(x)).sort((a,b)=>(b[key]||0)-(a[key]||0)).slice(0,10);
+  const recordCard=(title,key,items,kind,filter=()=>true,formatter=x=>x[key])=>{
+    const sorted=top(items,key,filter);
+    const rows=sorted.map((x,i)=>"<tr><td class='rank'>"+(i+1)+"</td><td><a class='person-link' href='"+(kind==="drivers"?driverHref(state.series,x.id):teamHref(state.series,x.id))+"'>"+esc(x.name)+"</a></td><td class='num'>"+esc(formatter(x))+(x[key+"Complete"]===false?"*":"")+"</td></tr>");
+    return "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>"+(kind==="drivers"?"DRIVER RECORDS":"CONSTRUCTOR RECORDS")+"</span><h2>"+title+"</h2></div></div>"+table(["RANK",kind==="drivers"?"DRIVER":"CONSTRUCTOR","VALUE"],rows)+"</section>";
+  };
+  return pageHead("RECORD BOOK","Career & historical records","Archive-derived rankings. Partial totals are marked; raw points are not normalized across eras.")+
     "<div class='grid-2'>"+recordCard("Most championship titles","championships",drivers.drivers,"drivers")+recordCard("Most race wins","wins",drivers.drivers,"drivers")+"</div>"+
     "<div class='grid-2'>"+recordCard("Most podiums","podiums",drivers.drivers,"drivers")+recordCard("Most career points","points",drivers.drivers,"drivers")+"</div>"+
     "<div class='grid-2'>"+recordCard("Most pole starts","poleStarts",drivers.drivers,"drivers")+recordCard("Most fastest laps in available data","fastestLaps",drivers.drivers,"drivers")+"</div>"+
+    "<div class='grid-2'>"+recordCard("Longest consecutive race-win streak","maxConsecutiveWins",drivers.drivers,"drivers",d=>Number(d.eventResults||0)>0)+recordCard("Most podiums without a win","podiumsWithoutWin",drivers.drivers,"drivers")+"</div>"+
+    "<div class='grid-2'>"+recordCard("Highest win rate · 20+ starts","winRate",drivers.drivers,"drivers",d=>Number(d.eventResults)>=20,d=>number(d.winRate)+"%")+recordCard("Highest points per race start · 20+ starts","pointsPerStart",drivers.drivers,"drivers",d=>Number(d.eventResults)>=20,d=>number(d.pointsPerStart))+"</div>"+
     "<div class='grid-2'>"+recordCard("Constructor championships","championships",teams.teams,"teams")+recordCard("Constructor career points","points",teams.teams,"teams")+"</div>"+
-    "<div class='notice'>* Partial or source-limited total. Historical points systems changed considerably; points totals are shown as recorded, not adjusted to a common scoring system. Pole starts are based on starting-grid position one, not independently verified qualifying classifications.</div>";
+    "<div class='notice'>* Partial or source-limited total. Consecutive wins use adjacent indexed race-session results. Win rate is wins divided by indexed classified race-session rows, not starts in every season of a driver's career. Historical points systems changed considerably and are not normalized. Pole starts use grid position one, not an official qualifying pole classification.</div>";
 }
 
+function renderPointsProgression(data,series){
+  const events=availableEvents(data).slice().sort((a,b)=>(Number(a.round)||0)-(Number(b.round)||0));
+  const totals=new Map(),pointsByRound=[];
+  events.forEach((event,index)=>{
+    for(const result of event.Results||[]){
+      if(result.isRecordOnly||!result.Driver||!isRaceClassification(series,result.session))continue;
+      const points=Number(result.points),id=result.Driver.driverId;
+      if(!id||!Number.isFinite(points))continue;
+      const entry=totals.get(id)||{id,name:driverName(result.Driver),points:0};
+      entry.points+=points;totals.set(id,entry);
+    }
+    pointsByRound.push({round:event.round,label:event.raceName,values:new Map([...totals].map(([id,value])=>[id,value.points]))});
+  });
+  const leaders=[...totals.values()].sort((a,b)=>b.points-a.points).slice(0,6);
+  if(!leaders.length)return "<div class='empty-state'>No race-session points are available for the selected "+esc(seriesLabel(series))+" season. Progression cannot be calculated from this archive.</div>";
+  const width=900,height=340,left=54,right=22,top=22,bottom=52;
+  const chartWidth=width-left-right,chartHeight=height-top-bottom;
+  const maxPoints=Math.max(1,...leaders.map(d=>d.points));
+  const rounds=Math.max(1,pointsByRound.length);
+  const palette=["#68d7b8","#f2c66d","#84b9ff","#f28c8c","#c7a6ff","#b9c5d1"];
+  const yGrid=[0,0.25,0.5,0.75,1].map(f=>{
+    const y=top+chartHeight*(1-f),value=Math.round(maxPoints*f);
+    return "<line x1='"+left+"' y1='"+y+"' x2='"+(width-right)+"' y2='"+y+"' stroke='#2b4052' stroke-width='1'/>"+
+      "<text x='"+(left-10)+"' y='"+(y+4)+"' text-anchor='end' fill='#9aabba' font-size='11'>"+value+"</text>";
+  }).join("");
+  const xLabels=pointsByRound.map((round,i)=>{
+    if(rounds>12&&i%Math.ceil(rounds/10)!==0&&i!==rounds-1)return "";
+    const x=left+(rounds===1?chartWidth/2:chartWidth*i/(rounds-1));
+    return "<text x='"+x+"' y='"+(height-20)+"' text-anchor='middle' fill='#9aabba' font-size='10'>"+esc(round.round||i+1)+"</text>";
+  }).join("");
+  const lines=leaders.map((driver,index)=>{
+    const points=pointsByRound.map((round,i)=>{
+      const x=left+(rounds===1?chartWidth/2:chartWidth*i/(rounds-1));
+      const value=round.values.get(driver.id)||0;
+      const y=top+chartHeight-(value/maxPoints)*chartHeight;
+      return x+","+y;
+    }).join(" ");
+    return "<polyline points='"+points+"' fill='none' stroke='"+palette[index]+"' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/>";
+  }).join("");
+  const legend=leaders.map((driver,index)=>
+    "<span class='progression-legend-item'><i style='background:"+palette[index]+"'></i>"+driverLink(series,driver.id,driver.name)+" · "+number(driver.points)+" pts</span>"
+  ).join("");
+  return "<div class='progression-chart-wrap'><svg class='progression-chart' viewBox='0 0 "+width+" "+height+"' role='img' aria-label='Cumulative championship points after each round'>"+yGrid+lines+xLabels+
+    "<text x='14' y='16' fill='#9aabba' font-size='10'>CUMULATIVE POINTS</text><text x='"+(width-right)+"' y='"+(height-2)+"' text-anchor='end' fill='#9aabba' font-size='10'>ROUND</text></svg></div>"+
+    "<div class='progression-legend'>"+legend+"</div><p class='secondary'>Cumulative points after each round, using numeric points attached to the stored race-session classifications. Sprint points are not added unless the archive records them within these race-session rows.</p>";
+}
 async function renderAnalytics(){
   const idx=await getIndex(state.series,"drivers"),seasons=idx.seasons||[];
   const champions=seasons.filter(s=>s.status==="final"&&s.champion);
@@ -949,7 +1008,8 @@ async function renderAnalytics(){
   const leaderRow=currentLeader?"<tr><td>"+currentLeader.year+"</td><td>"+driverLink(state.series,currentLeader.leaderId,currentLeader.leader)+" "+badge("Current leader","gold")+"</td><td class='num'>"+esc(number(currentLeader.championPoints))+"</td><td>"+esc(currentLeader.constructorLeader||"—")+"</td></tr>":"";
   return pageHead("ADVANCED ANALYTICS",seriesLabel(state.series)+" analytics","Explore title history, season-by-season performance and historical patterns.")+
     "<div class='kpi-grid'>"+kpi("Seasons indexed",seasons.length,"Years with season files")+kpi("Champions identified",champions.length,"Completed seasons only")+kpi("Different champions",counts.size,"Unique completed-season winners")+kpi("Current season leader",currentLeader?currentLeader.leader:"—",currentLeader?"Provisional "+currentLeader.year+" standings":"No current leader","accent")+"</div>"+
-    "<div class='grid-2'>"+panel("TITLE HISTORY","Most championships", "<div class='chart-bars'>"+bars+"</div>")+panel("DATA METHOD","How to read this page","<p class='secondary'>This page is built from final season standings, not live timing. Only years with an indexed champion are counted. Points systems and championship formats changed over time, so raw points across decades are not directly comparable.</p><p class='secondary'>Further analytics can be added as source coverage improves, including qualifying pace, teammate comparisons, points-per-start and circuit-specific performance.</p>")+"</div>"+
+    panel("SEASON PERFORMANCE","Championship points progression",renderPointsProgression(state.data,state.series))+
+    "<div class='grid-2'>"+panel("TITLE HISTORY","Most championships","<div class='chart-bars'>"+bars+"</div>")+panel("DATA METHOD","How to read this page","<p class='secondary'>Title history uses completed season standings. Points progression is built from classified race-session points available in the selected season archive. Points systems and championship formats changed over time, so raw points across decades are not directly comparable.</p><p class='secondary'>For some F2/F3 seasons, source data may not provide race points for every session. Those seasons display a coverage message rather than a fabricated curve.</p>")+"</div>"+
     panel("CHAMPIONSHIP ARCHIVE","Season champions and current leader",table(["SEASON","DRIVER CHAMPION / LEADER","POINTS","CONSTRUCTOR CHAMPION / LEADER"],timeline.concat(leaderRow)));
 }
 async function renderDataCentre(){
