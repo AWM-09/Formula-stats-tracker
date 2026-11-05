@@ -1,0 +1,118 @@
+{
+  "updatedAt": "2026-11-05T23:00:00Z",
+  "season": 2026,
+  "nextRace": {
+    "name": "São Paulo Grand Prix",
+    "date": "2026-11-08",
+    "round": "20"
+  },
+  "sourceNewsUpdatedAt": null,
+  "aiEnrichment": "local-structured-fallback",
+  "teams": [
+    {
+      "team": "McLaren",
+      "nextUpgrade": {
+        "id": "mclaren-sao-paulo-2026-skysports",
+        "team": "McLaren",
+        "season": 2026,
+        "event": "São Paulo Grand Prix",
+        "eventDate": "2026-11-08",
+        "components": [
+          "Front wing",
+          "Rear wing",
+          "Floor"
+        ],
+        "status": "reported",
+        "statusLabel": "Reported for upcoming weekend",
+        "detail": "Sky Sports reported that McLaren was bringing a new front wing, rear wing and floor components to São Paulo. This is a media report, not an FIA car-presentation confirmation.",
+        "sourceTitle": "Sky Sports — McLaren upgrades for São Paulo",
+        "sourceUrl": "https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car",
+        "sourceDate": "2026-11-05",
+        "sourceType": "media-report"
+      },
+      "reportedUpdates": [
+        {
+          "id": "mclaren-sao-paulo-2026-skysports",
+          "team": "McLaren",
+          "season": 2026,
+          "event": "São Paulo Grand Prix",
+          "eventDate": "2026-11-08",
+          "components": [
+            "Front wing",
+            "Rear wing",
+            "Floor"
+          ],
+          "status": "reported",
+          "statusLabel": "Reported for upcoming weekend",
+          "detail": "Sky Sports reported that McLaren was bringing a new front wing, rear wing and floor components to São Paulo. This is a media report, not an FIA car-presentation confirmation.",
+          "sourceTitle": "Sky Sports — McLaren upgrades for São Paulo",
+          "sourceUrl": "https://www.skysports.com/f1/news/13607894/lando-norris-mclaren-driver-unsure-if-sao-paulo-grand-prix-upgrades-will-improve-horrible-mclaren-car",
+          "sourceDate": "2026-11-05",
+          "sourceType": "media-report"
+        }
+      ],
+      "status": "reported"
+    },
+    {
+      "team": "Mercedes",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Ferrari",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Red Bull Racing",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Aston Martin",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Williams",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Alpine",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Haas",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Audi",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Racing Bulls",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    },
+    {
+      "team": "Cadillac",
+      "nextUpgrade": null,
+      "reportedUpdates": [],
+      "status": "not-announced"
+    }
+  ],
+  "coverageNote": "Only publicly reported upgrade information found in the connected news sources is shown. Media reports are not FIA confirmation. Teams without a listing may still be developing parts; their next package has not been identified in the connected sources."
+}
