@@ -562,7 +562,40 @@ function circuitLayoutForSeason(layouts,year){
 }
 function findCircuitTrackRecord(trackData,profile){
   const circuits=trackData&&Array.isArray(trackData.circuits)?trackData.circuits:[];
-  const exact=circuits.find(c=>c.id===profile.id);
+  const aliases={
+    albertparkcircuit:"melbourne",
+    bahraininternationalcircuit:"bahrain",
+    bakucitycircuit:"baku",
+    barcelona:"catalunya",
+    budapest:"hungaroring",
+    circuitdebarcelonacatalunya:"catalunya",
+    circuitdemonaco:"monaco",
+    circuitdespafrancorchamps:"spa-francorchamps",
+    circuitgillesvilleneuve:"montreal",
+    circuitzandvoort:"zandvoort",
+    imolacircuit:"imola",
+    jeddahcornichecircuit:"jeddah",
+    jerezdelafrontera:"jerez",
+    lecastellet:"paul-ricard",
+    lusailinternationalcircuit:"lusail",
+    miamiinternationalautodrome:"miami",
+    montecarlo:"monaco",
+    monzacircuit:"monza",
+    autodromonazionaledimonza:"monza",
+    autodromonazionaledi: "monza",
+    redbullring:"spielberg",
+    sakhir:"bahrain",
+    silverstonecircuit:"silverstone",
+    sochiautodrom:"sochi",
+    spafrancorchamps:"spa-francorchamps",
+    yasisland:"yas-marina",
+    yasmarinacircuit:"yas-marina",
+    mugellocircuit:"mugello",
+    circuitpaulricard:"paul-ricard"
+  };
+  const profileId=String(profile.id||"");
+  const aliasedId=aliases[profileId]||profileId;
+  const exact=circuits.find(c=>c.id===profileId)||circuits.find(c=>c.id===aliasedId);
   if(exact)return exact;
   const nameMatch=circuits.find(c=>norm(c.name)===norm(profile.name));
   if(nameMatch)return nameMatch;
