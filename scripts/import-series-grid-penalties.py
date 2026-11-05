@@ -125,10 +125,12 @@ def season_urls(series: str, year: int) -> list[str]:
 
 
 def collect_page_documents(series: str, year: int) -> tuple[list[dict], str | None]:
+    last_reachable_page: str | None = None
     for page_url in season_urls(series, year):
         try:
             payload = read_url(page_url, "text/html,application/xhtml+xml")
             soup = BeautifulSoup(payload, "html.parser")
+            last_reachable_page = page_url
             documents: dict[str, dict] = {}
             for anchor in soup.find_all("a", href=True):
                 href = urljoin(page_url, anchor["href"].strip())
@@ -176,12 +178,11 @@ def collect_page_documents(series: str, year: int) -> tuple[list[dict], str | No
                 )
                 print(f"{series.upper()} {year}: {len(values)} relevant FIA PDFs")
                 return values[:MAX_PDFS_PER_SEASON], page_url
-            # Page was reachable; record that it was checked even if no matching PDFs were visible.
-            print(f"{series.upper()} {year}: FIA page reachable, no matching PDF links exposed")
-            return [], page_url
+            print(f"{series.upper()} {year}: {page_url} reachable but no matching PDF links exposed")
+            # Keep trying alternate canonical paths for the same season.
         except (HTTPError, URLError, TimeoutError, ValueError) as error:
             print(f"{series.upper()} {year}: archive route unavailable ({page_url}): {error}", file=sys.stderr)
-    return [], None
+    return [], last_reachable_page
 
 
 def pdf_text(payload: bytes) -> str:
