@@ -427,7 +427,7 @@ async function renderDriverProfile(series,id){
   const maxPoints=Math.max(1,...seasons.map(s=>s.points||0));
   const timeline=seasons.slice().reverse().map(s=>"<div class='season-item'><strong>"+esc(s.season)+"<small>"+esc(s.position==null?"Position unavailable":"P"+s.position)+"</small></strong><div><div class='secondary'>"+esc((s.constructors||[]).join(", ")||"Constructor not linked")+" · "+esc(number(s.points))+" pts</div><div class='mini-bar'><span style='width:"+Math.max(2,Math.min(100,(s.points||0)/maxPoints*100))+"%'></span></div></div>"+badge(s.position===1?"Champion":s.coverage||"Season")+"</div>").join("");
   const knownWins=c.wins==null?"—":c.wins+(c.winsComplete?"":"*");
-  return pageHead("DRIVER PROFILE",p.name, [p.nationality,seriesLabel(series)+" career",c.firstSeason+"–"+c.lastSeason].filter(Boolean).join(" · "),"<a class='text-link' href='#/drivers'>← All drivers</a>")+
+  return pageHead("DRIVER PROFILE",p.name, [p.nationality,seriesLabel(series)+" career",c.firstSeason+"–"+c.lastSeason].filter(Boolean).join(" · "),"<a class='text-link' href='#/drivers'>← All drivers</a><button type='button' class='watch-toggle' data-watch='drivers' data-series='"+esc(series)+"' data-id='"+esc(id)+"'>"+(isWatchlisted("drivers",series,id)?"★ Saved to watchlist":"☆ Add to watchlist")+"</button>")+
     "<div class='profile-hero'><div><span class='eyebrow'>CAREER ARCHIVE · "+esc(seriesLabel(series))+"</span><h1>"+esc(p.name)+"</h1><p>"+esc(p.nationality||"Nationality not in source")+(p.code?" · "+esc(p.code):"")+(p.number?" · Permanent number #"+esc(p.number):"")+"</p><div class='entity-meta'>"+teamHistory.slice(0,8).map(t=>badge(t)).join("")+"</div></div><div class='profile-number'>"+esc(p.number||"N/A")+"<small class='secondary'>"+(p.number?"PERMANENT NO.":"NO PERMANENT NUMBER ASSIGNED")+"</small></div></div>"+
     "<div class='profile-metrics'>"+metric("Championships",number(c.championships),"Season titles in archive")+metric("Race wins",knownWins,c.winsComplete?"Career total":"Available-source total*")+metric("Podiums",c.podiums==null?"—":c.podiums+(c.podiumsComplete?"":"*"),c.podiumsComplete?"Derived from full classifications":"Available-source total*")+metric("Points",c.points==null?"—":number(c.points),"Raw historical championship points")+"</div>"+
     "<div class='grid-2'>"+panel("CAREER TIMELINE","Season-by-season performance","<div class='season-list'>"+(timeline||"<div class='empty-state'>No season history.</div>")+"</div>")+panel("CAREER OVERVIEW","Profile details","<div class='fact-grid'>"+[
@@ -447,12 +447,92 @@ async function renderTeamProfile(series,id){
   const timeline=seasons.slice().reverse().map(s=>"<div class='season-item'><strong>"+esc(s.season)+"<small>"+esc(s.position==null?"Position unavailable":"P"+s.position)+"</small></strong><div><div class='secondary'>"+esc(number(s.points))+" pts · "+esc(s.wins==null?"—":s.wins)+" wins</div><div class='mini-bar'><span style='width:"+Math.max(2,Math.min(100,(s.points||0)/maxPoints*100))+"%'></span></div></div>"+badge(s.position===1?"Champion":"Season")+"</div>").join("");
   const drivers=(p.drivers||[]).map(d=>"<a class='entity-card' href='"+driverHref(series,d.id)+"'><h3>"+esc(d.name)+"</h3><p>Open driver profile ↗</p></a>").join("");
   const resultRows=results.slice(-15).reverse().map(r=>"<tr><td>"+esc(r.season)+"</td><td><a class='person-link' href='"+raceHref(series,r.season,r.round)+"'>"+esc(r.raceName)+"</a></td><td>"+esc(r.session)+"</td><td>"+driverLink(series,r.driverId,r.driverName)+"</td><td class='num'>"+esc(r.position==null?"—":r.position)+"</td><td class='num'>"+esc(number(r.points))+"</td></tr>");
-  return pageHead("CONSTRUCTOR PROFILE",p.name,[seriesLabel(series)+" history",c.firstSeason+"–"+c.lastSeason].join(" · "),"<a class='text-link' href='#/teams'>← All constructors</a>")+
+  return pageHead("CONSTRUCTOR PROFILE",p.name,[seriesLabel(series)+" history",c.firstSeason+"–"+c.lastSeason].join(" · "),"<a class='text-link' href='#/teams'>← All constructors</a><button type='button' class='watch-toggle' data-watch='teams' data-series='"+esc(series)+"' data-id='"+esc(id)+"'>"+(isWatchlisted("teams",series,id)?"★ Saved to watchlist":"☆ Add to watchlist")+"</button>")+
     "<div class='profile-hero'><div><span class='eyebrow'>TEAM ARCHIVE</span><h1>"+esc(p.name)+"</h1><p>"+esc(p.nationality||"Nationality not supplied")+" · "+esc(c.seasons)+" seasons in the archive</p></div><div class='profile-number'>"+esc(c.championships||0)+"<small class='secondary'> TITLES</small></div></div>"+
     "<div class='profile-metrics'>"+metric("Championships",number(c.championships),"Season titles")+metric("Race wins",c.wins==null?"—":c.wins+(c.winsComplete?"":"*"),"Available-source total")+metric("Podiums",c.podiums==null?"—":c.podiums,"Where classified")+metric("Points",c.points==null?"—":number(c.points),"Across indexed seasons")+"</div>"+
     "<div class='grid-2'>"+panel("TEAM HISTORY","Season-by-season", "<div class='season-list'>"+timeline+"</div>")+panel("DRIVER LINE-UP","Drivers associated with this team","<div class='card-grid'>"+drivers+"</div>")+"</div>"+
     panel("RACE ARCHIVE","Latest team results",table(["SEASON","EVENT","SESSION","DRIVER","POS","POINTS"],resultRows));
 }
+async function renderWatchlist(){
+  const [driverIndex,teamIndex]=await Promise.all([
+    getIndex(state.series,"drivers"),getIndex(state.series,"teams")
+  ]);
+  const driverIds=new Set(state.watchlist.drivers.filter(x=>x.startsWith(state.series+":")).map(x=>x.slice(state.series.length+1)));
+  const teamIds=new Set(state.watchlist.teams.filter(x=>x.startsWith(state.series+":")).map(x=>x.slice(state.series.length+1)));
+  const driverCards=driverIndex.drivers.filter(x=>driverIds.has(x.id)).map(d=>
+    "<article class='watch-card'><a href='"+driverHref(state.series,d.id)+"'><span class='eyebrow'>DRIVER</span><h3>"+esc(d.name)+"</h3><p>"+esc(d.nationality||"Nationality not supplied")+" · "+esc(d.firstSeason)+"–"+esc(d.lastSeason)+"</p><div class='entity-meta'>"+badge("Wins "+number(d.wins))+badge("Titles "+number(d.championships),"gold")+"</div></a><button type='button' class='watch-remove' data-watch='drivers' data-series='"+esc(state.series)+"' data-id='"+esc(d.id)+"'>Remove</button></article>"
+  ).join("");
+  const teamCards=teamIndex.teams.filter(x=>teamIds.has(x.id)).map(t=>
+    "<article class='watch-card'><a href='"+teamHref(state.series,t.id)+"'><span class='eyebrow'>CONSTRUCTOR</span><h3>"+esc(t.name)+"</h3><p>"+esc(t.nationality||"Nationality not supplied")+" · "+esc(t.firstSeason)+"–"+esc(t.lastSeason)+"</p><div class='entity-meta'>"+badge("Wins "+number(t.wins))+badge("Titles "+number(t.championships),"gold")+"</div></a><button type='button' class='watch-remove' data-watch='teams' data-series='"+esc(state.series)+"' data-id='"+esc(t.id)+"'>Remove</button></article>"
+  ).join("");
+  return pageHead("PERSONAL TRACKING","Your watchlist","Saved in this browser only. Switch the championship above to see saved entries for another series.")+
+    "<div class='grid-2'><section class='panel'><div class='panel-header'><div><span class='eyebrow'>SAVED DRIVERS</span><h2>"+driverIds.size+" drivers</h2></div></div><div class='watch-grid'>"+(driverCards||"<div class='empty-state'>No drivers saved for "+esc(seriesLabel(state.series))+". Open a driver profile and select Add to watchlist.</div>")+"</div></section>"+
+    "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>SAVED CONSTRUCTORS</span><h2>"+teamIds.size+" teams</h2></div></div><div class='watch-grid'>"+(teamCards||"<div class='empty-state'>No constructors saved for "+esc(seriesLabel(state.series))+". Open a constructor profile and select Add to watchlist.</div>")+"</div></section></div>"+
+    "<p class='secondary'>Your watchlist uses browser storage. It is not synced between devices or browsers.</p>";
+}
+function csvCell(value){
+  const textValue=value==null?"":typeof value==="object"?JSON.stringify(value):String(value);
+  return '"'+textValue.replace(/"/g,'""')+'"';
+}
+function rowsToCsv(headers,rows){
+  return [headers.map(csvCell).join(","),...rows.map(row=>headers.map(h=>csvCell(row[h])).join(","))].join("\r\n");
+}
+function downloadExport(content,filename,mime){
+  const blob=new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement("a");
+  link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function runDataExport(kind){
+  const data=state.data||await getSeason(state.series,state.season);
+  const prefix=state.series.toUpperCase()+"-"+state.season;
+  let filename="",content="",mime="text/csv;charset=utf-8";
+  if(kind==="driver-standings"){
+    const rows=(data.driverStandings||[]).map(r=>({position:r.position,driver:driverName(r.Driver),driverId:r.Driver&&r.Driver.driverId,constructor:(r.Constructors||[]).map(c=>c.name).join(" / "),points:r.points,wins:r.wins}));
+    filename=prefix+"-driver-standings.csv";content=rowsToCsv(["position","driver","driverId","constructor","points","wins"],rows);
+  }else if(kind==="constructor-standings"){
+    const rows=(data.constructorStandings||[]).map(r=>({position:r.position,constructor:r.Constructor&&r.Constructor.name,constructorId:r.Constructor&&r.Constructor.constructorId,points:r.points,wins:r.wins}));
+    filename=prefix+"-constructor-standings.csv";content=rowsToCsv(["position","constructor","constructorId","points","wins"],rows);
+  }else if(kind==="race-results"){
+    const rows=[];
+    for(const event of data.races||[])for(const result of event.Results||[]){
+      if(result.isRecordOnly)continue;
+      rows.push({series:state.series,season:state.season,round:event.round,event:event.raceName,circuit:event.Circuit&&event.Circuit.circuitName,session:result.session||"Race",position:result.position,driver:driverName(result.Driver),driverId:result.Driver&&result.Driver.driverId,constructor:result.Constructor&&result.Constructor.name,grid:result.grid,laps:result.laps,time:result.Time&&result.Time.time,gap:result.gap,points:result.points,status:result.status,fastestLap:result.FastestLap&&result.FastestLap.Time&&result.FastestLap.Time.time});
+    }
+    filename=prefix+"-race-session-results.csv";content=rowsToCsv(["series","season","round","event","circuit","session","position","driver","driverId","constructor","grid","laps","time","gap","points","status","fastestLap"],rows);
+  }else if(kind==="calendar"){
+    const rows=availableEvents(data).map(e=>({series:state.series,season:state.season,round:e.round,event:e.raceName,circuit:e.Circuit&&e.Circuit.circuitName,date:e.date,location:[e.Circuit&&e.Circuit.Location&&e.Circuit.Location.locality,e.Circuit&&e.Circuit.Location&&e.Circuit.Location.country].filter(Boolean).join(", ")}));
+    filename=prefix+"-calendar.csv";content=rowsToCsv(["series","season","round","event","circuit","date","location"],rows);
+  }else if(kind==="season-json"){
+    filename=prefix+"-full-archive.json";mime="application/json;charset=utf-8";content=JSON.stringify(data,null,2);
+  }else if(kind==="career-drivers"||kind==="career-teams"){
+    const kindName=kind==="career-drivers"?"drivers":"teams";
+    const index=await getIndex(state.series,kindName);
+    const rows=kindName==="drivers"?index.drivers.map(d=>({name:d.name,nationality:d.nationality,firstSeason:d.firstSeason,lastSeason:d.lastSeason,championships:d.championships,wins:d.wins,podiums:d.podiums,poles:d.poles,fastestLaps:d.fastestLaps,points:d.points,starts:d.eventResults,winRatePct:d.winRate,maxConsecutiveWins:d.maxConsecutiveWins})):index.teams.map(t=>({name:t.name,nationality:t.nationality,firstSeason:t.firstSeason,lastSeason:t.lastSeason,championships:t.championships,wins:t.wins,podiums:t.podiums,points:t.points}));
+    const headers=Object.keys(rows[0]||{name:""});
+    filename=state.series.toUpperCase()+"-"+kindName+"-career-statistics.csv";content=rowsToCsv(headers,rows);
+  }else{
+    throw new Error("Unknown export type.");
+  }
+  downloadExport(content,filename,mime);
+  status("good","EXPORT READY");notice("Downloaded "+filename,"good");
+}
+function renderExportCentre(){
+  const item=(kind,title,description)=>"<button type='button' class='export-item' data-export='"+kind+"'><span><strong>"+title+"</strong><small>"+description+"</small></span><b>↓</b></button>";
+  return pageHead("DATA OUTPUT","Export Centre","Download the selected "+seriesLabel(state.series)+" "+state.season+" archive or cross-season career tables.")+
+    "<div class='grid-2'><section class='panel'><div class='panel-header'><div><span class='eyebrow'>SELECTED SEASON</span><h2>"+esc(state.season)+" exports</h2></div></div><div class='export-list'>"+
+      item("driver-standings","Driver standings CSV","Positions, constructors, wins and points")+
+      item("constructor-standings","Constructor standings CSV","Team positions, wins and points")+
+      item("race-results","Race and session results CSV","Practice, qualifying, sprint and race rows where imported")+
+      item("calendar","Season calendar CSV","Rounds, circuits, dates and locations")+
+      item("season-json","Full season archive JSON","Complete source snapshot as stored")+
+    "</div></section><section class='panel'><div class='panel-header'><div><span class='eyebrow'>CROSS-SEASON</span><h2>Career statistics</h2></div></div><div class='export-list'>"+
+      item("career-drivers","Driver career statistics CSV","Career records and source coverage totals")+
+      item("career-teams","Constructor career statistics CSV","Championships, wins, podiums and points")+
+    "</div><p class='secondary'>Exports contain only fields present in the imported archive. Missing source values remain blank; they are not converted to zero.</p></section></div>";
+}
+
 async function renderCircuits(){
   const idx=await getIndex(state.series,"circuits");
   const cards=idx.circuits.map(c=>"<a class='entity-card searchable' data-search='"+esc((c.name+" "+(c.location?.locality||"")+" "+(c.location?.country||"")).toLowerCase())+"' href='"+circuitHref(c.id)+"'><div class='card-top'>"+badge((c.location&&c.location.country)||c.series.join(" / "))+"<span class='secondary'>"+esc(c.firstSeason)+"–"+esc(c.lastSeason)+"</span></div><h3>"+esc(c.name)+"</h3><p>"+esc(c.eventCount)+" events represented in the archive</p><div class='entity-meta'>"+badge("Most recorded wins: "+(c.topWinner?c.topWinner.driverName:"—"),"gold")+"</div></a>").join("");
@@ -746,6 +826,13 @@ function bindDynamicEvents(){
     state.newsSeriesFilter=button.dataset.newsSeries;
     document.querySelectorAll("[data-news-series]").forEach(tab=>tab.classList.toggle("active",tab===button));
     applyNewsFilters();
+  }));
+  document.querySelectorAll("[data-watch]").forEach(button=>button.addEventListener("click",()=>{
+    toggleWatchlist(button.dataset.watch,button.dataset.series,button.dataset.id);
+    renderRoute();
+  }));
+  document.querySelectorAll("[data-export]").forEach(button=>button.addEventListener("click",()=>{
+    runDataExport(button.dataset.export).catch(error=>{status("bad","EXPORT FAILED");notice(error.message,"red");});
   }));
   $("compareDriverOne")?.addEventListener("input",runDriverCompare);
   $("compareDriverTwo")?.addEventListener("input",runDriverCompare);
