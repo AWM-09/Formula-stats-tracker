@@ -589,7 +589,10 @@ function timeToSeconds(value){
 function renderCircuitLayoutPanel(track,selectedLayout){
   const layouts=track&&Array.isArray(track.layouts)?track.layouts:[];
   if(!selectedLayout||!selectedLayout.svgUrl){
-    return "<section class='panel circuit-layout-panel'><div class='panel-header'><div><span class='eyebrow'>TRACK CONFIGURATION</span><h2>Track layout</h2></div></div><div class='empty-state'>A verified circuit outline is not currently available for this venue. The archive will not substitute a different track map.</div></section>";
+    const fallbackStats=track?
+      "<div class='circuit-layout-stats'><div><span>TRACK LENGTH · SOURCE SPECIFICATION</span><strong>"+esc(track.lengthKm==null?"Not supplied":number(track.lengthKm)+" km")+"</strong></div><div><span>NUMBER OF TURNS</span><strong>"+esc(track.turns==null?"Not supplied":number(track.turns))+"</strong></div></div>":
+      "";
+    return "<section class='panel circuit-layout-panel'><div class='panel-header'><div><span class='eyebrow'>TRACK CONFIGURATION</span><h2>Track layout</h2></div></div><div class='empty-state'>A verified circuit outline is not currently available for this venue. The archive will not substitute a different track map.</div>"+fallbackStats+"</section>";
   }
   const options=layouts.map(layout=>
     "<option value='"+esc(layout.id)+"' data-svg='"+esc(layout.svgUrl)+"' data-length='"+esc(layout.lengthKm==null?"":layout.lengthKm)+"' data-turns='"+esc(layout.turns==null?"":layout.turns)+"' data-seasons='"+esc(layout.seasons||"")+"' "+(layout.id===selectedLayout.id?"selected":"")+">"+esc((layout.seasons||"Era not supplied")+" · "+layout.id)+"</option>"
