@@ -114,3 +114,11 @@ The build workflow generates the cross-season indexes and per-entity profile JSO
 Circuit profiles now include a season-aware layout selector where a verified layout is available, along with configuration-specific length and turn counts. Circuit pages also calculate race-session laps and recorded classified distance from the imported winners' lap counts and the layout length applicable to that season. These calculated figures are clearly distinguished from official lap records and physical facts are left unavailable where sources do not match.
 
 The platform also includes browser-local driver/constructor watchlists, race-by-race driver head-to-head comparisons, cumulative season-points progression, expanded career records, CSV/JSON exports and category filters in the news feed. See [DATA_SOURCES.md](DATA_SOURCES.md) for sources, licences, calculation notes and coverage limitations.
+
+
+## Grid penalties and smart news
+The **Grid Penalties** page scans recent official FIA Formula One PDFs and reports only explicit grid-drop wording. Summonses/allegations are marked pending, decisions are marked confirmed, and every entry links to the source document. A lack of a matching entry is not proof that the FIA has issued no penalty.
+
+The **News** page includes a natural-language feed builder. Type a request such as `McLaren's next major upgrade package` or `F1 grid penalties this weekend`; the client converts the wording into team, topic, priority and recency filters and shows the structured request it applied.
+
+News is tagged locally by default. For GPT-6 structured tagging of teams, drivers, topics, major-upgrade status and explicit grid-penalty mentions, add an `OPENAI_API_KEY` repository secret in GitHub Actions settings. The secret is used only by the scheduled/server-side importer and is never exposed to the public website. The default model is GPT-6 Luna. Without the secret, the local structured tag fallback remains active. API usage is metered.
