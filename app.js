@@ -28,7 +28,7 @@ const state = {
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
   compareDriverDirectory:new Map(),
   sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null,
-  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", watchlist:loadWatchlist()
+  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", newsSmartRequest:null, newsArticles:[], watchlist:loadWatchlist()
 };
 const $ = id => document.getElementById(id);
 const esc = value => String(value==null?"":value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -575,7 +575,7 @@ function renderNews(snapshot){
     "<section class='panel smart-news-panel'><div class='panel-header'><div><span class='eyebrow'>NATURAL-LANGUAGE FEED BUILDER</span><h2>What do you want to follow?</h2><p>Examples: “McLaren’s next major upgrade package” or “F1 grid-penalty stories from this weekend”.</p></div>"+badge(snapshot.aiEnrichment==="openai-structured"?"AI TAGGING ON":"SMART TAGS","green")+"</div>"+
     "<div class='smart-news-input-row'><input class='search-input' id='newsSmartQuery' type='search' value='"+esc(state.newsSearch)+"' placeholder='Ask for a topic, team, driver or upcoming update…'><button class='primary-button' id='newsSmartApply' type='button'>Build my feed</button><button class='text-button' id='newsSmartClear' type='button'>Clear</button></div>"+
     "<div class='smart-news-examples'><span>TRY:</span><button type='button' data-smart-example='Show major upgrades expected for the next race'>Next major upgrades</button><button type='button' data-smart-example='Show McLaren technical upgrades'>McLaren upgrades</button><button type='button' data-smart-example='Show F1 grid penalties this weekend'>Grid penalties</button><button type='button' data-smart-example='Latest driver moves in Formula 1'>Driver moves</button></div>"+
-    "<div class='smart-request-summary' id='newsSmartSummary'><span class='smart-request-label'>STRUCTURED REQUEST</span><strong>"+esc(currentRequest?smartRequestSummary(currentRequest):"All motorsport stories")+"</strong><span class='secondary'>"+esc(aiLabel)+". The model never turns a news headline into an official FIA penalty record.</span></div></section>"+
+    "<div class='smart-request-summary' id='newsSmartSummary'><span class='smart-request-label'>STRUCTURED REQUEST</span><strong>"+esc(currentRequest?smartRequestSummary(currentRequest):"All motorsport stories")+"</strong><span class='secondary'>"+esc(aiLabel)+". The model never turns a news headline into an official FIA penalty record.</span>"+(currentRequest&&currentRequest.gridPenaltyOnly?"<a class='text-link' href='#/grid-penalties'>Open the official FIA Grid Penalties register ↗</a>":"")+"</div></section>"+
     "<div class='news-toolbar'><div class='news-filters' aria-label='Filter news by championship'>"+filterMarkup+"</div></div>"+
     "<div class='news-category-filters' aria-label='Filter news by category'>"+categoryMarkup+"</div>"+
     "<div class='news-feed-info'><span>"+articles.length+" stories in the latest snapshot · <strong id='newsVisibleCount'>"+articles.length+" matching stories</strong></span><span>Updated: "+esc(updated)+" · Sources: Crash.net, Autosport and FIA</span></div>"+
