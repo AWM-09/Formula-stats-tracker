@@ -623,25 +623,52 @@ function renderGridPenalties(snapshot){
   const current=penalties.filter(item=>Number(item.season)===CURRENT_YEAR);
   const confirmed=current.filter(item=>item.status==="confirmed");
   const pending=current.filter(item=>item.status==="pending");
-  const scanUnavailable=!Number(snapshot.documentsScanned||0);
+  const documents=Array.isArray(snapshot.documents)?snapshot.documents:[];
   const events=[...new Set(penalties.map(item=>item.event).filter(Boolean))];
+  const liveDocumentsFound=snapshot.liveDocumentsFound===true;
+  const nextEvent=snapshot.nextEvent||null;
+  const nextStatus=snapshot.nextEventStatus||"unknown";
+  const nextPenalties=Array.isArray(snapshot.nextEventPenalties)?snapshot.nextEventPenalties:[];
+  const statusLabels={
+    confirmed:"Confirmed FIA grid sanctions",
+    "no-sanction-listed":"Final grid checked · no sanction listed",
+    "pending-final-grid":"Waiting for the Final Starting Grid",
+    unknown:"Unknown · live FIA documents not imported"
+  };
+  const statusDescriptions={
+    confirmed:"The FIA Final Starting Grid includes these sanctions for this event.",
+    "no-sanction-listed":"A Final Starting Grid document was scanned, and no grid-drop or pit-lane sanction was listed in it.",
+    "pending-final-grid":"The next event is known, but no Final Starting Grid document was found in the latest import. Penalty status is not final.",
+    unknown:"The live FIA archive did not expose downloadable PDF links to the importer. Historical records below are not a penalty update for this weekend."
+  };
+  const statusColor=nextStatus==="confirmed"?"green":nextStatus==="no-sanction-listed"?"blue":"gold";
   const rows=penalties.map(item=>{
     const driver=item.driver||("Car "+(item.carNumber||"number not supplied"));
     const statusKind=item.status==="confirmed"?"green":"gold";
+    const seriesLabel=String(item.series||"f1").toUpperCase();
     return "<tr><td>"+esc(item.event||"Event not identified")+"</td><td>"+esc(item.season||"—")+"</td><td><strong>"+esc(driver)+"</strong>"+(item.team?"<div class='secondary'>"+esc(item.team)+"</div>":"")+"</td><td>"+esc(item.penalty||"Grid sanction not supplied")+"</td><td>"+esc(item.reason||"Reason not extracted from the FIA document")+"</td><td>"+badge(item.status==="pending"?"Pending":"Confirmed",statusKind)+"</td><td>"+(item.sourceUrl?"<a class='text-link' href='"+esc(item.sourceUrl)+"' target='_blank' rel='noopener'>FIA document ↗</a>":"—")+"</td></tr>";
   });
-  const documentRows=(snapshot.documents||[]).slice(0,18).map(doc=>
-    "<tr><td>"+esc(doc.event||"Event not identified")+"</td><td>"+esc(doc.published?formatNewsDate(doc.published):"Date not supplied")+"</td><td>"+esc(doc.title||"FIA document")+"</td><td><a class='text-link' href='"+esc(doc.url||"https://www.fia.com/documents/championships/fia-formula-one-world-championship-14")+"' target='_blank' rel='noopener'>Open source ↗</a></td></tr>"
+  const documentRows=documents.slice(0,18).map(doc=>
+    "<tr><td>"+esc(doc.event||"Event not identified")+"</td><td>"+esc(doc.published?formatNewsDate(doc.published):"Date not supplied")+"</td><td>"+esc(doc.title||"FIA document")+(doc.bootstrapFallback?"<div class='secondary'>Bootstrap source</div>":"")+"</td><td><a class='text-link' href='"+esc(doc.url||"https://www.fia.com/documents/championships/fia-formula-one-world-championship-14")+"' target='_blank' rel='noopener'>Open source ↗</a></td></tr>"
   );
-  return pageHead("OFFICIAL FIA DOCUMENT TRACKER","Grid penalties","Track explicit Formula One grid drops found in FIA steward decisions and official starting-grid documents. News headlines are not treated as confirmation.")+
-    "<div class='kpi-grid'>"+kpi("Confirmed · "+CURRENT_YEAR,confirmed.length,"Explicit FIA grid sanctions")+kpi("Pending / summons",pending.length,"Allegations are not final decisions")+kpi("FIA PDFs scanned",snapshot.documentsScanned||0,"Latest document refresh")+kpi("Records in archive",penalties.length,"Imported official-document evidence")+"</div>"+
-    "<section class='panel grid-penalties-panel'><div class='panel-header'><div><span class='eyebrow'>CURRENT SEASON · "+CURRENT_YEAR+"</span><h2>Driver grid-penalty register</h2><p>Search by driver, team, circuit, sanction or reason.</p></div><span class='secondary'>Updated "+esc(snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"not yet imported")+"</span></div>"+
+  const nextPenaltyRows=nextPenalties.map(item=>
+    "<li><strong>"+esc(item.driver||("Car "+(item.carNumber||"number not supplied")))+"</strong> · "+esc(item.penalty)+" · "+esc(item.reason||"See FIA document")+"</li>"
+  ).join("");
+  const nextEventPanel="<section class='panel next-grid-event-panel'><div class='panel-header'><div><span class='eyebrow'>UPCOMING GRAND PRIX</span><h2>"+esc(nextEvent?nextEvent.name:"Next event not available")+"</h2><p>"+(nextEvent?"Scheduled date: "+esc(niceDate(nextEvent.date))+(nextEvent.round?" · Round "+esc(nextEvent.round):""):"The next event could not be read from the season calendar.")+"</p></div>"+badge(statusLabels[nextStatus]||"Unknown",statusColor)+"</div>"+
+    "<p class='secondary'>"+esc(statusDescriptions[nextStatus]||statusDescriptions.unknown)+"</p>"+
+    (nextPenaltyRows?"<ul class='next-event-sanctions'>"+nextPenaltyRows+"</ul>":"")+
+    (!liveDocumentsFound?"<div class='notice warning'>Live FIA PDF discovery is not currently working in the scheduled importer. The season register below includes a verified historical FIA PDF as a fallback; it must not be mistaken for this weekend’s penalty list.</div>":"")+
+    "<p class='secondary'>The next-event status changes only when the importer reads an official FIA Final Starting Grid PDF for that event.</p></section>";
+  return pageHead("OFFICIAL FIA DOCUMENT TRACKER","Grid penalties","Know which drivers have confirmed grid drops or pit-lane starts. Official FIA documents are the source of truth; historical sanctions are kept separate from the upcoming weekend.")+
+    nextEventPanel+
+    "<div class='kpi-grid'>"+kpi("Confirmed · "+CURRENT_YEAR,confirmed.length,"Season-wide confirmed sanctions")+kpi("Pending / provisional",pending.length,"Not final until FIA decision")+kpi("Live FIA PDFs",snapshot.liveDocumentCount||0,"PDF links discovered in live archive")+kpi("Historical fallback PDFs",snapshot.bootstrapDocumentsUsed||0,"Verified documents retained as bootstrap")+"</div>"+
+    "<section class='panel grid-penalties-panel'><div class='panel-header'><div><span class='eyebrow'>SEASON ARCHIVE · "+CURRENT_YEAR+"</span><h2>All recorded driver sanctions</h2><p>These records can belong to earlier rounds. Use the event filter to narrow the list.</p></div><span class='secondary'>Updated "+esc(snapshot.updatedAt?formatNewsDate(snapshot.updatedAt):"not yet imported")+"</span></div>"+
     "<div class='search-row'><input class='search-input' id='gridPenaltySearch' type='search' placeholder='Search drivers, teams, event or penalty…'><label class='field'><span>EVENT</span><select id='gridPenaltyEvent' class='field-select'><option value='all'>All events</option>"+events.map(event=>"<option value='"+esc(event)+"'>"+esc(event)+"</option>").join("")+"</select></label><label class='field'><span>STATUS</span><select id='gridPenaltyStatus' class='field-select'><option value='all'>All statuses</option><option value='confirmed'>Confirmed</option><option value='pending'>Pending</option></select></label></div>"+
-    (scanUnavailable?"<div class='notice warning'>The FIA archive could not be scanned successfully in the latest refresh. Current grid-penalty status is unknown — this is not a verified zero-penalty result. Check the FIA documents directly below and retry the next scheduled import.</div>":(confirmed.length===0&&pending.length===0?"<div class='notice'>No explicit "+CURRENT_YEAR+" grid-drop decision was found in the latest successful FIA PDF scan. This does not mean no future penalties will be issued.</div>":""))+
-    "<div class='table-wrap'><table id='gridPenaltyTable'><thead><tr><th>EVENT</th><th>SEASON</th><th>DRIVER / TEAM</th><th>SANCTION</th><th>REASON / FIA EXTRACT</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody>"+rows.join("")+"</tbody></table><div class='empty-state hidden' id='gridPenaltyEmpty'>No records match this search.</div></div></section>"+
-    "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>DOCUMENT MONITOR</span><h2>Recent FIA documents scanned</h2><p>Decision, infringement and grid-related documents are checked for explicit grid-drop wording.</p></div></div>"+table(["EVENT","PUBLISHED","DOCUMENT","SOURCE"],documentRows)+"</section>"+
-    "<div class='grid-2'><section class='panel'><span class='eyebrow'>OFFICIAL SOURCE</span><h2>FIA decision documents</h2><p class='secondary'>The register uses FIA PDFs. Open the original document to verify the decision and context.</p><a class='text-link' href='https://www.fia.com/documents/championships/fia-formula-one-world-championship-14' target='_blank' rel='noopener'>Open FIA Formula One documents ↗</a></section><section class='panel'><span class='eyebrow'>DATA RULE</span><h2>Confirmed means written</h2><p class='secondary'>Only explicit sanction wording is listed. Summonses or allegations are marked pending. Engine or gearbox usage is not converted into an expected grid penalty without an official decision.</p><p class='secondary'>Driver names are resolved from the current season archive when the FIA document identifies a car number.</p></section></div>";
+    "<div class='table-wrap'><table id='gridPenaltyTable'><thead><tr><th>EVENT</th><th>SEASON</th><th>DRIVER / TEAM</th><th>SANCTION</th><th>REASON / FIA EXTRACT</th><th>STATUS</th><th>SOURCE</th></tr></thead><tbody>"+rows.join("")+"</tbody></table><div class='empty-state "+(rows.length?"hidden":"")+"' id='gridPenaltyEmpty'>No penalty records have been imported yet.</div></div></section>"+
+    "<section class='panel'><div class='panel-header'><div><span class='eyebrow'>DOCUMENT MONITOR</span><h2>FIA documents scanned</h2><p>Each listed penalty links to the original FIA PDF. Bootstrap records are labelled.</p></div></div>"+table(["EVENT","PUBLISHED","DOCUMENT","SOURCE"],documentRows)+"</section>"+
+    "<div class='grid-2'><section class='panel'><span class='eyebrow'>OFFICIAL SOURCE</span><h2>FIA decision documents</h2><p class='secondary'>The register uses FIA Formula One PDFs. Open the original document to verify the decision and context.</p><a class='text-link' href='https://www.fia.com/documents/championships/fia-formula-one-world-championship-14' target='_blank' rel='noopener'>Open FIA Formula One documents ↗</a></section><section class='panel'><span class='eyebrow'>DATA RULE</span><h2>Confirmed means written</h2><p class='secondary'>Only explicit sanction wording is listed. Provisional grids and summonses remain pending. Engine or gearbox element usage is not converted into a grid penalty unless the FIA document states the sanction.</p><p class='secondary'>Driver names are resolved from the matching season archive when the FIA PDF identifies a car number.</p></section></div>";
 }
+
 function applyGridPenaltyFilters(){
   const query=String($("gridPenaltySearch")?.value||"").toLowerCase().trim();
   const event=$("gridPenaltyEvent")?.value||"all";
