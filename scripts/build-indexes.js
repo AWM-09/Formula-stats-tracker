@@ -83,6 +83,19 @@ function summarizeCareer(seasons, results, type) {
   };
 }
 
+function longestWinStreak(results) {
+  let current = 0, best = 0;
+  for (const result of results || []) {
+    if (Number(result.position) === 1) {
+      current += 1;
+      best = Math.max(best, current);
+    } else {
+      current = 0;
+    }
+  }
+  return best;
+}
+
 async function buildSeries(series, firstYear, lastYear) {
   const drivers = new Map(), teams = new Map(), circuits = new Map(), seasons = [];
   for (let year = firstYear; year <= lastYear; year++) {
@@ -223,9 +236,27 @@ async function buildSeries(series, firstYear, lastYear) {
     p.seasons.sort((a,b)=>a.season-b.season);
     p.results.sort((a,b)=>a.season-b.season||(a.round||0)-(b.round||0));
     const career = summarizeCareer(p.seasons,p.results,"driver");
+    career.maxConsecutiveWins = longestWinStreak(p.results);
+    career.podiumsWithoutWin = career.podiums != null && career.wins != null
+      ? Math.max(0, career.podiums - career.wins) : null;
+    career.winRate = career.wins != null && career.eventResults > 0
+      ? career.wins / career.eventResults * 100 : null;
+    career.pointsPerStart = career.points != null && career.eventResults > 0
+      ? career.points / career.eventResults : null;
     const profile = { type:"driver", series, ...p, career };
     await writeProfile(series,"drivers",p.id,profile);
-    driverSummaries.push({ id:p.id, name:p.name, nationality:p.nationality, code:p.code, number:p.number, seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason, championships:career.championships, wins:career.wins, winsComplete:career.winsComplete, podiums:career.podiums, podiumsComplete:career.podiumsComplete, poles:career.poles, poleStarts:career.poleStarts, poleStartsComplete:career.poleStartsComplete, fastestLaps:career.fastestLaps, fastestLapsComplete:career.fastestLapsComplete, points:career.points, pointsComplete:career.pointsComplete, url:p.url });
+    driverSummaries.push({
+      id:p.id, name:p.name, nationality:p.nationality, code:p.code, number:p.number,
+      seasons:p.seasons.length, firstSeason:career.firstSeason, lastSeason:career.lastSeason,
+      championships:career.championships, wins:career.wins, winsComplete:career.winsComplete,
+      podiums:career.podiums, podiumsComplete:career.podiumsComplete, poles:career.poles,
+      poleStarts:career.poleStarts, poleStartsComplete:career.poleStartsComplete,
+      fastestLaps:career.fastestLaps, fastestLapsComplete:career.fastestLapsComplete,
+      points:career.points, pointsComplete:career.pointsComplete,
+      eventResults:career.eventResults, maxConsecutiveWins:career.maxConsecutiveWins,
+      podiumsWithoutWin:career.podiumsWithoutWin, winRate:career.winRate,
+      pointsPerStart:career.pointsPerStart, url:p.url
+    });
   }
   for (const p of teams.values()) {
     p.seasons.sort((a,b)=>a.season-b.season);
