@@ -182,7 +182,128 @@ def collect_page_documents(series: str, year: int) -> tuple[list[dict], str | No
             # Keep trying alternate canonical paths for the same season.
         except (HTTPError, URLError, TimeoutError, ValueError) as error:
             print(f"{series.upper()} {year}: archive route unavailable ({page_url}): {error}", file=sys.stderr)
-    return [], last_reachable_page
+    event_documents, event_overviews = collect_event_timing_documents(series, year)
+    if event_documents:
+        return event_documents, event_overviews[0] if event_overviews else last_reachable_page
+    return [], (event_overviews[0] if event_overviews else last_reachable_page)
+
+
+def collect_event_timing_documents(series: str, year: int) -> tuple[list[dict], list[str]]:
+    cfg = SERIES_CONFIG[series]
+    event_slug = (
+        "formula-2-championship"
+        if series == "f2"
+        else "fia-formula-3-championship"
+    )
+    overview_slugs = (
+        ["fia-formula-2", "formula-2-championship-archives"]
+        if series == "f2"
+        else ["fia-formula-3", "fia-formula-3-championship-archives"]
+    )
+    overview_urls = [
+        f"https://www.fia.com/events/{event_slug}/season-{year}/{overview_slug}"
+        for overview_slug in overview_slugs
+    ]
+    event_pages: set[str] = set()
+    reachable: list[str] = []
+    for overview_url in overview_urls:
+        try:
+            payload = read_url(overview_url, "text/html,application/xhtml+xml")
+            soup = BeautifulSoup(payload, "html.parser")
+            reachable.append(overview_url)
+            prefix = f"/events/{event_slug}/season-{year}/"
+            for anchor in soup.find_all("a", href=True):
+                href = urljoin(overview_url, anchor["href"].strip())
+                parsed = urlparse(href)
+                if parsed.netloc.lower() not in {"www.fia.com", "fia.com"}:
+                    continue
+                path = parsed.path
+                if not path.startswith(prefix):
+                    continue
+                relative = path[len(prefix):].strip("/")
+                if not relative:
+                    continue
+                if relative.endswith("eventtiming-information"):
+                    event_pages.add(href.split("?")[0])
+                    continue
+                # Event tiles point to a one-segment event page; its official
+                # documents are on the Event & Timing Information subpage.
+                if len(relative.split("/")) == 1 and not re.search(
+                    r"(classification|standings|entry-list|regulations|archives)$",
+                    relative,
+                    re.I,
+                ):
+                    event_pages.add(
+                        f"https://www.fia.com{path.rstrip('/')}/eventtiming-information"
+                    )
+
+            # The season landing page can link directly to a default-event documents page.
+            for anchor in soup.find_all("a", href=True):
+                label = " ".join(anchor.stripped_strings).lower()
+                href = urljoin(overview_url, anchor["href"].strip())
+                if (
+                    "official documents" in label
+                    or "event & timing information" in label
+                    or "event and timing information" in label
+                ):
+                    if "fia.com" in urlparse(href).netloc.lower():
+                        if "eventtiming-information" in href:
+                            event_pages.add(href.split("?")[0])
+        except (HTTPError, URLError, TimeoutError, ValueError) as error:
+            print(f"{series.upper()} {year}: event overview unavailable ({overview_url}): {error}", file=sys.stderr)
+
+    discovered: dict[str, dict] = {}
+    for page_url in sorted(event_pages)[:36]:
+        try:
+            payload = read_url(page_url, "text/html,application/xhtml+xml")
+            soup = BeautifulSoup(payload, "html.parser")
+            for anchor in soup.find_all("a", href=True):
+                href = urljoin(page_url, anchor["href"].strip())
+                if ".pdf" not in href.lower() or "fia.com" not in urlparse(href).netloc.lower():
+                    continue
+                title = " ".join(anchor.stripped_strings).strip()
+                if not title:
+                    title = str(anchor.get("title") or anchor.get("aria-label") or "").strip()
+                if not RELEVANT_TITLE.search(title):
+                    continue
+                context_parts = [title]
+                parent = anchor.parent
+                for _ in range(3):
+                    if parent is None:
+                        break
+                    context_parts.extend(parent.stripped_strings)
+                    parent = parent.parent
+                context = " ".join(dict.fromkeys(x for x in context_parts if x))
+                published = None
+                match = re.search(r"Published on\s+(\d{2}\.\d{2}\.\d{2})", context, re.I)
+                if match:
+                    try:
+                        published = datetime.strptime(match.group(1), "%d.%m.%y").replace(
+                            tzinfo=timezone.utc
+                        ).isoformat(timespec="seconds").replace("+00:00", "Z")
+                    except ValueError:
+                        pass
+                discovered[href.split("?")[0]] = {
+                    "series": series,
+                    "season": year,
+                    "title": title[:260] or f"{cfg['label']} FIA event document",
+                    "context": context[:1200],
+                    "url": href,
+                    "published": published,
+                    "page": page_url,
+                }
+        except (HTTPError, URLError, TimeoutError, ValueError) as error:
+            print(f"{series.upper()} {year}: event documents unavailable ({page_url}): {error}", file=sys.stderr)
+    documents = sorted(
+        discovered.values(),
+        key=lambda item: item.get("published") or "",
+        reverse=True,
+    )
+    print(
+        f"{series.upper()} {year}: event-page fallback found {len(documents)} "
+        f"relevant PDFs across {len(event_pages)} event pages"
+    )
+    return documents[:MAX_PDFS_PER_SEASON * 2], reachable
 
 
 def pdf_text(payload: bytes) -> str:
