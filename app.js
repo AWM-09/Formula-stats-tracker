@@ -751,6 +751,42 @@ function resultTableRows(series,event,session){
   });
 }
 
+function renderSessionSummary(event,series,session){
+  const rows=(event.Results||[]).filter(r=>!r.isRecordOnly&&(r.session||"Race")===session&&r.Driver);
+  if(!rows.length)return "<div class='empty-state'>No session statistics can be calculated because this classification is not in the archive.</div>";
+  const positioned=rows.filter(r=>r.position!==null&&r.position!==undefined&&Number.isFinite(Number(r.position)));
+  const winner=positioned.find(r=>Number(r.position)===1)||null;
+  const fastest=rows.find(r=>r.isFastestLap||(r.FastestLap&&String(r.FastestLap.rank)==="1"));
+  const fastestText=fastest?
+    ((fastest.FastestLap&&fastest.FastestLap.Time&&fastest.FastestLap.Time.time)||fastest.fastestLap||"Time not supplied"):
+    null;
+  const raceLike=["Race","Sprint","Sprint Race","Feature Race","Feature Race 1","Feature Race 2","Race 1","Race 2"].includes(session);
+  if(raceLike){
+    const improvements=positioned.filter(r=>r.grid!==null&&r.grid!==undefined&&Number.isFinite(Number(r.grid))&&Number(r.grid)>0)
+      .map(r=>({name:driverName(r.Driver),change:Number(r.grid)-Number(r.position)}))
+      .sort((a,b)=>b.change-a.change);
+    const topGain=improvements[0];
+    const winnerLaps=winner&&winner.laps!=null?number(winner.laps):"—";
+    const facts=[
+      ["Classified positions",positioned.length],
+      ["Winner",winner?driverName(winner.Driver):"Not classified"],
+      ["Winner's laps",winnerLaps],
+      ["Fastest lap",fastest?(driverName(fastest.Driver)+" · "+fastestText):"Not recorded"],
+      ["Biggest grid gain",topGain&&topGain.change>0?topGain.name+" · +"+topGain.change:"Not available"]
+    ];
+    return "<div class='fact-grid session-summary-grid'>"+facts.map(x=>"<div class='fact'><span>"+esc(x[0])+"</span><strong>"+esc(x[1])+"</strong></div>").join("")+"</div>";
+  }
+  const bestTime=positioned.map(r=>{
+    const times=[r.Q3,r.Q2,r.Q1,r.bestLap,r.fastestLap,r.Time&&r.Time.time].filter(Boolean);
+    return {driver:driverName(r.Driver),time:times[times.length-1]||null,position:Number(r.position)};
+  }).filter(r=>r.time).sort((a,b)=>timeToSeconds(a.time)-timeToSeconds(b.time))[0]||null;
+  return "<div class='fact-grid session-summary-grid'>"+
+    "<div class='fact'><span>Classified entries</span><strong>"+esc(positioned.length)+"</strong></div>"+
+    "<div class='fact'><span>Session leader</span><strong>"+esc(winner?driverName(winner.Driver):"Not supplied")+"</strong></div>"+
+    "<div class='fact'><span>Fastest time in rows</span><strong>"+esc(bestTime?bestTime.time:"Not supplied")+"</strong></div>"+
+    "</div>";
+}
+
 async function renderRaceDetail(series,year,round){
   if(!SERIES[series])throw new Error("Race series is not supported.");
   const data=await getSeason(series,year),events=availableEvents(data),event=events.find(e=>String(e.round)===String(round));
@@ -770,6 +806,7 @@ async function renderRaceDetail(series,year,round){
     "<div class='fact-grid'><div class='fact'><span>Events in archive</span><strong>"+esc(circuitProfile.eventCount)+"</strong></div><div class='fact'><span>Years represented</span><strong>"+esc(circuitProfile.firstSeason)+"–"+esc(circuitProfile.lastSeason)+"</strong></div><div class='fact'><span>Most recorded wins</span><strong>"+esc(circuitProfile.mostWins&&circuitProfile.mostWins[0]?circuitProfile.mostWins[0].driverName:"—")+"</strong></div></div>":
     "<div class='notice'>Track history is limited for this event in the current source archive. The circuit profile may contain additional indexed results.</div>";
   const resultCount=rows.length;
+  const sessionSummary=renderSessionSummary(event,series,session);
   const coverage=data.coverage&&data.coverage.message?data.coverage.message:"The source archive supplies the displayed session data where available.";
   const isQualifying=["Qualifying","Sprint Qualifying","Sprint Shootout","Qualifying 1","Qualifying 2"].includes(session);
   const isPractice=session==="Practice"||/^Practice /.test(session);
@@ -786,7 +823,7 @@ async function renderRaceDetail(series,year,round){
   return pageHead("RACE CENTRE",event.raceName,[seriesLabel(series),year,"Round "+round].join(" · "),"<a class='text-link' href='#/calendar'>← Season calendar</a>")+
     "<div class='profile-hero'><div><span class='eyebrow'>"+esc(session)+" · "+esc(year)+"</span><h1>"+esc(event.raceName)+"</h1><p>"+esc([location.locality,location.country].filter(Boolean).join(" · ")||event.Circuit.circuitName||"Circuit location not supplied")+" · "+esc(dateText)+"</p><a class='text-link' href='"+circuitHref(circuitId)+"'>Open circuit profile ↗</a></div><div class='profile-number'>R"+esc(round)+"</div></div>"+
     (winner?"<div class='result-flag'><div><small>SESSION WINNER</small><strong>"+driverLink(series,winner.Driver.driverId,driverName(winner.Driver))+"</strong><small>"+esc(winner.Constructor&&winner.Constructor.name||"Constructor not supplied")+"</small></div>"+badge(session,"gold")+"</div>":"")+
-    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>RACE WEEKEND SESSION</span><h2>"+esc(resultCount)+" result entries</h2></div>"+badge(hasResults?"RESULTS AVAILABLE":"NOT IMPORTED",hasResults?"green":"gold")+"</div><div class='session-tabs'>"+tabs+"</div>"+
+    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>SESSION STATISTICS</span><h2>Weekend snapshot</h2></div></div>" + sessionSummary + "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>RACE WEEKEND SESSION</span><h2>"+esc(resultCount)+" result entries</h2></div>"+badge(hasResults?"RESULTS AVAILABLE":"NOT IMPORTED",hasResults?"green":"gold")+"</div><div class='session-tabs'>"+tabs+"</div>"+
     (scheduled?"<p class='secondary session-schedule'>Scheduled: "+esc(scheduled)+"</p>":"")+
     (rows.length?table(headers,rows):"<div class='empty-state'><strong>"+esc(session)+"</strong><p>"+esc(emptyMessage)+"</p>"+(officialTimingUrl?"<a class='text-link' href='"+officialTimingUrl+"' target='_blank' rel='noopener'>Open official live timing ↗</a>":"")+"</div>")+
     "<div class='notice'>"+esc(coverage)+"</div><div class='notice red'>"+(isPractice?"Practice result feed is imported after the session is completed and the source publishes a classification.":isQualifying?"Q1, Q2 and Q3 are displayed only where the source publishes those times.":"Pit stops, lap charts, tyre strategy and telemetry are not implied by a race classification.")+" Missing values are not inferred.</div></div>"+
@@ -1039,6 +1076,23 @@ function bindDynamicEvents(){
   document.querySelectorAll("[data-news-series]").forEach(button=>button.addEventListener("click",()=>{
     state.newsSeriesFilter=button.dataset.newsSeries;
     document.querySelectorAll("[data-news-series]").forEach(tab=>tab.classList.toggle("active",tab===button));
+    applyNewsFilters();
+  }));
+  $("circuitLayoutSelect")?.addEventListener("change",e=>{
+    const option=e.target.selectedOptions&&e.target.selectedOptions[0];
+    if(!option)return;
+    const image=$("circuitLayoutImage");
+    if(image&&option.dataset.svg){
+      image.src=option.dataset.svg;
+      image.alt="Circuit layout "+option.value+" · "+(option.dataset.seasons||"era not supplied");
+    }
+    if($("circuitLayoutLength"))$("circuitLayoutLength").textContent=option.dataset.length?number(option.dataset.length)+" km":"Not supplied";
+    if($("circuitLayoutTurns"))$("circuitLayoutTurns").textContent=option.dataset.turns||"Not supplied";
+    if($("circuitLayoutSeasons"))$("circuitLayoutSeasons").textContent=option.dataset.seasons||"Not supplied";
+  });
+  document.querySelectorAll("[data-news-category]").forEach(button=>button.addEventListener("click",()=>{
+    state.newsCategoryFilter=button.dataset.newsCategory;
+    document.querySelectorAll("[data-news-category]").forEach(tab=>tab.classList.toggle("active",tab===button));
     applyNewsFilters();
   }));
   document.querySelectorAll("[data-watch]").forEach(button=>button.addEventListener("click",()=>{
