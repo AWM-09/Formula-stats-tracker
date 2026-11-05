@@ -40,6 +40,7 @@ PENALTY_PATTERNS = [
     re.compile(r"\b(?:drop|dropped|demoted|relegated)\s+(?:by\s+)?(\d{1,2})\s+(?:grid\s+)?(?:places?|positions?)\b", re.I),
     re.compile(r"\b(\d{1,2})\s+(?:grid\s+)?(?:places?|positions?)\s+penalt(?:y|ies)\b", re.I),
     re.compile(r"\bwill\s+be\s+dropped\s+(\d{1,2})\s+places?\s+on\s+the\s+grid\b", re.I),
+    re.compile(r"\b(\d{1,2})\s+positions?\s+on\s+the\s+grid\b", re.I),
 ]
 BACK_OF_GRID = re.compile(
     r"(?:penalt\w*|demot\w*|relegat\w*).{0,120}back\s+of\s+the\s+grid|"
@@ -98,7 +99,7 @@ def collect_documents() -> tuple[list[dict], list[str]]:
                 if ".pdf" not in href.lower():
                     continue
 
-                title = " ".join(anchor.stripped_strings)
+                title = " ".join(anchor.stripped_strings) or str(anchor.get("title") or anchor.get("aria-label") or "").strip()
                 parent = anchor.parent
                 context_parts = [title]
                 for _ in range(3):
@@ -107,7 +108,7 @@ def collect_documents() -> tuple[list[dict], list[str]]:
                     context_parts.extend(parent.stripped_strings)
                     parent = parent.parent
                 context = " ".join(dict.fromkeys(x for x in context_parts if x))
-                if not RELEVANT_TITLE.search(context):
+                if not RELEVANT_TITLE.search(title):
                     continue
 
                 published = parse_published(context)
