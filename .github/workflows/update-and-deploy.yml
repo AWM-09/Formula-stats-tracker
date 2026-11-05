@@ -42,7 +42,7 @@ jobs:
       - name: Install F2/F3 HTML parser
         run: |
           python -m pip install --disable-pip-version-check beautifulsoup4 fastf1
-          python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py
+          python -m py_compile scripts/fetch-f2-f3-data.py scripts/fetch-f1-practice.py scripts/fetch-news.py
       - name: Import completed current-season F1 practice classifications
         id: fetch_practice
         continue-on-error: true
@@ -51,6 +51,10 @@ jobs:
         id: fetch_series
         continue-on-error: true
         run: python scripts/fetch-f2-f3-data.py
+      - name: Refresh F1, F2 and F3 news snapshot
+        id: fetch_news
+        continue-on-error: true
+        run: python scripts/fetch-news.py
       - name: Build searchable career and circuit indexes
         run: node scripts/build-indexes.js
       - name: Save every completed historical snapshot
