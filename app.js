@@ -28,7 +28,7 @@ const state = {
   dataCache:new Map(), indexCache:new Map(), profileCache:new Map(),
   compareDriverDirectory:new Map(),
   sessionFilter:"", predictionEvent:"", compareResult:"", countdownTimer:null,
-  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", newsSmartRequest:null, newsArticles:[], gridPenaltyYear:"selected", watchlist:loadWatchlist()
+  newsSeriesFilter:"all", newsCategoryFilter:"all", newsSearch:"", newsSmartRequest:null, newsArticles:[], gridPenaltyYear:"selected", calendarMonth:"", calendarSeasonKey:"", calendarView:"month", calendarSessionFilter:"all", calendarSearch:"", watchlist:loadWatchlist()
 };
 const $ = id => document.getElementById(id);
 const esc = value => String(value==null?"":value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -215,14 +215,18 @@ function availableEvents(data){
   const raceByRound=new Map(races.map(event=>[String(event.round),event]));
   const merged=schedule.map(event=>{
     const actual=raceByRound.get(String(event.round));
+    const actualCircuit=actual&&(actual.Circuit||actual.circuit);
+    const scheduleCircuit=event.Circuit||event.circuit;
     return {
       ...(actual||{}),
       ...event,
-      Circuit:(actual&&actual.Circuit)||event.Circuit||{},
+      Circuit:actualCircuit||scheduleCircuit||{},
       Results:(actual&&Array.isArray(actual.Results)?actual.Results:event.Results)||[],
       raceName:(actual&&actual.raceName)||event.raceName,
-      date:(actual&&actual.date)||event.date||null,
-      time:(actual&&actual.time)||event.time||null
+      date:(event.date)||(actual&&actual.date)||null,
+      dateEnd:event.dateEnd||(actual&&actual.dateEnd)||event.date||((actual&&actual.date)||null),
+      time:(event.time)||(actual&&actual.time)||null,
+      sessionTypes:Array.isArray(event.sessionTypes)?event.sessionTypes:(actual&&actual.sessionTypes)||[]
     };
   });
   const included=new Set(merged.map(event=>String(event.round)));
@@ -230,7 +234,7 @@ function availableEvents(data){
     if(!included.has(String(event.round)))merged.push(event);
   }
   return merged.map(event=>{
-    const circuit=event.Circuit||{};
+    const circuit=event.Circuit||event.circuit||{};
     return {
       ...event,
       round:String(event.round),
@@ -240,7 +244,8 @@ function availableEvents(data){
       time:event.time||null,
       Circuit:circuit,
       circuitId:circuit.circuitId||slug(circuit.circuitName||event.raceName),
-      Results:event.Results||[]
+      Results:event.Results||[],
+      sessionTypes:Array.isArray(event.sessionTypes)?event.sessionTypes:[]
     };
   }).sort((a,b)=>(Number(a.round)||0)-(Number(b.round)||0));
 }
@@ -300,6 +305,128 @@ function countdownMarkup(events){
     "<a class='countdown-link' href='"+raceHref(state.series,state.season,event.round)+"'>Open event centre ↗</a></div>"+
     "<div class='countdown-clock' aria-live='off'><div><strong id='countdownDays'>—</strong><span>DAYS</span></div><b>:</b><div><strong id='countdownHours'>—</strong><span>HRS</span></div><b>:</b><div><strong id='countdownMinutes'>—</strong><span>MINS</span></div><b>:</b><div><strong id='countdownSeconds'>—</strong><span>SECS</span></div></div></section>";
 }
+function calendarParseDate(value){
+  const match=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(value||"").slice(0,10));
+  if(!match)return null;
+  const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+  const timestamp=Date.UTC(year,month-1,day);
+  const date=new Date(timestamp);
+  if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day)return null;
+  return {year,month,day,timestamp,iso:match[1]+"-"+match[2]+"-"+match[3]};
+}
+function calendarPad(value){return String(value).padStart(2,"0");}
+function calendarLocalToday(){
+  const now=new Date();
+  return now.getFullYear()+"-"+calendarPad(now.getMonth()+1)+"-"+calendarPad(now.getDate());
+}
+function calendarMonthTitle(year,month){
+  return new Date(Date.UTC(year,month-1,1)).toLocaleDateString("en-GB",{month:"long",year:"numeric",timeZone:"UTC"});
+}
+function calendarDateRangeLabel(startValue,endValue){
+  const start=calendarParseDate(startValue);
+  if(!start)return "Date not supplied";
+  const end=calendarParseDate(endValue)||start;
+  const startDate=new Date(start.timestamp);
+  const endDate=new Date(end.timestamp);
+  const first=startDate.toLocaleDateString("en-GB",{day:"numeric",month:"short",timeZone:"UTC"});
+  if(start.iso===end.iso){
+    return startDate.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});
+  }
+  const sameMonth=start.year===end.year&&start.month===end.month;
+  const last=sameMonth
+    ?String(end.day)
+    :endDate.toLocaleDateString("en-GB",{day:"numeric",month:"short",timeZone:"UTC"});
+  return first+"–"+last+" "+(sameMonth?startDate.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):"");
+}
+function calendarSessionCategory(label){
+  const value=norm(label);
+  if(value.includes("practice")||/^fp[123]$/.test(value))return "practice";
+  if(value.includes("qualifying"))return "qualifying";
+  if(value.includes("sprint"))return "sprint";
+  if(value.includes("race")||value.includes("grandprix"))return "race";
+  return "other";
+}
+function calendarEventSessions(event){
+  const declared=Array.isArray(event.sessionTypes)?event.sessionTypes:[];
+  const supplied=Array.isArray(event.sessions)
+    ?event.sessions.map(session=>typeof session==="string"?session:(session&& (session.name||session.type))||"")
+    :[];
+  const recorded=Array.isArray(event.Results)
+    ?event.Results.filter(result=>result&&!result.isRecordOnly).map(result=>result.session||"")
+    :[];
+  let sessions=[...declared,...supplied].filter(Boolean);
+  if(!sessions.length)sessions=recorded.filter(Boolean);
+  if(!sessions.length&&eventHasResults(event,state.series))sessions=["Race"];
+  if(!sessions.length&&state.series==="f1"&&event.date)sessions=["Race"];
+  return [...new Set(sessions.map(String))];
+}
+function calendarEventSearchText(event){
+  const circuit=event.Circuit||{};
+  const location=circuit.Location||{};
+  return [
+    event.raceName,circuit.circuitName,location.locality,location.country,
+    "round "+event.round,calendarEventSessions(event).join(" ")
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+function calendarEventMatchesSession(event,filter){
+  if(filter==="all")return true;
+  return calendarEventSessions(event).some(session=>calendarSessionCategory(session)===filter);
+}
+function calendarEventTimeLabel(event){
+  if(!event.time)return "";
+  const raw=String(event.time);
+  const timePart=raw.includes("T")?raw.split("T").pop():raw;
+  const match=/^(\d{2}:\d{2})(?::\d{2})?(Z|[+-]\d{2}:\d{2})?$/.exec(timePart);
+  if(!match)return "";
+  return "Race start "+match[1]+(match[2]==="Z"?" UTC":match[2]?" "+match[2]:"");
+}
+function calendarEventCard(event){
+  const circuit=event.Circuit||{};
+  const location=circuit.Location||{};
+  const venue=[circuit.circuitName,location.locality,location.country].filter(Boolean).filter((value,index,array)=>array.indexOf(value)===index).join(" · ");
+  const sessions=calendarEventSessions(event);
+  const dateLabel=calendarDateRangeLabel(event.date,event.dateEnd);
+  const timeLabel=calendarEventTimeLabel(event);
+  const hasResults=eventHasResults(event,state.series);
+  const sessionMarkup=sessions.length
+    ?sessions.map(session=>"<span class='calendar-session-tag "+calendarSessionCategory(session)+"'>"+esc(session)+"</span>").join("")
+    :"<span class='calendar-session-tag unavailable'>Session detail not supplied</span>";
+  const searchText=calendarEventSearchText(event);
+  return "<a class='calendar-event-card' data-calendar-search='"+esc(searchText)+"' href='"+raceHref(state.series,state.season,event.round)+"'>"+
+    "<div class='calendar-card-top'><span class='calendar-round'>ROUND "+esc(event.round)+"</span><span class='calendar-result-status "+(hasResults?"complete":"pending")+"'>"+(hasResults?"RESULTS AVAILABLE":"SCHEDULE / DETAILS")+"</span></div>"+
+    "<div class='calendar-event-date'>"+esc(dateLabel)+(timeLabel?" <span>· "+esc(timeLabel)+"</span>":"")+"</div>"+
+    "<h3>"+esc(event.raceName)+"</h3>"+
+    "<p class='calendar-venue'>"+esc(venue||"Circuit or location not supplied")+"</p>"+
+    "<div class='calendar-session-tags'>"+sessionMarkup+"</div>"+
+    "<div class='calendar-card-footer'><span>"+(hasResults?"Open archived results":"Open event centre")+"</span><span>↗</span></div>"+
+    "</a>";
+}
+function calendarDayEvent(event,iso){
+  const start=calendarParseDate(event.date);
+  const end=calendarParseDate(event.dateEnd)||start;
+  if(!start||!end||start.iso>iso||end.iso<iso)return "";
+  const isStart=start.iso===iso;
+  const searchText=calendarEventSearchText(event);
+  const title=event.raceName||"Round "+event.round;
+  return "<a class='calendar-day-event "+(isStart?"starts":"continues")+"' data-calendar-search='"+esc(searchText)+"' href='"+raceHref(state.series,state.season,event.round)+"' title='"+esc(title+" · "+calendarDateRangeLabel(event.date,event.dateEnd))+"'>"+
+    "<span>R"+esc(event.round)+"</span><strong>"+(isStart?esc(title):"↳ "+esc(title))+"</strong>"+
+    (isStart?"<small>"+esc(calendarEventSessions(event).slice(0,3).join(" · ")||"Event weekend")+"</small>":"")+
+    "</a>";
+}
+function applyCalendarSearch(){
+  const query=norm(state.calendarSearch);
+  document.querySelectorAll("[data-calendar-search]").forEach(element=>{
+    const searchable=norm(element.getAttribute("data-calendar-search")||"");
+    element.classList.toggle("hidden",!!query&&!searchable.includes(query));
+  });
+  const count=$("calendarFilteredCount");
+  if(count){
+    const cards=[...document.querySelectorAll(".calendar-event-card")];
+    const visible=cards.filter(card=>!card.classList.contains("hidden")).length;
+    count.textContent=visible+" event"+(visible===1?"":"s")+" shown";
+  }
+}
+
 function startCountdown(){
   if(state.countdownTimer){clearInterval(state.countdownTimer);state.countdownTimer=null;}
   const panel=$("nextRaceCountdown");
@@ -349,6 +476,128 @@ async function renderSeasonOverview(){
   ].map(x=>"<a class='event-row' href='#"+x[2]+"'><span class='event-round'>↗</span><span class='event-main'><strong>"+x[0]+"</strong><small>"+x[1]+"</small></span></a>").join("")+"</div>")+"</div>"+
   "<div class='notice'>Season pages only display verified fields. If a historic F2/F3 source supplies winners but not full classifications, the race centre will say so rather than inventing finishing positions.</div>";
 }
+function renderCalendar(){
+  const allEvents=availableEvents(state.data);
+  const datedEvents=allEvents.filter(event=>calendarParseDate(event.date)).slice().sort((a,b)=>{
+    const first=calendarParseDate(a.date).iso,second=calendarParseDate(b.date).iso;
+    return first.localeCompare(second)||(Number(a.round)||0)-(Number(b.round)||0);
+  });
+  const seasonKey=state.series+"/"+state.season;
+  if(state.calendarSeasonKey!==seasonKey){
+    const today=calendarLocalToday();
+    const next=datedEvents.find(event=>(event.dateEnd||event.date)>=today)||datedEvents[0];
+    state.calendarMonth=next?next.date.slice(0,7):String(state.season)+"-01";
+    state.calendarSeasonKey=seasonKey;
+    state.calendarView="month";
+    state.calendarSessionFilter="all";
+    state.calendarSearch="";
+  }
+  let monthMatch=/^(\d{4})-(\d{2})$/.exec(String(state.calendarMonth||""));
+  if(!monthMatch){state.calendarMonth=String(state.season)+"-01";monthMatch=[null,String(state.season),"01"];}
+  let year=Number(monthMatch[1]),month=Number(monthMatch[2]);
+  if(year!==Number(state.season)||month<1||month>12){
+    year=Number(state.season);month=1;state.calendarMonth=year+"-01";
+  }
+  const monthTitle=calendarMonthTitle(year,month);
+  const filterOptions=[["practice","Practice"],["qualifying","Qualifying"],["sprint","Sprint"],["race","Race / Feature race"]]
+    .filter(([key])=>allEvents.some(event=>calendarEventMatchesSession(event,key)));
+  if(state.calendarSessionFilter!=="all"&&!filterOptions.some(option=>option[0]===state.calendarSessionFilter)){
+    state.calendarSessionFilter="all";
+  }
+  const search=norm(state.calendarSearch);
+  const filteredEvents=allEvents.filter(event=>
+    calendarEventMatchesSession(event,state.calendarSessionFilter)&&
+    (!search||norm(calendarEventSearchText(event)).includes(search))
+  ).sort((a,b)=>{
+    const first=calendarParseDate(a.date),second=calendarParseDate(b.date);
+    return (first?first.iso:"9999-12-31").localeCompare(second?second.iso:"9999-12-31")||
+      (Number(a.round)||0)-(Number(b.round)||0);
+  });
+  const filteredDated=filteredEvents.filter(event=>calendarParseDate(event.date));
+  const undated=filteredEvents.filter(event=>!calendarParseDate(event.date));
+  const today=calendarLocalToday();
+  const nextEvent=datedEvents.find(event=>(event.dateEnd||event.date)>=today)||null;
+  const resultCount=allEvents.filter(event=>eventHasResults(event,state.series)).length;
+  const sessionDetailCount=allEvents.filter(event=>calendarEventSessions(event).length>1).length;
+  const sessionOptions="<option value='all'>All sessions</option>"+filterOptions.map(([key,label])=>
+    "<option value='"+key+"'"+(state.calendarSessionFilter===key?" selected":"")+">"+label+"</option>"
+  ).join("");
+  const toolbar="<div class='calendar-toolbar'>"+
+    "<div class='calendar-toolbar-filters'>"+
+      "<label class='calendar-control-field'><span>SESSION TYPE</span><select id='calendarSessionFilter' class='field-select'>"+sessionOptions+"</select></label>"+
+      "<label class='calendar-control-field calendar-search-field'><span>FIND EVENT</span><input id='calendarSearch' class='search-input' type='search' value='"+esc(state.calendarSearch)+"' placeholder='Search circuit, country or round'></label>"+
+    "</div>"+
+    "<div class='calendar-view-switch' role='group' aria-label='Calendar view'>"+
+      "<button type='button' data-calendar-view='month' class='"+(state.calendarView==="month"?"active":"")+"'>Month</button>"+
+      "<button type='button' data-calendar-view='list' class='"+(state.calendarView==="list"?"active":"")+"'>Season list</button>"+
+    "</div>"+
+  "</div>";
+  const stats="<div class='kpi-grid'>"+
+    kpi("SCHEDULED EVENTS",allEvents.length,"Rounds in the selected season")+
+    kpi("RESULTS AVAILABLE",resultCount,"Events with a recorded race classification")+
+    kpi("SESSION DETAIL",sessionDetailCount,"Events with multiple session types")+
+    kpi("NEXT EVENT",nextEvent?nextEvent.raceName:(state.season===CURRENT_YEAR?"No upcoming event":"Season archive"),nextEvent?calendarDateRangeLabel(nextEvent.date,nextEvent.dateEnd):"No later dated event in this season","accent")+
+  "</div>";
+  let content="";
+  if(state.calendarView==="list"){
+    content="<section class='calendar-list-view'><div class='calendar-list-heading'><div><span class='eyebrow'>FULL SEASON</span><h2>"+esc(state.season)+" event schedule</h2></div><span id='calendarFilteredCount'>"+filteredEvents.length+" events shown</span></div>"+
+      (filteredEvents.length?"<div class='calendar-event-grid'>"+filteredEvents.map(calendarEventCard).join("")+"</div>":"<div class='empty-state'>No events match the selected session and search filters.</div>")+
+      "</section>";
+  }else if(!datedEvents.length){
+    content="<div class='empty-state'>This season's data does not contain usable event dates, so a month grid cannot be created. The list view can still show the available event records.</div>"+
+      (filteredEvents.length?"<div class='calendar-event-grid'>"+filteredEvents.map(calendarEventCard).join("")+"</div>":"");
+  }else{
+    const monthStart=year+"-"+calendarPad(month)+"-01";
+    const finalDay=new Date(Date.UTC(year,month,0)).getUTCDate();
+    const monthEnd=year+"-"+calendarPad(month)+"-"+calendarPad(finalDay);
+    const monthEvents=filteredDated.filter(event=>{
+      const end=(calendarParseDate(event.dateEnd)||calendarParseDate(event.date)).iso;
+      return event.date<=monthEnd&&end>=monthStart;
+    });
+    const firstWeekday=new Date(Date.UTC(year,month-1,1)).getUTCDay();
+    const offset=(firstWeekday+6)%7;
+    const cellCount=Math.ceil((offset+finalDay)/7)*7;
+    const weekdayMarkup=["MON","TUE","WED","THU","FRI","SAT","SUN"].map(day=>"<div class='calendar-weekday'>"+day+"</div>").join("");
+    let dayMarkup="";
+    for(let index=0;index<cellCount;index++){
+      const date=new Date(Date.UTC(year,month-1,1+index-offset));
+      const iso=date.toISOString().slice(0,10);
+      const inMonth=date.getUTCMonth()===month-1;
+      const daily=filteredDated.filter(event=>{
+        const end=(calendarParseDate(event.dateEnd)||calendarParseDate(event.date)).iso;
+        return event.date<=iso&&end>=iso;
+      });
+      const chips=daily.slice(0,2).map(event=>calendarDayEvent(event,iso)).join("");
+      const extra=daily.length>2?"<span class='calendar-more-events'>+"+(daily.length-2)+" more</span>":"";
+      dayMarkup+="<div class='calendar-day"+(inMonth?"":" outside")+(iso===today?" today":"")+"' data-date='"+iso+"'>"+
+        "<span class='calendar-day-number'>"+date.getUTCDate()+"</span>"+
+        "<div class='calendar-day-events'>"+chips+extra+"</div>"+
+      "</div>";
+    }
+    const prevDisabled=month===1?" disabled":"";
+    const nextDisabled=month===12?" disabled":"";
+    const monthBar="<div class='calendar-month-bar'>"+
+      "<button type='button' class='calendar-month-arrow' data-calendar-month-step='-1' aria-label='Previous month'"+prevDisabled+">‹</button>"+
+      "<h2>"+esc(monthTitle)+"</h2>"+
+      "<button type='button' class='calendar-month-arrow' data-calendar-month-step='1' aria-label='Next month'"+nextDisabled+">›</button>"+
+    "</div>";
+    const monthGrid="<section class='calendar-month-panel'>"+monthBar+
+      "<div class='calendar-weekdays'>"+weekdayMarkup+"</div><div class='calendar-month-grid'>"+dayMarkup+"</div>"+
+      "<div class='calendar-legend'><span><i class='legend-dot race'></i> Race weekend / event</span><span>Choose an event to open its race centre</span></div>"+
+      "</section>";
+    const agenda="<aside class='calendar-agenda-panel'><div class='calendar-agenda-heading'><div><span class='eyebrow'>MONTH AGENDA</span><h2>"+esc(monthTitle)+"</h2></div><span id='calendarFilteredCount'>"+monthEvents.length+" events shown</span></div>"+
+      (monthEvents.length?"<div class='calendar-agenda-list'>"+monthEvents.map(calendarEventCard).join("")+"</div>":"<div class='empty-state'>No events match the current filters in this month.</div>")+
+      "</aside>";
+    content="<div class='calendar-month-layout'>"+monthGrid+agenda+"</div>";
+  }
+  const undatedPanel=undated.length
+    ?"<section class='calendar-undated-panel'><div class='calendar-list-heading'><div><span class='eyebrow'>SOURCE LIMITATION</span><h2>Events without a supplied date</h2></div><span>"+undated.length+" event"+(undated.length===1?"":"s")+"</span></div><div class='calendar-event-grid'>"+undated.map(calendarEventCard).join("")+"</div></section>"
+    :"";
+  return pageHead("SEASON SCHEDULE",seriesLabel(state.series)+" calendar","Browse every event in the "+state.season+" season. Filter by session type, search circuits and switch between a month grid and the full season schedule.")+
+    stats+toolbar+content+undatedPanel+
+    "<p class='calendar-data-note'>Dates and session labels are shown only where the season archive supplies them. A weekend date range is not a claim that every listed session runs on each day; exact session start times are shown only when the source provides a race start time.</p>";
+}
+
 function formatNewsDate(value){
   const date=new Date(value);
   return Number.isNaN(date.getTime())?"Date not supplied":date.toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",timeZone:"Europe/London"});
@@ -1610,6 +1859,27 @@ async function renderDataCentre(){
     "<div class='grid-2'>"+panel("KNOWN GAPS","Metrics not yet connected","<ul class='secondary'><li>Full historical qualifying and complete F2/F3 classifications for every season.</li><li>Official all-time circuit lap records, independently verified across eras.</li><li>Layout artwork for venues outside the connected F1 circuit reference set.</li><li>Pit stops, tyre strategy, detailed telemetry and lap charts where a verified feed is not imported.</li><li>Prediction-model back-testing and calibrated probabilities.</li></ul>")+panel("DATA INTEGRITY","How to interpret the numbers","<p class='secondary'>A blank field means the source did not provide a value; it is not zero. Circuit distance totals are calculated from stored winning-lap counts and the matching season layout length. Fastest laps captured from the archive are not presented as official circuit records.</p><p class='secondary'>Watchlists are stored in this browser only. Career totals and comparisons show the available source coverage and are not automatically complete all-time totals.</p>")+"</div>";
 }
 function bindDynamicEvents(){
+  $("calendarSessionFilter")?.addEventListener("change",e=>{
+    state.calendarSessionFilter=e.target.value;
+    renderRoute();
+  });
+  $("calendarSearch")?.addEventListener("input",e=>{
+    state.calendarSearch=e.target.value;
+    applyCalendarSearch();
+  });
+  document.querySelectorAll("[data-calendar-month-step]").forEach(button=>button.addEventListener("click",()=>{
+    const step=Number(button.dataset.calendarMonthStep)||0;
+    const parts=String(state.calendarMonth||"").split("-").map(Number);
+    if(parts.length!==2||!parts[0]||!parts[1])return;
+    const next=new Date(Date.UTC(parts[0],parts[1]-1+step,1));
+    state.calendarMonth=next.getUTCFullYear()+"-"+calendarPad(next.getUTCMonth()+1);
+    renderRoute();
+  }));
+  document.querySelectorAll("[data-calendar-view]").forEach(button=>button.addEventListener("click",()=>{
+    state.calendarView=button.dataset.calendarView==="list"?"list":"month";
+    renderRoute();
+  }));
+  if($("calendarSearch"))applyCalendarSearch();
   $("entitySearch")?.addEventListener("input",e=>{
     const query=e.target.value.toLowerCase();
     document.querySelectorAll(".searchable").forEach(card=>card.classList.toggle("hidden",!card.dataset.search.includes(query)));
