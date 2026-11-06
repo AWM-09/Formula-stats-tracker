@@ -1983,7 +1983,7 @@ $("seriesSelect").addEventListener("change",e=>{
   state.predictionEvent="";
   if(activeRoute==="grid-penalties")state.gridPenaltyYear="selected";
   fillSeasonOptions();
-  if(activeRoute==="grid-penalties"||activeRoute==="upgrades")renderRoute();
+  if(activeRoute==="grid-penalties"||activeRoute==="upgrades"||activeRoute==="calendar")renderRoute();
   else navigate(["dashboard"]);
 });
 $("seasonSelect").addEventListener("change",e=>{
