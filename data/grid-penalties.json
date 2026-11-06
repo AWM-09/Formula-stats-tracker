@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06T00:02:28Z",
+  "updatedAt": "2026-11-06T08:26:07Z",
   "source": "Official FIA documents + MIT-licensed historical F1 penalty compilation",
   "liveDocumentCount": 0,
   "liveDocumentsFound": false,
@@ -914,24 +914,6 @@
       "published": "2025-12-05T00:00:00Z",
       "season": 2025,
       "series": "f2",
-      "sourceType": "official-fia"
-    },
-    {
-      "title": "Doc 57 - DECISION - Car 12 - Involved in a collision with Car 19 Published on 06.09.25 16:25 CET",
-      "url": "https://www.fia.com/system/files/decision-document/2025_monza_event_-_decision_-_car_12_-_involved_in_a_collision_with_car_19.pdf",
-      "event": "Monza",
-      "published": "2025-09-06T00:00:00Z",
-      "season": 2025,
-      "series": "f3",
-      "sourceType": "official-fia"
-    },
-    {
-      "title": "Doc 25 - INFRINGEMENT - Car 1 - Failure to follow Race Director instructions Published on 05.09.25 17:33 CET",
-      "url": "https://www.fia.com/system/files/decision-document/2025_monza_event_-_infringement_-_car_1_-_failure_to_follow_race_director_instructions.pdf",
-      "event": "Monza",
-      "published": "2025-09-05T00:00:00Z",
-      "season": 2025,
-      "series": "f3",
       "sourceType": "official-fia"
     },
     {
@@ -11039,7 +11021,7 @@
         2025,
         2026
       ],
-      "documentsScanned": 2,
+      "documentsScanned": 0,
       "penaltyRecords": 0,
       "sourcePages": [
         "https://www.fia.com/events/fia-formula-3-championship/season-2019/fia-formula-3",
@@ -11059,7 +11041,7 @@
     "url": "https://github.com/j5t3313/F1_Penalties_Dashboard",
     "license": "MIT",
     "licenseUrl": "https://github.com/j5t3313/F1_Penalties_Dashboard/blob/main/LICENSE",
-    "updatedAt": "2026-11-06T00:00:41Z",
+    "updatedAt": "2026-11-06T08:24:14Z",
     "coverage": {
       "2020": {
         "rowsRead": 139,

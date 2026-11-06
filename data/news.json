@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06T00:00:39Z",
+  "updatedAt": "2026-11-06T08:24:11Z",
   "source": "Crash.net, Autosport and FIA RSS",
   "feedStatus": {
     "f1:crashnet": "ok",
@@ -11,6 +11,28 @@
   "aiEnrichment": "local-structured-fallback",
   "aiModel": "",
   "articles": [
+    {
+      "id": "8d46558593e4e897",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "George Russell questions rate of “atrocious luck” after crushing F1 title defeat",
+      "summary": "George Russell reflects on his bad luck during the 2026 F1 season.",
+      "link": "https://www.crash.net/f1/news/1109345/1/george-russell-questions-rate-atrocious-luck-after-crushing-f1-title-defeat",
+      "published": "2026-11-06T08:00:00Z",
+      "source": "Crash.net",
+      "category": "General",
+      "topicTags": [
+        "general"
+      ],
+      "teams": [],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": false,
+      "importance": "low",
+      "aiTagged": false
+    },
     {
       "id": "2efe1f18714afa37",
       "series": "f1",
@@ -1378,30 +1400,6 @@
         "general"
       ],
       "teams": [],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "5f7ca0ad47f3cc03",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Ryo Hirakawa scores point on F1 debut at Mexico GP after double Alpine penalty",
-      "summary": "A double post-race penalty for Alpine hands Ryo Hirakawa a point on his F1 debut in Mexico.",
-      "link": "https://www.crash.net/f1/news/1109264/1/ryo-hirakawa-scores-point-f1-debut-mexico-gp-after-double-alpine-penalty",
-      "published": "2026-11-02T02:20:58Z",
-      "source": "Crash.net",
-      "category": "Governance & calendar",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [
-        "Alpine"
-      ],
       "drivers": [],
       "event": "",
       "majorUpgrade": false,
