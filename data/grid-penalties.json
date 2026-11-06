@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06T08:26:07Z",
+  "updatedAt": "2026-11-06T09:23:48Z",
   "source": "Official FIA documents + MIT-licensed historical F1 penalty compilation",
   "liveDocumentCount": 0,
   "liveDocumentsFound": false,
@@ -11041,7 +11041,7 @@
     "url": "https://github.com/j5t3313/F1_Penalties_Dashboard",
     "license": "MIT",
     "licenseUrl": "https://github.com/j5t3313/F1_Penalties_Dashboard/blob/main/LICENSE",
-    "updatedAt": "2026-11-06T08:24:14Z",
+    "updatedAt": "2026-11-06T09:21:27Z",
     "coverage": {
       "2020": {
         "rowsRead": 139,

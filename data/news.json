@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06T08:24:11Z",
+  "updatedAt": "2026-11-06T09:21:22Z",
   "source": "Crash.net, Autosport and FIA RSS",
   "feedStatus": {
     "f1:crashnet": "ok",
@@ -11,6 +11,30 @@
   "aiEnrichment": "local-structured-fallback",
   "aiModel": "",
   "articles": [
+    {
+      "id": "c6e6ea169b61ca59",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "What Mercedes needs to be crowned F1 champions again in Brazil",
+      "summary": "This is how Mercedes can seal the F1 constructors' world championship on Sunday in Brazil.",
+      "link": "https://www.crash.net/f1/news/1109346/1/what-mercedes-needs-be-crowned-f1-champions-again-brazil",
+      "published": "2026-11-06T09:00:00Z",
+      "source": "Crash.net",
+      "category": "Race weekend",
+      "topicTags": [
+        "general"
+      ],
+      "teams": [
+        "Mercedes"
+      ],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": false,
+      "importance": "low",
+      "aiTagged": false
+    },
     {
       "id": "8d46558593e4e897",
       "series": "f1",
@@ -1374,28 +1398,6 @@
       "published": "2026-11-02T10:09:01Z",
       "source": "Crash.net",
       "category": "Race weekend",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "f60517374ffbcb3c",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Kimi Antonelli makes F1 history - where he ranks among youngest world champions",
-      "summary": "Kimi Antonelli has just made F1 history by becoming the youngest-ever world champion.",
-      "link": "https://www.crash.net/f1/feature/1107916/1/kimi-antonelli-makes-f1-history-where-he-ranks-among-youngest-world-champions",
-      "published": "2026-11-02T09:34:48Z",
-      "source": "Crash.net",
-      "category": "General",
       "topicTags": [
         "general"
       ],
