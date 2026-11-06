@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-06T09:21:22Z",
+  "updatedAt": "2026-11-06T15:41:34Z",
   "source": "Crash.net, Autosport and FIA RSS",
   "feedStatus": {
     "f1:crashnet": "ok",
@@ -11,6 +11,195 @@
   "aiEnrichment": "local-structured-fallback",
   "aiModel": "",
   "articles": [
+    {
+      "id": "d2dfc47c66be6c6e",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "\"Exhausted\" Russell set for Brazilian F1 grid penalty",
+      "summary": "Mercedes driver George Russell will lose five places on Sunday's Formula 1 Brazilian Grand Prix grid as he takes his sixth internal combustion engine of the season. Following a brace of power unit related issues earlier this year, the latest arriving after a failure at the Bahra…",
+      "link": "https://www.autosport.com/f1/news/exhausted-russell-set-for-brazilian-f1-grid-penalty/10872138/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
+      "published": "2026-11-06T15:37:02Z",
+      "source": "Autosport",
+      "category": "Technical & rules",
+      "topicTags": [
+        "grid-penalty",
+        "driver-moves"
+      ],
+      "teams": [
+        "Mercedes"
+      ],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": true,
+      "importance": "low",
+      "aiTagged": false
+    },
+    {
+      "id": "8fa1aed395601a27",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "George Russell to take F1 grid penalty at Brazil GP",
+      "summary": "George Russell will serve a grid penalty in Brazil this weekend.",
+      "link": "https://www.crash.net/f1/news/1109405/1/george-russell-take-f1-grid-penalty-brazil-gp",
+      "published": "2026-11-06T15:25:26Z",
+      "source": "Crash.net",
+      "category": "Governance & calendar",
+      "topicTags": [
+        "grid-penalty"
+      ],
+      "teams": [],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": true,
+      "importance": "low",
+      "aiTagged": false
+    },
+    {
+      "id": "b4b516efbe4a9c90",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "F1 Brazil Grand Prix LIVE: Friday practice updates from Sao Paulo",
+      "summary": "Live updates from Friday practice at the 2026 F1 Sao Paulo Grand Prix",
+      "link": "https://www.crash.net/f1/live/1044270/f1-brazil-grand-prix-live-friday-practice-updates-sao-paulo",
+      "published": "2026-11-06T14:30:00Z",
+      "source": "Crash.net",
+      "category": "Race weekend",
+      "topicTags": [
+        "technical-upgrade"
+      ],
+      "teams": [],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "unspecified",
+      "gridPenaltyMentioned": false,
+      "importance": "medium",
+      "aiTagged": false
+    },
+    {
+      "id": "92eace47f7e0f8f2",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "McLaren reveals major upgrade package for Brazil GP",
+      "summary": "McLaren is the only team to bring upgrades for the Brazil Grand Prix, which features a concept for the 2027 Formula 1 season.",
+      "link": "https://www.crash.net/f1/news/1109390/1/mclaren-reveals-major-upgrade-package-brazil-gp",
+      "published": "2026-11-06T14:20:00Z",
+      "source": "Crash.net",
+      "category": "Technical & rules",
+      "topicTags": [
+        "technical-upgrade"
+      ],
+      "teams": [
+        "McLaren"
+      ],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": true,
+      "upgradeStatus": "confirmed",
+      "gridPenaltyMentioned": false,
+      "importance": "high",
+      "aiTagged": false
+    },
+    {
+      "id": "e1d1dbda3b11515d",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "Ferrari set for crunch meeting as Hamilton and Leclerc tension reaches Brazil",
+      "summary": "Ferrari arrived at Interlagos facing a problem that, until just a few weeks ago, would have been difficult to imagine in quite this form. After a long season spent chasing competitiveness, the team finally appears to have found many of the answers that had been missing with its…",
+      "link": "https://www.autosport.com/f1/news/ferrari-set-for-crunch-meeting-as-hamilton-and-leclerc-tension-reaches-brazil/10872030/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
+      "published": "2026-11-06T11:09:53Z",
+      "source": "Autosport",
+      "category": "General",
+      "topicTags": [
+        "general"
+      ],
+      "teams": [
+        "Ferrari"
+      ],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": false,
+      "importance": "low",
+      "aiTagged": false
+    },
+    {
+      "id": "b26e050ff7421aa6",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "Racing Bulls makes significant F1 team announcement amid driver line-up uncertainty",
+      "summary": "Racing Bulls has re-signed Alan Permane on a new multi-year deal",
+      "link": "https://www.crash.net/f1/news/1109353/1/racing-bulls-makes-significant-f1-team-announcement-amid-driver-line-uncertainty",
+      "published": "2026-11-06T11:07:55Z",
+      "source": "Crash.net",
+      "category": "Driver moves",
+      "topicTags": [
+        "driver-moves"
+      ],
+      "teams": [
+        "Racing Bulls"
+      ],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": false,
+      "importance": "low",
+      "aiTagged": false
+    },
+    {
+      "id": "2f05c08aebe13ade",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "Max Verstappen responds to Toto Wolff’s “ruthless” F1 driver claim",
+      "summary": "Max Verstappen responds to Toto Wolff's scathing criticism about \"ruthless\" F1 drivers.",
+      "link": "https://www.crash.net/f1/news/1109347/1/max-verstappen-responds-toto-wolffs-ruthless-f1-driver-claim",
+      "published": "2026-11-06T10:00:00Z",
+      "source": "Crash.net",
+      "category": "General",
+      "topicTags": [
+        "driver-moves"
+      ],
+      "teams": [],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": false,
+      "importance": "low",
+      "aiTagged": false
+    },
+    {
+      "id": "85a28d6a0cfa0b0d",
+      "series": "f1",
+      "seriesLabel": "F1",
+      "title": "Permane signs new Racing Bulls F1 deal",
+      "summary": "Red Bull has given Alan Permane a new contract as the Racing Bulls Formula 1 squad’s team principal. Permane will retain the reins of the Faenza-based outfit until the end of the 2031 season. A stalwart of the current Alpine squad, where he worked from 1989 to 2023 in various ca…",
+      "link": "https://www.autosport.com/f1/news/permane-signs-new-racing-bulls-f1-deal/10871999/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
+      "published": "2026-11-06T09:24:07Z",
+      "source": "Autosport",
+      "category": "Driver moves",
+      "topicTags": [
+        "driver-moves"
+      ],
+      "teams": [
+        "Red Bull Racing",
+        "Alpine",
+        "Racing Bulls"
+      ],
+      "drivers": [],
+      "event": "",
+      "majorUpgrade": false,
+      "upgradeStatus": "not-upgrade",
+      "gridPenaltyMentioned": false,
+      "importance": "low",
+      "aiTagged": false
+    },
     {
       "id": "c6e6ea169b61ca59",
       "series": "f1",
@@ -1213,190 +1402,6 @@
       "link": "https://www.autosport.com/f1/news/what-was-antonellis-best-moment-of-his-f1-title-winning-campaign-our-writers-have-their-say/10871078/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
       "published": "2026-11-02T15:59:08Z",
       "source": "Autosport",
-      "category": "Race weekend",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "efc0fa8a96da1c94",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Sebastian Vettel’s heartfelt message to Kimi Antonelli after F1 record shattered",
-      "summary": "Sebastian Vettel reacts to Kimi Antonelli beating his long-held F1 record.",
-      "link": "https://www.crash.net/f1/news/1109279/1/sebastian-vettels-heartfelt-message-kimi-antonelli-after-f1-record-shattered",
-      "published": "2026-11-02T14:50:49Z",
-      "source": "Crash.net",
-      "category": "General",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "b1c13fa24948d8e1",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Italian newspaper's brutal Ferrari swipe as Kimi Antonelli crowned F1 champion",
-      "summary": "Italian daily sports newspaper La Gazzetta dello Sport took a swipe at Ferrari after Kimi Antonelli's F1 title triumph.",
-      "link": "https://www.crash.net/f1/news/1109278/1/italian-newspapers-brutal-ferrari-swipe-kimi-antonelli-crowned-f1-champion",
-      "published": "2026-11-02T14:23:07Z",
-      "source": "Crash.net",
-      "category": "General",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [
-        "Ferrari"
-      ],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "66de2eb656086018",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Nico Rosberg pulls no punches on Ferrari clash: “It’s always Charles’ fault”",
-      "summary": "Nico Rosberg pulled no punches in his assessment of Lewis Hamilton and Charles Leclerc's latest scrap.",
-      "link": "https://www.crash.net/f1/news/1109276/1/nico-rosberg-pulls-no-punches-ferrari-clash-its-always-charles-fault",
-      "published": "2026-11-02T12:57:29Z",
-      "source": "Crash.net",
-      "category": "General",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [
-        "Ferrari"
-      ],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "6ae4b3db75b92000",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Hamilton slams Leclerc for \"do or die\" attitude after Mexico GP clash",
-      "summary": "Lewis Hamilton has criticised team-mate Charles Leclerc for his “do or die” attitude after Ferrari lost a straightforward victory at the Formula 1 Mexico Grand Prix. The seven-time world champion started on pole at Autodromo Hermanos Rodriguez with Leclerc third, but he rose to…",
-      "link": "https://www.autosport.com/f1/news/hamilton-slams-leclerc-for-do-or-die-attitude-after-mexico-gp-clash/10871033/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk",
-      "published": "2026-11-02T12:40:22Z",
-      "source": "Autosport",
-      "category": "Race weekend",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [
-        "Ferrari"
-      ],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "b971a44009b01314",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Valentino Rossi leads MotoGP tributes to F1 champion Kimi Antonelli",
-      "summary": "MotoGP legend Rossi shared his joy at Kimi Antonelli’s F1 world title",
-      "link": "https://www.crash.net/motogp/news/1109275/1/valentino-rossi-leads-motogp-tributes-f1-champion-kimi-antonelli",
-      "published": "2026-11-02T11:48:21Z",
-      "source": "Crash.net",
-      "category": "General",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "5c343d7d2faf94f3",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Mercedes fined after ‘distraught’ George Russell skipped post-race media duties at Mexico GP",
-      "summary": "George Russell failed to carry out his post-race media obligations in Mexico City.",
-      "link": "https://www.crash.net/f1/news/1109274/1/mercedes-fined-after-distraught-george-russell-skipped-post-race-media-mexico-gp",
-      "published": "2026-11-02T11:45:41Z",
-      "source": "Crash.net",
-      "category": "Race weekend",
-      "topicTags": [
-        "general"
-      ],
-      "teams": [
-        "Mercedes"
-      ],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "4c695280fae68c51",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Charles Leclerc’s controversial Mexico GP penalty explained",
-      "summary": "The FIA stewards have explained their reasoning for Charles Leclerc's penalty in Mexico.",
-      "link": "https://www.crash.net/f1/news/1109272/1/charles-leclercs-controversial-mexico-gp-penalty-explained",
-      "published": "2026-11-02T11:03:56Z",
-      "source": "Crash.net",
-      "category": "Governance & calendar",
-      "topicTags": [
-        "regulations"
-      ],
-      "teams": [],
-      "drivers": [],
-      "event": "",
-      "majorUpgrade": false,
-      "upgradeStatus": "not-upgrade",
-      "gridPenaltyMentioned": false,
-      "importance": "low",
-      "aiTagged": false
-    },
-    {
-      "id": "9c0b6f14cf7a47ca",
-      "series": "f1",
-      "seriesLabel": "F1",
-      "title": "Valtteri Bottas escapes injury in scary crash that stopped Mexico GP",
-      "summary": "Valtteri Bottas escaped injury in a scary race-halting F1 crash at the Mexico City Grand Prix.",
-      "link": "https://www.crash.net/f1/news/1109271/1/valtteri-bottas-escapes-injury-scary-crash-stopped-mexico-gp",
-      "published": "2026-11-02T10:09:01Z",
-      "source": "Crash.net",
       "category": "Race weekend",
       "topicTags": [
         "general"
