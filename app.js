@@ -656,7 +656,7 @@ function gridStatusLabel(status){
     "no-action":"No action"
   })[status]||"Recorded";
 }
-function renderF1UpgradeWatch(snapshot){
+function renderF1UpgradeWatch(snapshot,embedded=false){
   if(state.series!=="f1"){
     return pageHead("TECHNICAL DEVELOPMENT","F1 upgrade watch","This section follows Formula One teams. Switch the championship selector to Formula 1 to view team upgrade reports.")+
       "<div class='notice'>F1 upgrade packages are not applicable to "+esc(seriesLabel(state.series))+". Select Formula 1 in the championship selector.</div>";
@@ -704,7 +704,7 @@ function renderF1UpgradeWatch(snapshot){
   const aiText=snapshot.aiEnrichment==="openai-structured"
     ? "Structured AI tags available in the news snapshot"
     : "Local structured news tags; optional AI enrichment is not active";
-  return pageHead("TECHNICAL DEVELOPMENT","F1 upgrade watch","See what each team is publicly expected to bring next, the race weekend it is linked to, and the components named by the source.")+
+  return (embedded?"":pageHead("TECHNICAL DEVELOPMENT","F1 upgrade watch","See what each team is publicly expected to bring next, the race weekend it is linked to, and the components named by the source."))+
     "<section class='panel upgrade-next-race'><div><span class='eyebrow'>NEXT SCHEDULED GRAND PRIX</span><h2>"+currentEventText+"</h2><p class='secondary'>Upgrade reports are linked to a race only when the source identifies an event or timing.</p></div>"+badge("F1 ONLY","blue")+"</section>"+
     "<div class='kpi-grid'>"+kpi("Teams monitored",teams.length,"2026 F1 constructor field")+kpi("Teams with a report",updates.length,"A sourced package or update is listed")+kpi("No next package announced",unknown.length,"No report found in connected sources")+kpi("Last news refresh",snapshot.sourceNewsUpdatedAt?niceDate(String(snapshot.sourceNewsUpdatedAt).slice(0,10)):"Not supplied",aiText)+"</div>"+
     "<section class='panel upgrade-watch-panel'><div class='panel-header'><div><span class='eyebrow'>TEAM-BY-TEAM DEVELOPMENT</span><h2>What is each team bringing?</h2><p>Media reports and FIA technical declarations are deliberately labelled separately.</p></div></div>"+
@@ -731,6 +731,35 @@ function applyUpgradeWatchFilters(){
   });
   const empty=$("upgradeWatchEmpty");
   if(empty)empty.classList.toggle("hidden",visible>0);
+}
+
+function applyGridPenaltyFilters(){
+  const query=String($("gridPenaltySearch")?.value||"").toLowerCase().trim();
+  const eventFilter=$("gridPenaltyEvent")?.value||"all";
+  const typeFilter=$("gridPenaltyType")?.value||"all";
+  const statusFilter=$("gridPenaltyStatus")?.value||"all";
+  const rows=Array.from(document.querySelectorAll("#gridPenaltyTable tbody tr"));
+  let visible=0;
+
+  rows.forEach(row=>{
+    const queryOk=!query||row.textContent.toLowerCase().includes(query);
+    const eventOk=eventFilter==="all"||norm(row.dataset.event)===norm(eventFilter);
+    const typeOk=typeFilter==="all"||row.dataset.sanctionType===typeFilter;
+    const statusOk=statusFilter==="all"||row.dataset.status===statusFilter;
+    const show=queryOk&&eventOk&&typeOk&&statusOk;
+    row.classList.toggle("hidden",!show);
+    if(show)visible++;
+  });
+
+  const tableElement=$("gridPenaltyTable");
+  if(tableElement)tableElement.classList.toggle("hidden",visible===0);
+  const empty=$("gridPenaltyEmpty");
+  if(empty){
+    empty.textContent=rows.length
+      ?"No grid-penalty records match these filters."
+      :"No sanctions have been imported for this selection.";
+    empty.classList.toggle("hidden",visible>0);
+  }
 }
 
 function renderGridPenalties(snapshot){
@@ -899,10 +928,21 @@ async function renderDriverProfile(series,id){
     panel("RACE HISTORY","Most recent indexed results",table(["SEASON","EVENT / SESSION","CIRCUIT","POS","CONSTRUCTOR","POINTS"],resultRows),"<span class='secondary'>"+results.length+" result rows in profile archive</span>");
 }
 async function renderTeams(){
-  const idx=await getIndex(state.series,"teams");
+  const [idx,upgradeSnapshot]=await Promise.all([
+    getIndex(state.series,"teams"),
+    state.series==="f1"
+      ? fetchJson("data/f1-upgrade-watch.json",state.dataCache).catch(()=>null)
+      : Promise.resolve(null)
+  ]);
   const cards=idx.teams.map(t=>"<a class='entity-card searchable' data-search='"+esc((t.name+" "+t.nationality).toLowerCase())+"' href='"+teamHref(state.series,t.id)+"'><div class='card-top'>"+badge(t.nationality||"Nationality not supplied")+"<span class='secondary'>"+esc(t.firstSeason||"—")+"–"+esc(t.lastSeason||"—")+"</span></div><h3>"+esc(t.name)+"</h3><p>"+esc(t.seasons)+" seasons in the indexed archive</p><div class='entity-meta'>"+badge("Titles "+number(t.championships),"gold")+badge("Wins "+(t.wins==null?"—":t.wins+(t.winsComplete?"":"+")),"green")+badge("Points "+number(t.points))+"</div></a>").join("");
-  return pageHead("CONSTRUCTOR DATABASE",seriesLabel(state.series)+" constructors","Explore team profiles, championship history, driver line-ups and results.")+
-    "<div class='panel'><div class='search-row'><input class='search-input' id='entitySearch' type='search' placeholder='Search constructor or nationality…'><span class='result-count'>"+idx.teams.length+" CONSTRUCTOR PROFILES</span></div><div class='card-grid' id='entityList'>"+cards+"</div></div>";
+  const upgradeSection=state.series==="f1"
+    ? upgradeSnapshot
+      ? renderF1UpgradeWatch(upgradeSnapshot,true)
+      : "<section class='panel'><span class='eyebrow'>TEAM DEVELOPMENT</span><h2>Upgrade feed unavailable</h2><p class='secondary'>The current team-upgrade snapshot could not be loaded. Refresh to retry; no dates or components are being guessed.</p></section>"
+    : "<section class='panel'><span class='eyebrow'>TEAM DEVELOPMENT</span><h2>F1 upgrade reporting</h2><p class='secondary'>The connected upgrade feed currently covers Formula 1. Select F1 to see sourced package timing and components; F2 and F3 upgrade data is not yet connected.</p></section>";
+  return pageHead("TEAM DATABASE",seriesLabel(state.series)+" teams","Browse constructor history and current team development. F1 upgrade dates and components are shown only when a source reports them.")+
+    upgradeSection+
+    "<div class='panel'><div class='panel-header'><div><span class='eyebrow'>HISTORICAL CONSTRUCTOR ARCHIVE</span><h2>All indexed teams</h2></div><span class='result-count'>"+idx.teams.length+" TEAM PROFILES</span></div><div class='search-row'><input class='search-input' id='entitySearch' type='search' placeholder='Search team or nationality…'></div><div class='card-grid' id='entityList'>"+cards+"</div></div>";
 }
 async function renderTeamProfile(series,id){
   const p=await getProfile(series,"teams",id),c=p.career||{},seasons=p.seasons||[],results=p.results||[];
@@ -1601,6 +1641,7 @@ function bindDynamicEvents(){
   $("gridPenaltyType")?.addEventListener("change",applyGridPenaltyFilters);
   $("gridPenaltyEvent")?.addEventListener("change",applyGridPenaltyFilters);
   $("gridPenaltyStatus")?.addEventListener("change",applyGridPenaltyFilters);
+  if($("gridPenaltySearch"))applyGridPenaltyFilters();
   document.querySelectorAll("[data-news-series]").forEach(button=>button.addEventListener("click",()=>{
     state.newsSeriesFilter=button.dataset.newsSeries;
     document.querySelectorAll("[data-news-series]").forEach(tab=>tab.classList.toggle("active",tab===button));
