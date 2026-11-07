@@ -1,12 +1,12 @@
 {
-  "updatedAt": "2026-11-06T15:44:07Z",
+  "updatedAt": "2026-11-07T09:16:13Z",
   "season": 2026,
   "nextRace": {
     "name": "Brazilian Grand Prix",
     "date": "2026-11-08",
     "round": "20"
   },
-  "sourceNewsUpdatedAt": "2026-11-06T15:41:34Z",
+  "sourceNewsUpdatedAt": "2026-11-07T09:14:06Z",
   "aiEnrichment": "local-structured-fallback",
   "teams": [
     {
@@ -41,14 +41,25 @@
           {
             "title": "Formula1.com — Norris wary of new McLaren upgrades in São Paulo",
             "url": "https://www.formula1.com/en/latest/article/want-to-believe-that-we-can-still-make-improvements-norris-wary-of-new-mclaren-upgrades-in-sao-paulo.6NvdXqDIqBz1Mw1xveJv0k"
-          },
-          {
-            "title": "McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
-            "url": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk"
           }
         ]
       },
       "reportedUpdates": [
+        {
+          "id": "67fa0263f69db667:McLaren",
+          "team": "McLaren",
+          "season": 2026,
+          "event": "",
+          "eventDate": "",
+          "components": [],
+          "status": "reported",
+          "statusLabel": "Reported by publisher",
+          "detail": "McLaren has given their first impressions of its major upgrade package for the Brazil GP",
+          "sourceTitle": "First impressions of McLaren’s big Brazil GP upgrade",
+          "sourceUrl": "https://www.crash.net/f1/news/1109551/1/first-impressions-mclarens-big-brazil-gp-upgrades",
+          "sourceDate": "2026-11-06",
+          "sourceType": "media-report"
+        },
         {
           "id": "92eace47f7e0f8f2:McLaren",
           "team": "McLaren",
@@ -94,27 +105,8 @@
             {
               "title": "Formula1.com — Norris wary of new McLaren upgrades in São Paulo",
               "url": "https://www.formula1.com/en/latest/article/want-to-believe-that-we-can-still-make-improvements-norris-wary-of-new-mclaren-upgrades-in-sao-paulo.6NvdXqDIqBz1Mw1xveJv0k"
-            },
-            {
-              "title": "McLaren to bring upgrades to Brazil GP with F1 2027 in mind",
-              "url": "https://www.autosport.com/f1/news/mclaren-to-bring-upgrades-to-brazil-gp-with-f1-2027-in-mind/10871328/?utm_source=RSS&utm_medium=referral&utm_campaign=RSS-F1&utm_term=News&utm_content=uk"
             }
           ]
-        },
-        {
-          "id": "e3164db865539201:McLaren",
-          "team": "McLaren",
-          "season": 2026,
-          "event": "",
-          "eventDate": "",
-          "components": [],
-          "status": "reported",
-          "statusLabel": "Reported by publisher",
-          "detail": "McLaren has confirmed it will bring another upgrade to Brazil.",
-          "sourceTitle": "McLaren’s Brazil GP upgrade will feature first look at 2027 F1 car development",
-          "sourceUrl": "https://www.crash.net/f1/news/1109304/1/mclarens-brazil-gp-upgrade-will-feature-first-look-2027-f1-car-development",
-          "sourceDate": "2026-11-04",
-          "sourceType": "media-report"
         }
       ],
       "status": "reported"
